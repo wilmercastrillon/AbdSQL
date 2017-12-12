@@ -56,6 +56,7 @@ public class conexion {
         con = null;
         sta = null;
         cons.agregar("desconectado");
+        System.out.println("desconectado");
     }
 
     public void EjecutarUpdate(String comando) throws SQLException {

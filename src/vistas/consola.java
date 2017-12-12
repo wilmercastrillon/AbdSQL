@@ -108,7 +108,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         jScrollPane3 = new javax.swing.JScrollPane();
         comando = new javax.swing.JTextArea();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jScrollPane1.setViewportView(jList1);
 

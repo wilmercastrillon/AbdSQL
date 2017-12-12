@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 public class inicio extends javax.swing.JFrame implements KeyListener {
 
     conexion con;
+    principal p;
 
     public inicio() {
         initComponents();
@@ -16,6 +17,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         con = new conexion();
         setTitle("Abd SQL v2");
         jButton1.addKeyListener(this);
+        password.addKeyListener(this);
         setLocationRelativeTo(null);
     }
 
@@ -118,7 +120,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if (con.cons != null && con.cons.isVisible()) {
+        if (p != null && p.isVisible()) {
             return;
         }
         setCursor(Cursor.WAIT_CURSOR);
@@ -127,8 +129,9 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Error al conectar con\nla base de datos", "Error", 0);
             return;
         }
-        con.cons.setVisible(true);
         setCursor(Cursor.DEFAULT_CURSOR);
+        p = new principal(con, this);
+        p.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
