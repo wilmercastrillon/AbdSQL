@@ -31,12 +31,10 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private final conexion con;
     private JPopupMenu menu2, menu1, menu3;
     public inicio ini;
-    private String DataBaseSeleccionada;
 
     public principal(conexion x, inicio i) {
         con = x;
         ini = i;
-        DataBaseSeleccionada = "";
         initComponents();
         cargar();
 
@@ -107,6 +105,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
+                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
+                        System.out.println(ex.getMessage() + "\n");
                     }
                 }
             }
@@ -187,8 +187,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 } catch (Exception e) {
                 }
             }
-            
-            
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
@@ -243,12 +242,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
     public void agregarPanel(String DB, String tabla) {
         try {
-            if (!DataBaseSeleccionada.equals(DB)) {
+            if (!con.BaseDeDatosSeleccionada.equals(DB)) {
                 con.SelectDataBase(DB);
-                DataBaseSeleccionada = DB;
             }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
-            panelTabla pt = new panelTabla(tabla, con.GetDatos(tabla));
+            panelTabla pt = new panelTabla(con, DB, tabla, con.GetDatos(tabla));
             jTabbedPane1.addTab(tabla, pt);
 
             tabButton.setPreferredSize(new Dimension(15, 15));
@@ -272,6 +270,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error inseperado", "Error", 0);
+            System.out.println("\nError: principal: Agregar panel");
+            System.out.println(ex.getMessage() + "\n");
         }
     }
 
@@ -311,15 +311,15 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGap(0, 283, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addGap(159, 159, 159)
                         .addComponent(salir))
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 562, Short.MAX_VALUE))
+                    .addComponent(jTabbedPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

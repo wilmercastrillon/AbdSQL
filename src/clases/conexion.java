@@ -14,14 +14,17 @@ public class conexion {
     private Statement sta;
     private final String driver;
     public consola cons;
+    public String BaseDeDatosSeleccionada;
 
     public conexion() {
         driver = "com.mysql.jdbc.Driver";
         cons = new consola(this);
+        BaseDeDatosSeleccionada = "";
     }
 
     public boolean conectar(String user, String password, String url) {
         con = null;
+        BaseDeDatosSeleccionada = "";
         try {
             Class.forName(driver);
             con = DriverManager.getConnection(url, user, password);
@@ -87,6 +90,7 @@ public class conexion {
         String z = "USE " + bd + ";";
         cons.agregar(z);
         sta.executeUpdate(z);
+        BaseDeDatosSeleccionada = bd;
     }
 
     public void CrearDataBase(String nombre) throws SQLException {
