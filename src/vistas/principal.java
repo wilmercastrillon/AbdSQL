@@ -1,6 +1,7 @@
 package vistas;
 
-import clases.conexion;
+import clases.operaciones;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -28,12 +29,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private DefaultTreeModel modelo_arbol;
     private DefaultMutableTreeNode raiz;
     private Vector<DefaultMutableTreeNode> nodos;
-    private final conexion con;
+    private final operaciones op;
     private JPopupMenu menu2, menu1, menu3;
     public inicio ini;
 
-    public principal(conexion x, inicio i) {
-        con = x;
+    public principal(operaciones x, inicio i) {
+        op = x;
         ini = i;
         initComponents();
         cargar();
@@ -49,7 +50,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     return;
                 }
                 try {
-                    con.CrearDataBase(h);
+                    op.getConexion().CrearDataBase(h);
                     cargar();
                 } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error al crear\nla base de datos", "Error", 0);
@@ -69,8 +70,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
                     try {
                         String h2 = path.getPathComponent(1).toString();
-                        con.SelectDataBase(h2);
-                        con.CrearTabla(h);
+                        op.getConexion().SelectDataBase(h2);
+                        op.getConexion().CrearTabla(h);
                         for (DefaultMutableTreeNode nodo : nodos) {
                             if (nodo.toString().equals(h2)) {
                                 modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h), nodo, 0);
@@ -96,8 +97,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     try {
                         System.out.println("de la base de datos " + path.getPathComponent(1).toString());
                         System.out.println("se borra la tabla " + path.getPathComponent(2).toString());
-                        con.SelectDataBase(path.getPathComponent(1).toString());
-                        con.BorrarTabla(path.getPathComponent(2).toString());
+                        op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
+                        op.getConexion().BorrarTabla(path.getPathComponent(2).toString());
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         modelo_arbol.removeNodeFromParent(currentNode);
                     } catch (SQLException ex) {
@@ -122,7 +123,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     int q2 = JOptionPane.showConfirmDialog(null, "Segurisimo que desea borrar\nla base de datos\n" + bd);
                     if (q2 == JOptionPane.YES_OPTION) {
                         try {
-                            con.BorrarDataBase(bd);
+                            op.getConexion().BorrarDataBase(bd);
                             cargar();
                         } catch (SQLException ex) {
                             JOptionPane.showMessageDialog(null, "Error al borrar\nbase de datos", "Error", 0);
@@ -141,6 +142,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 //        jButton1.addKeyListener(this);
 //        jButton2.addKeyListener(this);
         jTree1.addKeyListener(this);
+        TreePath p = jTree1.getPathForRow(0);
+        jTree1.expandPath(p);
 
         setTitle("Bases de datos");
         setLocationRelativeTo(null);
@@ -156,12 +159,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
     public void cargar() {
         try {
+            setCursor(Cursor.WAIT_CURSOR);
             raiz = new DefaultMutableTreeNode("Bases de Datos");
             modelo_arbol = new DefaultTreeModel(raiz);
             jTree1.setModel(modelo_arbol);
 
             nodos = new Vector<>();
-            ResultSet res = con.GetDataBases();
+            ResultSet res = op.getConexion().GetDataBases();
             String h;
             int pos = 0, pos2;
 
@@ -175,12 +179,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
             for (int i = 0; i < nodos.size(); i++) {
                 try {
-                    con.SelectDataBase(nodos.get(i).toString());
-                    ResultSet res2 = con.GetTables();
+                    op.getConexion().SelectDataBase(nodos.get(i).toString());
+                    ResultSet res2 = op.getConexion().GetTables();
                     pos2 = 0;
                     System.out.println("tabla " + nodos.get(i).toString());
                     while (res2.next()) {
-                        String h2 = res2.getString("Tables_in_" + nodos.get(i).toString());
+                        String h2 = res2.getString(1);
                         modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h2), nodos.get(i), pos2);
                         pos2++;
                     }
@@ -192,6 +196,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
         }
+        setCursor(Cursor.DEFAULT_CURSOR);
     }
 
     private void eventojtree() {
@@ -240,13 +245,28 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         });
     }
 
+    public int containsTabla(String tab) {
+        for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
+            if (jTabbedPane1.getTitleAt(i).equals(tab)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void agregarPanel(String DB, String tabla) {
+        int l = containsTabla(tabla);
+        if (l != -1) {
+            jTabbedPane1.setSelectedIndex(l);
+            return;
+        }
+        setCursor(Cursor.WAIT_CURSOR);
         try {
-            if (!con.BaseDeDatosSeleccionada.equals(DB)) {
-                con.SelectDataBase(DB);
+            if (!op.getConexion().BaseDeDatosSeleccionada.equals(DB)) {
+                op.getConexion().SelectDataBase(DB);
             }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
-            panelTabla pt = new panelTabla(con, DB, tabla, con.GetDatos(tabla));
+            panelTabla pt = new panelTabla(op, DB, tabla, op.getConexion().GetDatos(tabla));
             jTabbedPane1.addTab(tabla, pt);
 
             tabButton.setPreferredSize(new Dimension(15, 15));
@@ -273,6 +293,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             System.out.println("\nError: principal: Agregar panel");
             System.out.println(ex.getMessage() + "\n");
         }
+        setCursor(Cursor.DEFAULT_CURSOR);
     }
 
     @SuppressWarnings("unchecked")
@@ -340,13 +361,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salirActionPerformed
-        con.desconectar();
+        op.getConexion().desconectar();
         this.setVisible(false);
         ini.setVisible(true);
     }//GEN-LAST:event_salirActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        con.cons.setVisible(true);
+        op.mostrarConsola();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     public static void main(String args[]) {

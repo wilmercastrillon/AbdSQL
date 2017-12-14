@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.conexion;
+import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -18,7 +19,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 public class consola extends javax.swing.JFrame implements KeyListener {
@@ -200,11 +200,17 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        setCursor(Cursor.WAIT_CURSOR);
         try {
             ResultSet res = x4.EjecutarConsulta(comando.getText());
-
-            DefaultTableModel modelo = new DefaultTableModel();
             ResultSetMetaData rsmd = res.getMetaData();
+
+            DefaultTableModel modelo = new DefaultTableModel(){
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                 modelo.addColumn(rsmd.getColumnName(i));
@@ -223,6 +229,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Error en el comando", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
+        setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

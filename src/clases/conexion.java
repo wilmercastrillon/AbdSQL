@@ -42,7 +42,7 @@ public class conexion {
             System.out.println(e.getMessage());
             cons.agregar("Error al conectar!!!");
             return false;
-        }catch (ClassNotFoundException e){
+        } catch (ClassNotFoundException e) {
             System.out.println("no se ha conectado, error clase\n");
             System.out.println(e.getMessage());
             cons.agregar("Error al conectar!!!");
@@ -136,7 +136,7 @@ public class conexion {
         sta.executeUpdate(z);
     }
 
-    //metodos ventaba tablas
+    //metodos modificar datos tablas
     public int agregarRegistro(String table, String datos[]) throws SQLException {
         StringBuilder str = new StringBuilder("'");
         for (int i = 0; i < datos.length - 1; i++) {
@@ -149,6 +149,31 @@ public class conexion {
         String z = "INSERT INTO " + table + " values(" + str.toString() + ");";
         cons.agregar(z);
         return sta.executeUpdate(z);
+    }
+
+    public boolean agregarRegistro(String table, Vector<String> columnas, Vector<String> datos) throws SQLException {
+        StringBuilder col = new StringBuilder("");
+        StringBuilder dat = new StringBuilder("'");
+        String z = "";
+
+        try {
+            for (int i = 0; i < columnas.size(); i++) {
+                if (datos.get(i) != null) {
+                    col.append(columnas.get(i));
+                    col.append(", ");
+                    dat.append(datos.get(i));
+                    dat.append("', '");
+                }
+            }
+
+            z += "INSERT INTO " + table + " ( " + col.substring(0, col.length() - 2);
+            z += " ) values(" + dat.substring(0, dat.length() - 3) + ");";
+        } catch (Exception e) {
+            System.out.println(z);
+            return false;
+        }
+        cons.agregar(z);
+        return sta.executeUpdate(z) != Statement.EXECUTE_FAILED;
     }
 
     public ResultSet GetDatos(String table) throws SQLException {
@@ -226,7 +251,7 @@ public class conexion {
     public int CrearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) throws SQLException {
         String z = "ALTER TABLE " + tabla + " ADD FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
-//        cons.agregar(z);
+        cons.agregar(z);
         return sta.executeUpdate(z);
     }
 }

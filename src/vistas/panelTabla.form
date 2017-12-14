@@ -23,9 +23,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="botonAtributos" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jButton2" min="-2" max="-2" attributes="0"/>
+                      <Component id="botonAgregarRegistro" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="recargar" min="-2" max="-2" attributes="0"/>
+                      <Component id="botonRecargar" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -39,8 +39,8 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="botonAtributos" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jButton2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="recargar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="botonAgregarRegistro" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="botonRecargar" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="287" max="32767" attributes="0"/>
@@ -74,17 +74,20 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonAtributosActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="jButton2">
+    <Component class="javax.swing.JButton" name="botonAgregarRegistro">
       <Properties>
         <Property name="text" type="java.lang.String" value="Agregar Registro"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonAgregarRegistroActionPerformed"/>
+      </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="recargar">
+    <Component class="javax.swing.JButton" name="botonRecargar">
       <Properties>
         <Property name="text" type="java.lang.String" value="Recargar"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="recargarActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonRecargarActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

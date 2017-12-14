@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.conexion;
+import clases.operaciones;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -8,13 +9,13 @@ import javax.swing.JOptionPane;
 
 public class inicio extends javax.swing.JFrame implements KeyListener {
 
-    conexion con;
+    operaciones op;
     principal p;
 
     public inicio() {
         initComponents();
         setResizable(false);
-        con = new conexion();
+        op = new operaciones();
         setTitle("Abd SQL v2");
         jButton1.addKeyListener(this);
         password.addKeyListener(this);
@@ -123,6 +124,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         if (p != null && p.isVisible()) {
             return;
         }
+        conexion con = new conexion();
         setCursor(Cursor.WAIT_CURSOR);
         if (!con.conectar(user.getText(), password.getText(), "jdbc:mysql://" + puerto.getText())) {
             setCursor(Cursor.DEFAULT_CURSOR);
@@ -130,7 +132,8 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
             return;
         }
         setCursor(Cursor.DEFAULT_CURSOR);
-        p = new principal(con, this);
+        op.setConexion(con);
+        p = new principal(op, this);
         p.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed

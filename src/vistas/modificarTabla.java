@@ -1,28 +1,25 @@
 package vistas;
 
-import clases.conexion;
+import clases.operaciones;
 import java.awt.Cursor;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class modificarTabla extends javax.swing.JFrame {
 
-    private final conexion con;
+    private final operaciones op;
     private final String tabla;
     private boolean flag = false;
 
-    public modificarTabla(conexion c, String table) {
+    public modificarTabla(operaciones c, String table) {
         initComponents();
-        con = c;
+        op = c;
         tabla = table;
         cargar();
         setLocationRelativeTo(null);
+        setTitle(tabla);
     }
 
     private void cargar() {
@@ -30,20 +27,24 @@ public class modificarTabla extends javax.swing.JFrame {
             //cargar columnas 
             comboColumnas.removeAllItems();
             comboColumnas.addItem("------------");
-            ComboColumnaLlave.removeAllItems();
-            ComboColumnaLlave.addItem("------------");
-            ResultSetMetaData rsmd = con.GetColumnas(tabla).getMetaData();
-
-            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                comboColumnas.addItem(rsmd.getColumnName(i));
-                ComboColumnaLlave.addItem(rsmd.getColumnName(i));
+            ComboColumnaForanea.removeAllItems();
+            ComboColumnaForanea.addItem("------------");
+            comboColumnaPrimaria.removeAllItems();
+            comboColumnaPrimaria.addItem("------------");
+            ResultSet res = op.getConexion().GetColumnas(tabla);
+            String h;
+            while (res.next()) {
+                h = res.getNString(1);
+                comboColumnas.addItem(h);
+                comboColumnaPrimaria.addItem(h);
+                ComboColumnaForanea.addItem(h);
             }
 
             //cargar otras tablas
             flag = true;
             comboOtrasTablas.removeAllItems();
             comboOtrasTablas.addItem("------------");
-            ResultSet rs = con.GetTables();
+            ResultSet rs = op.getConexion().GetTables();
             while (rs.next()) {
                 comboOtrasTablas.addItem(rs.getString(1));
             }
@@ -56,7 +57,7 @@ public class modificarTabla extends javax.swing.JFrame {
                     return false;
                 }
             };
-            llenarJtable(tabla, dft);
+            op.llenarTableModel(op.getConexion().GetColumnas(tabla), dft);
             jTable1.setModel(dft);
             
         } catch (SQLException e) {
@@ -66,23 +67,6 @@ public class modificarTabla extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
             System.out.println("\nError: modificarAtributos: cargar");
             System.out.println(ex.getMessage() + "\n");
-        }
-    }
-    
-    private void llenarJtable(String tabla , DefaultTableModel modeloJtable) throws SQLException {
-        
-        ResultSet res = con.GetColumnas(tabla);
-        ResultSetMetaData rsmd = res.getMetaData();
-        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-            modeloJtable.addColumn(rsmd.getColumnName(i));
-        }
-        
-        while (res.next()) {
-            Vector<String> datos = new Vector<>();
-            for (int i = 1; i <= modeloJtable.getColumnCount(); i++) {
-                datos.add(res.getString(i));
-            }
-            modeloJtable.addRow(datos);
         }
     }
 
@@ -110,9 +94,9 @@ public class modificarTabla extends javax.swing.JFrame {
         jSeparator2 = new javax.swing.JSeparator();
         jLabel6 = new javax.swing.JLabel();
         botonCrearPrimaria = new javax.swing.JButton();
-        comboColumnas1 = new javax.swing.JComboBox<>();
+        comboColumnaPrimaria = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
-        ComboColumnaLlave = new javax.swing.JComboBox<>();
+        ComboColumnaForanea = new javax.swing.JComboBox<>();
         botonCrearForanea = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -177,11 +161,11 @@ public class modificarTabla extends javax.swing.JFrame {
             }
         });
 
-        comboColumnas1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+        comboColumnaPrimaria.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
 
         jLabel7.setText("Atributo llave");
 
-        ComboColumnaLlave.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+        ComboColumnaForanea.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
 
         botonCrearForanea.setText("Crear llave");
         botonCrearForanea.addActionListener(new java.awt.event.ActionListener() {
@@ -219,7 +203,7 @@ public class modificarTabla extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel7)
                                 .addGap(18, 18, 18)
-                                .addComponent(ComboColumnaLlave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(ComboColumnaForanea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jLabel10))
                             .addComponent(jLabel8)
@@ -231,7 +215,7 @@ public class modificarTabla extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(botonCrearForanea)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 245, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 295, Short.MAX_VALUE)
                                 .addComponent(jButton1))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -249,7 +233,7 @@ public class modificarTabla extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(botonCrearPrimaria)
                                 .addGap(18, 18, 18)
-                                .addComponent(comboColumnas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(comboColumnaPrimaria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1)
                             .addGroup(layout.createSequentialGroup()
@@ -312,7 +296,7 @@ public class modificarTabla extends javax.swing.JFrame {
                         .addComponent(jLabel6)
                         .addGap(15, 15, 15)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(comboColumnas1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboColumnaPrimaria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(botonCrearPrimaria))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                         .addComponent(jLabel8))
@@ -320,7 +304,7 @@ public class modificarTabla extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(ComboColumnaLlave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ComboColumnaForanea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10)
                     .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
@@ -340,8 +324,8 @@ public class modificarTabla extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
             return;
         }
+        
         setCursor(Cursor.WAIT_CURSOR);
-
         String lon = null, Def = null;
         if (!textLongitud.getText().isEmpty()) {
             lon = textLongitud.getText();
@@ -351,16 +335,12 @@ public class modificarTabla extends javax.swing.JFrame {
         }
 
         try {
-            con.AgregarColumna(tabla, comboTiposDatos.getSelectedItem().toString(),
+            op.getConexion().AgregarColumna(tabla, comboTiposDatos.getSelectedItem().toString(),
                     textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected());
             cargar();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
-            System.out.println("\nError: modificarAtributos: botonCrearColumnas");
-            System.out.println(ex.getMessage() + "\n");
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_botonCrearColumnaActionPerformed
@@ -372,15 +352,11 @@ public class modificarTabla extends javax.swing.JFrame {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            con.BorrarColumna(tabla, comboColumnas.getSelectedItem().toString());
+            op.getConexion().BorrarColumna(tabla, comboColumnas.getSelectedItem().toString());
             cargar();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al eliminar", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
-            System.out.println("\nError: modificarAtributos: botonBorrarColumna");
-            System.out.println(e.getMessage() + "\n");
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_botonBorrarColumnaActionPerformed
@@ -392,36 +368,29 @@ public class modificarTabla extends javax.swing.JFrame {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            con.CrearLlavePrimaria(tabla, comboColumnas.getSelectedItem().toString());
+            op.getConexion().CrearLlavePrimaria(tabla, comboColumnas.getSelectedItem().toString());
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nllave primaria", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
-            System.out.println("\nError: modificarIndices: botonCrearPrimaria");
-            System.out.println(e.getMessage() + "\n");
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_botonCrearPrimariaActionPerformed
 
     private void botonCrearForaneaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearForaneaActionPerformed
         if (comboOtrasTablas.getSelectedIndex() == 0 || comboAtributosReferencia.getSelectedIndex() == 0
-                || ComboColumnaLlave.getSelectedIndex() == 0) {
+                || ComboColumnaForanea.getSelectedIndex() == 0) {
             return;
         }
+        
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            con.CrearLlaveForanea(tabla, ComboColumnaLlave.getSelectedItem().toString(),
+            op.getConexion().CrearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
                     comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString());
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nllave foranea", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
-            System.out.println("\nError: modificarIndices: botonCrearForanea");
-            System.out.println(e.getMessage() + "\n");
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_botonCrearForaneaActionPerformed
@@ -437,7 +406,7 @@ public class modificarTabla extends javax.swing.JFrame {
         }
 
         try {
-            ResultSet rs = con.GetColumnas(comboOtrasTablas.getSelectedItem().toString());
+            ResultSet rs = op.getConexion().GetColumnas(comboOtrasTablas.getSelectedItem().toString());
             while (rs.next()) {
                 comboAtributosReferencia.addItem(rs.getString(1));
             }
@@ -487,14 +456,14 @@ public class modificarTabla extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> ComboColumnaLlave;
+    private javax.swing.JComboBox<String> ComboColumnaForanea;
     private javax.swing.JButton botonBorrarColumna;
     private javax.swing.JButton botonCrearColumna;
     private javax.swing.JButton botonCrearForanea;
     private javax.swing.JButton botonCrearPrimaria;
     private javax.swing.JComboBox<String> comboAtributosReferencia;
+    private javax.swing.JComboBox<String> comboColumnaPrimaria;
     private javax.swing.JComboBox<String> comboColumnas;
-    private javax.swing.JComboBox<String> comboColumnas1;
     private javax.swing.JComboBox<String> comboOtrasTablas;
     private javax.swing.JComboBox<String> comboTiposDatos;
     private javax.swing.JButton jButton1;
