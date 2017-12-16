@@ -1,6 +1,6 @@
 package vistas;
 
-import clases.conexion;
+import clases.Conexion;
 import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -24,10 +24,10 @@ import javax.swing.table.DefaultTableModel;
 public class consola extends javax.swing.JFrame implements KeyListener {
 
     private DefaultListModel<String> modelo_lista;
-    private conexion x4;
+    private Conexion x4;
     private JPopupMenu menu, menu2, menu3;
 
-    public consola(conexion q) {
+    public consola(Conexion q) {
         x4 = q;
         initComponents();
         modelo_lista = new DefaultListModel<>();

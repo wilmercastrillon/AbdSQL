@@ -31,7 +31,7 @@ public class modificarTabla extends javax.swing.JFrame {
             ComboColumnaForanea.addItem("------------");
             comboColumnaPrimaria.removeAllItems();
             comboColumnaPrimaria.addItem("------------");
-            ResultSet res = op.getConexion().GetColumnas(tabla);
+            ResultSet res = op.getConexion().GetColumnasTabla(tabla);
             String h;
             while (res.next()) {
                 h = res.getNString(1);
@@ -57,7 +57,7 @@ public class modificarTabla extends javax.swing.JFrame {
                     return false;
                 }
             };
-            op.llenarTableModel(op.getConexion().GetColumnas(tabla), dft);
+            op.llenarTableModel(op.getConexion().GetColumnasTabla(tabla), dft);
             jTable1.setModel(dft);
             
         } catch (SQLException e) {
@@ -335,7 +335,7 @@ public class modificarTabla extends javax.swing.JFrame {
         }
 
         try {
-            op.getConexion().AgregarColumna(tabla, comboTiposDatos.getSelectedItem().toString(),
+            op.getConexion().agregarColumnaTabla(tabla, comboTiposDatos.getSelectedItem().toString(),
                     textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected());
             cargar();
         } catch (SQLException e) {
@@ -352,7 +352,7 @@ public class modificarTabla extends javax.swing.JFrame {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().BorrarColumna(tabla, comboColumnas.getSelectedItem().toString());
+            op.getConexion().borrarColumnaTabla(tabla, comboColumnas.getSelectedItem().toString());
             cargar();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al eliminar", "Error", 0);
@@ -368,7 +368,7 @@ public class modificarTabla extends javax.swing.JFrame {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().CrearLlavePrimaria(tabla, comboColumnas.getSelectedItem().toString());
+            op.getConexion().crearLlavePrimaria(tabla, comboColumnas.getSelectedItem().toString());
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nllave primaria", "Error", 0);
@@ -385,7 +385,7 @@ public class modificarTabla extends javax.swing.JFrame {
         
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().CrearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
+            op.getConexion().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
                     comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString());
             cargar();
         } catch (SQLException ex) {
@@ -406,7 +406,7 @@ public class modificarTabla extends javax.swing.JFrame {
         }
 
         try {
-            ResultSet rs = op.getConexion().GetColumnas(comboOtrasTablas.getSelectedItem().toString());
+            ResultSet rs = op.getConexion().GetColumnasTabla(comboOtrasTablas.getSelectedItem().toString());
             while (rs.next()) {
                 comboAtributosReferencia.addItem(rs.getString(1));
             }
@@ -442,8 +442,6 @@ public class modificarTabla extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(modificarTabla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 

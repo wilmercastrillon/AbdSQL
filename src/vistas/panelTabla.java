@@ -7,8 +7,6 @@ import java.awt.event.KeyListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -58,7 +56,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 }
 
                 try {
-                    op.getConexion().BorrarFila(datos, columnas, tabla);
+                    op.getConexion().borrarFila(datos, columnas, tabla);
                     modelo.removeRow(fila);
                 } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
@@ -119,7 +117,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         }
                     }
 
-                    op.getConexion().ActualizarFila(tabla, columnas, datos, modelo.getColumnName(columna),
+                    op.getConexion().actualizarFila(tabla, columnas, datos, modelo.getColumnName(columna),
                             modelo.getValueAt(fila, columna).toString());
                 } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error al modificar los datos", "Error", 0);
@@ -135,7 +133,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     public void recargarResultSet() {
         try {
-            res = op.getConexion().GetDatos(tabla);
+            res = op.getConexion().GetDatosTabla(tabla);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cargar tabla", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);

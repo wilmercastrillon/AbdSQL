@@ -1,7 +1,6 @@
 package vistas;
 
-import clases.conexion;
-import clases.operaciones;
+import clases.*;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -19,6 +18,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         setTitle("Abd SQL v2");
         jButton1.addKeyListener(this);
         password.addKeyListener(this);
+        comboSistemaGestor.addKeyListener(this);
         setLocationRelativeTo(null);
     }
 
@@ -33,6 +33,8 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         user = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         password = new javax.swing.JPasswordField();
+        jLabel2 = new javax.swing.JLabel();
+        comboSistemaGestor = new javax.swing.JComboBox<>();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -56,6 +58,10 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         user.setText("root");
 
         jLabel4.setText("password");
+
+        jLabel2.setText("Sistema Gestor");
+
+        comboSistemaGestor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MySql", "Oracle" }));
 
         jMenu1.setText("Archivo");
 
@@ -88,19 +94,21 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel1))
-                .addGap(79, 79, 79)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addGap(53, 53, 53)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(puerto)
                     .addComponent(jButton1)
-                    .addComponent(password)
-                    .addComponent(user))
-                .addContainerGap(137, Short.MAX_VALUE))
+                    .addComponent(comboSistemaGestor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(puerto, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                    .addComponent(user)
+                    .addComponent(password))
+                .addGap(0, 115, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(31, 31, 31)
+                .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(puerto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
@@ -112,7 +120,11 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(comboSistemaGestor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addContainerGap())
         );
@@ -124,15 +136,25 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         if (p != null && p.isVisible()) {
             return;
         }
-        conexion con = new conexion();
+        
+        Conexion con;
         setCursor(Cursor.WAIT_CURSOR);
-        if (!con.conectar(user.getText(), password.getText(), "jdbc:mysql://" + puerto.getText())) {
+        String driver;
+        if (comboSistemaGestor.getSelectedIndex() == 0) {
+            driver = "jdbc:mysql://" + puerto.getText();
+            con = new ConexionMySql();
+        }else{
+            driver = "jdbc:oracle:thin:@" + puerto.getText() + ":1521:xe";
+            con = new ConexionOracle();
+        }
+        
+        if (!con.conectar(user.getText(), password.getText(), driver)) {
             setCursor(Cursor.DEFAULT_CURSOR);
             JOptionPane.showMessageDialog(null, "Error al conectar con\nla base de datos", "Error", 0);
             return;
         }
         setCursor(Cursor.DEFAULT_CURSOR);
-        op.setConexion(con);
+        op.setConexion(con, user.getText());
         p = new principal(op, this);
         p.setVisible(true);
         this.setVisible(false);
@@ -179,8 +201,10 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> comboSistemaGestor;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;

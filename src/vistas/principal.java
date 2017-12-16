@@ -1,5 +1,6 @@
 package vistas;
 
+import clases.ConexionMySql;
 import clases.operaciones;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -10,8 +11,6 @@ import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -19,7 +18,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -122,8 +120,10 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 if (q == JOptionPane.YES_OPTION) {
                     int q2 = JOptionPane.showConfirmDialog(null, "Segurisimo que desea borrar\nla base de datos\n" + bd);
                     if (q2 == JOptionPane.YES_OPTION) {
+                        System.out.println("se borraria");
+                        ConexionMySql c = (ConexionMySql) op.getConexion();
                         try {
-                            op.getConexion().BorrarDataBase(bd);
+                            c.BorrarDataBase(bd);
                             cargar();
                         } catch (SQLException ex) {
                             JOptionPane.showMessageDialog(null, "Error al borrar\nbase de datos", "Error", 0);
@@ -133,9 +133,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 }
             }
         });
-        menu1.add(crearBD);
+
+        if (op.getConexion() instanceof ConexionMySql) {
+            menu1.add(crearBD);
+            menu2.add(borrarBD);
+        }
+
         menu2.add(agregar);
-        menu2.add(borrarBD);
         menu3.add(borrar);
 
         eventojtree();
@@ -165,16 +169,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             jTree1.setModel(modelo_arbol);
 
             nodos = new Vector<>();
-            ResultSet res = op.getConexion().GetDataBases();
-            String h;
-            int pos = 0, pos2;
-
-            while (res.next()) {
-                h = res.getString(1);
-                DefaultMutableTreeNode nuevo = new DefaultMutableTreeNode(h);
-                modelo_arbol.insertNodeInto(nuevo, raiz, pos);
+            int pos2;
+            Vector<String> bd = op.getBasesDeDatos();
+            for (int i = 0; i < bd.size(); i++) {
+                DefaultMutableTreeNode nuevo = new DefaultMutableTreeNode(bd.get(i));
+                modelo_arbol.insertNodeInto(nuevo, raiz, i);
                 nodos.add(nuevo);
-                pos++;
             }
 
             for (int i = 0; i < nodos.size(); i++) {
@@ -210,7 +210,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 if (me.getButton() == MouseEvent.BUTTON3) {
                     switch (tp.getPathCount()) {
                         case 1:
-                            menu1.show(me.getComponent(), me.getX(), me.getY());
+                            if (op.getConexion() instanceof ConexionMySql) {
+                                menu1.show(me.getComponent(), me.getX(), me.getY());
+                            }
                             break;
                         case 2:
                             menu2.show(me.getComponent(), me.getX(), me.getY());
@@ -266,7 +268,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 op.getConexion().SelectDataBase(DB);
             }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
-            panelTabla pt = new panelTabla(op, DB, tabla, op.getConexion().GetDatos(tabla));
+            panelTabla pt = new panelTabla(op, DB, tabla, op.getConexion().GetDatosTabla(tabla));
             jTabbedPane1.addTab(tabla, pt);
 
             tabButton.setPreferredSize(new Dimension(15, 15));
