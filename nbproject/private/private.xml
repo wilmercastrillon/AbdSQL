@@ -5,8 +5,8 @@
         <group>
             <file>file:/C:/Users/wilmer/Documents/GitHub/AbdSql-v2/src/vistas/principal.java</file>
             <file>file:/C:/Users/wilmer/Documents/GitHub/AbdSql-v2/src/clases/ConexionMySql.java</file>
-            <file>file:/C:/Users/wilmer/Documents/GitHub/AbdSql-v2/src/clases/ConexionOracle.java</file>
-            <file>file:/C:/Users/wilmer/Documents/GitHub/AbdSql-v2/src/vistas/inicio.java</file>
+            <file>file:/C:/Users/wilmer/Documents/GitHub/AbdSql-v2/src/clases/operaciones.java</file>
+            <file>file:/C:/Users/wilmer/Documents/GitHub/AbdSql-v2/src/vistas/panelTrigger.java</file>
         </group>
     </open-files>
 </project-private>

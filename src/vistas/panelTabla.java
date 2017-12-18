@@ -44,23 +44,34 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         jTable1.addKeyListener(this);
 
         JPopupMenu menu = new JPopupMenu();
-        JMenuItem menuitem = new JMenuItem("borrar fila");
+        JMenuItem menuitem = new JMenuItem("borrar fila(s)");
         menuitem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 inserta = true;
 
-                int fila = jTable1.getSelectedRow();
-                Vector<String> datos = new Vector<>();
-                for (int i = 0; i < columnas.size(); i++) {
-                    datos.add(jTable1.getValueAt(fila, i).toString());
+                int filas[] = jTable1.getSelectedRows();
+                for (int i = 0; i < filas.length; i++) {
+                    Vector<String> datos = new Vector<>();
+                    try {
+                        for (int j = 0; j < columnas.size(); j++) {
+                            if (jTable1.getValueAt(filas[i], j) == null) {
+                                datos.add(null);
+                            } else {
+                                datos.add(jTable1.getValueAt(filas[i], j).toString());
+                            }
+                        }
+                        op.getConexion().borrarFila(datos, columnas, tabla);
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                    }
                 }
-
-                try {
-                    op.getConexion().borrarFila(datos, columnas, tabla);
-                    modelo.removeRow(fila);
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                
+                if (filas.length == 1) {
+                    modelo.removeRow(filas[0]);
+                } else {
+                    recargarResultSet();
+                    llenarTabla();
                 }
                 inserta = false;
             }
@@ -243,6 +254,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
     private void botonRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRecargarActionPerformed
         recargarResultSet();
         llenarTabla();
+        nuevaFila = false;
     }//GEN-LAST:event_botonRecargarActionPerformed
 
     private void botonAgregarRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAgregarRegistroActionPerformed

@@ -34,7 +34,7 @@ public class modificarTabla extends javax.swing.JFrame {
             ResultSet res = op.getConexion().GetColumnasTabla(tabla);
             String h;
             while (res.next()) {
-                h = res.getNString(1);
+                h = res.getString(1);
                 comboColumnas.addItem(h);
                 comboColumnaPrimaria.addItem(h);
                 ComboColumnaForanea.addItem(h);
@@ -48,7 +48,6 @@ public class modificarTabla extends javax.swing.JFrame {
             while (rs.next()) {
                 comboOtrasTablas.addItem(rs.getString(1));
             }
-            flag = false;
             
             //cargar tabla
             DefaultTableModel dft = new DefaultTableModel() {
@@ -68,6 +67,7 @@ public class modificarTabla extends javax.swing.JFrame {
             System.out.println("\nError: modificarAtributos: cargar");
             System.out.println(ex.getMessage() + "\n");
         }
+        flag = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -190,6 +190,11 @@ public class modificarTabla extends javax.swing.JFrame {
         comboAtributosReferencia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
 
         jButton1.setText("Salir");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -419,6 +424,10 @@ public class modificarTabla extends javax.swing.JFrame {
             System.out.println(e.getMessage() + "\n");
         }
     }//GEN-LAST:event_comboOtrasTablasActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

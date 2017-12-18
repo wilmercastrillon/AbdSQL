@@ -40,14 +40,16 @@ public class ConexionOracle extends Conexion {
 
     @Override
     public ResultSet GetColumnasTabla(String table) throws SQLException {
-        String z = "DESC " + table + ";";
+//        String z = "DESC " + table;
+        String z = "SELECT COLUMN_NAME, DATA_TYPE, DATA_PRECISION, NULLABLE, DATA_DEFAULT, LOW_VALUE, HIGH_VALUE"
+                + " FROM all_tab_columns WHERE table_name = '" + table + "'";
         cons.agregar(z);
         return sta.executeQuery(z);
     }
 
     @Override
     public void CrearTabla(String nombre) throws SQLException {
-        String z = "create table " + nombre + "( ID NUMBER(10) )";
+        String z = "CREATE TABLE " + nombre + "( ID NUMBER(10) )";
         cons.agregar(z);
         sta.executeUpdate(z);
     }
@@ -111,7 +113,11 @@ public class ConexionOracle extends Conexion {
     public void borrarFila(Vector<String> datos, Vector<String> columas, String table) throws SQLException {
         String z = "DELETE FROM " + table + " WHERE";
         for (int i = 0; i < columas.size(); i++) {
-            z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
+            if (datos.get(i) != null) {
+                z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
+            } else {
+                z += " " + columas.get(i) + " IS NULL AND";
+            }
         }
         z = z.substring(0, z.length() - 4);
         cons.agregar(z);
@@ -134,7 +140,8 @@ public class ConexionOracle extends Conexion {
     }
 
     @Override
-    public int agregarColumnaTabla(String tabla, String tipo, String nombre, String longitud, String Default, boolean Nonulo) throws SQLException {
+    public int agregarColumnaTabla(String tabla, String tipo, String nombre, String longitud,
+            String Default, boolean Nonulo) throws SQLException {
         String z = "ALTER TABLE " + tabla + " ADD(" + nombre + " " + tipo;
         if (longitud != null) {
             z += "(" + longitud + ")";
@@ -171,5 +178,17 @@ public class ConexionOracle extends Conexion {
                 + " FOREIGN KEY(" + atri + ") REFERENCES " + tabla_ref + "(" + atri_ref + ")";
         cons.agregar(z);
         return sta.executeUpdate(z);
+    }
+
+    @Override
+    public ResultSet getTriggers() throws SQLException {
+        String z = "SHOW TRIGGERS;";
+        cons.agregar(z);
+        return sta.executeQuery(z);
+    }
+
+    @Override
+    public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

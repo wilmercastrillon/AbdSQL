@@ -40,22 +40,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         menu1 = new JPopupMenu();
         menu2 = new JPopupMenu();
         menu3 = new JPopupMenu();
-        JMenuItem crearBD = new JMenuItem("Crear Base de Datos");
-        crearBD.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                String h = JOptionPane.showInputDialog(null, "Inserte nombre");
-                if (h == null) {
-                    return;
-                }
-                try {
-                    op.getConexion().CrearDataBase(h);
-                    cargar();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al crear\nla base de datos", "Error", 0);
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-                }
-            }
-        });
+
         JMenuItem agregar = new JMenuItem("crear tabla");
         agregar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -110,31 +95,49 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 }
             }
         });
-        JMenuItem borrarBD = new JMenuItem("borrar Base de Datos");
-        borrarBD.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                TreePath path = jTree1.getSelectionPath();
-                String bd = path.getLastPathComponent().toString();
-                int q = JOptionPane.showConfirmDialog(null, "Seguro que la desea borrar");
 
-                if (q == JOptionPane.YES_OPTION) {
-                    int q2 = JOptionPane.showConfirmDialog(null, "Segurisimo que desea borrar\nla base de datos\n" + bd);
-                    if (q2 == JOptionPane.YES_OPTION) {
-                        System.out.println("se borraria");
-                        ConexionMySql c = (ConexionMySql) op.getConexion();
-                        try {
-                            c.BorrarDataBase(bd);
-                            cargar();
-                        } catch (SQLException ex) {
-                            JOptionPane.showMessageDialog(null, "Error al borrar\nbase de datos", "Error", 0);
-                            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        if (op.getConexion() instanceof ConexionMySql) {
+            JMenuItem borrarBD = new JMenuItem("borrar Base de Datos");
+            borrarBD.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    TreePath path = jTree1.getSelectionPath();
+                    String bd = path.getLastPathComponent().toString();
+                    int q = JOptionPane.showConfirmDialog(null, "Seguro que la desea borrar");
+
+                    if (q == JOptionPane.YES_OPTION) {
+                        int q2 = JOptionPane.showConfirmDialog(null, "Segurisimo que desea borrar\nla base de datos\n" + bd);
+                        if (q2 == JOptionPane.YES_OPTION) {
+                            System.out.println("se borraria");
+                            ConexionMySql c = (ConexionMySql) op.getConexion();
+                            try {
+                                c.BorrarDataBase(bd);
+                                cargar();
+                            } catch (SQLException ex) {
+                                JOptionPane.showMessageDialog(null, "Error al borrar\nbase de datos", "Error", 0);
+                                JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
 
-        if (op.getConexion() instanceof ConexionMySql) {
+            JMenuItem crearBD = new JMenuItem("Crear Base de Datos");
+            crearBD.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    String h = JOptionPane.showInputDialog(null, "Inserte nombre");
+                    if (h == null) {
+                        return;
+                    }
+                    try {
+                        op.getConexion().CrearDataBase(h);
+                        cargar();
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(null, "Error al crear\nla base de datos", "Error", 0);
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                    }
+                }
+            });
+
             menu1.add(crearBD);
             menu2.add(borrarBD);
         }
@@ -183,10 +186,20 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     ResultSet res2 = op.getConexion().GetTables();
                     pos2 = 0;
                     System.out.println("tabla " + nodos.get(i).toString());
+
                     while (res2.next()) {
                         String h2 = res2.getString(1);
                         modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h2), nodos.get(i), pos2);
                         pos2++;
+                    }
+
+                    Vector<DefaultMutableTreeNode> v = op.getTriggers();
+                    if (v.size() > 0) {
+                        DefaultMutableTreeNode triggers = new DefaultMutableTreeNode("Triggers");
+                        modelo_arbol.insertNodeInto(triggers, nodos.get(i), 0);
+                        for (int j = 0; j < v.size(); j++) {
+                            modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
+                        }
                     }
                 } catch (Exception e) {
                 }
@@ -229,7 +242,15 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 }
 
                 if (tp.getPathCount() == 3) {
-                    agregarPanel(tp.getPathComponent(1).toString(), tp.getPathComponent(2).toString());
+                    Object nodo = tp.getLastPathComponent();
+                    if (modelo_arbol.isLeaf(nodo)) {
+                        agregarPanel(tp.getPathComponent(1).toString(), tp.getPathComponent(2).toString(), "Tabla");
+                    }
+                    return;
+                }
+
+                if (tp.getPathCount() == 4) {
+                    agregarPanel(tp.getPathComponent(1).toString(), tp.getPathComponent(3).toString(), "Trigger");
                 }
             }
 
@@ -256,8 +277,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         return -1;
     }
 
-    public void agregarPanel(String DB, String tabla) {
-        int l = containsTabla(tabla);
+    public void agregarPanel(String DB, String nombre, String tipo) {
+        int l = containsTabla(nombre);
         if (l != -1) {
             jTabbedPane1.setSelectedIndex(l);
             return;
@@ -267,22 +288,28 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             if (!op.getConexion().BaseDeDatosSeleccionada.equals(DB)) {
                 op.getConexion().SelectDataBase(DB);
             }
+
+            JPanel pt;
+            if (tipo.equals("Tabla")) {
+                pt = new panelTabla(op, DB, nombre, op.getConexion().GetDatosTabla(nombre));
+            } else {
+                pt = new panelTrigger(op, DB, nombre);
+            }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
-            panelTabla pt = new panelTabla(op, DB, tabla, op.getConexion().GetDatosTabla(tabla));
-            jTabbedPane1.addTab(tabla, pt);
+            jTabbedPane1.addTab(nombre, pt);
 
             tabButton.setPreferredSize(new Dimension(15, 15));
             tabButton.setContentAreaFilled(false);
             tabButton.setToolTipText("Cerrar");
             tabButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    cerrarTab(tabla);
+                    cerrarTab(nombre);
                 }
             });
 
             JPanel pnl = new JPanel();
             pnl.setOpaque(false);
-            JLabel label = new JLabel(tabla);
+            JLabel label = new JLabel(nombre);
             pnl.add(label);
             pnl.add(tabButton);
             jTabbedPane1.setTabComponentAt(jTabbedPane1.getTabCount() - 1, pnl);
@@ -421,14 +448,24 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             if (e.getComponent() == jTree1) {
                 TreePath p = jTree1.getSelectionPath();
+
                 if (p.getPathCount() == 3) {
-                    agregarPanel(p.getPathComponent(1).toString(), p.getPathComponent(2).toString());
-                } else {
-                    if (jTree1.isExpanded(p)) {
-                        jTree1.collapsePath(p);
-                    } else {
-                        jTree1.expandPath(p);
+                    Object nodo = p.getLastPathComponent();
+                    if (modelo_arbol.isLeaf(nodo)) {
+                        agregarPanel(p.getPathComponent(1).toString(), p.getPathComponent(2).toString(), "Tabla");
+                        return;
                     }
+                } else {
+                    if (p.getPathCount() == 4) {
+                        agregarPanel(p.getPathComponent(1).toString(), p.getPathComponent(3).toString(), "Trigger");
+                        return;
+                    }
+                }
+                
+                if (jTree1.isExpanded(p)) {
+                    jTree1.collapsePath(p);
+                } else {
+                    jTree1.expandPath(p);
                 }
             }
         }

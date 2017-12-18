@@ -217,4 +217,18 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
+    
+    @Override
+    public ResultSet getTriggers() throws SQLException{
+        String z = "SHOW TRIGGERS;";
+        cons.agregar(z);
+        return sta.executeQuery(z);
+    }
+    
+    @Override
+    public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException{
+        String z = "SHOW CREATE TRIGGER " + BD + "." + nombreTrigger + ";";
+        cons.agregar(z);
+        return sta.executeQuery(z);
+    }
 }

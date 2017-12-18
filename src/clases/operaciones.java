@@ -1,10 +1,15 @@
 package clases;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class operaciones {
 
@@ -53,6 +58,23 @@ public class operaciones {
         return aux;
     }
 
+    public Vector<DefaultMutableTreeNode> getTriggers() throws SQLException {
+        Vector<DefaultMutableTreeNode> triggers = new Vector<>();
+        ResultSet res = con.getTriggers();
+        
+        while (res.next()) {
+            triggers.add(new DefaultMutableTreeNode(res.getString(1)));
+        }
+
+        return triggers;
+    }
+    
+    public String getSqlTrigger(String bd, String nombreTrigger) throws SQLException{
+        ResultSet res = con.getDatosTrigger(bd, nombreTrigger);
+        res.next();
+        return res.getString(3);
+    }
+
     public void llenarTableModel(ResultSet res, DefaultTableModel modeloJtable) throws SQLException {
         ResultSetMetaData rsmd = res.getMetaData();
         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -65,6 +87,31 @@ public class operaciones {
                 datos.add(res.getString(i));
             }
             modeloJtable.addRow(datos);
+        }
+    }
+    
+    public Vector<String> cargarDatosConexion(){
+        Vector<String> vs = new Vector<>();
+        try {
+            System.out.println(System.getProperty("user.dir") + "\\config");
+            BufferedReader tec = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\config"));
+            vs.add(tec.readLine());
+            vs.add(tec.readLine());
+            vs.add(tec.readLine());
+        } catch (Exception e) {
+            return null;
+        }
+        return vs;
+    }
+    
+    public void guardarDatosConexion(String puerto, String usuario, String sistemaGestor){
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(System.getProperty("user.dir") + "\\config"));
+            bw.write(puerto + "\r\n");
+            bw.write(usuario + "\r\n");
+            bw.write(sistemaGestor + "\r\n");
+            bw.close();
+        } catch (Exception e) {
         }
     }
 }

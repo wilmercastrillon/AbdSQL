@@ -4,6 +4,7 @@ import clases.*;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Vector;
 import javax.swing.JOptionPane;
 
 public class inicio extends javax.swing.JFrame implements KeyListener {
@@ -19,7 +20,28 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         jButton1.addKeyListener(this);
         password.addKeyListener(this);
         comboSistemaGestor.addKeyListener(this);
+        cargar();
         setLocationRelativeTo(null);
+    }
+
+    private void cargar() {
+        Vector<String> v = op.cargarDatosConexion();
+        if (v == null) {
+            return;
+        }
+        try {
+            puerto.setText(v.get(0));
+            user.setText(v.get(1));
+            if (v.get(2).equals("MySql")) {
+                comboSistemaGestor.setSelectedIndex(0);
+            } else {
+                comboSistemaGestor.setSelectedIndex(1);
+            }
+        } catch (Exception e) {
+            puerto.setText("localhost");
+            user.setText("root");
+            comboSistemaGestor.setSelectedIndex(0);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -136,18 +158,18 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         if (p != null && p.isVisible()) {
             return;
         }
-        
+
         Conexion con;
         setCursor(Cursor.WAIT_CURSOR);
         String driver;
         if (comboSistemaGestor.getSelectedIndex() == 0) {
             driver = "jdbc:mysql://" + puerto.getText();
             con = new ConexionMySql();
-        }else{
+        } else {
             driver = "jdbc:oracle:thin:@" + puerto.getText() + ":1521:xe";
             con = new ConexionOracle();
         }
-        
+
         if (!con.conectar(user.getText(), password.getText(), driver)) {
             setCursor(Cursor.DEFAULT_CURSOR);
             JOptionPane.showMessageDialog(null, "Error al conectar con\nla base de datos", "Error", 0);
@@ -161,6 +183,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        op.guardarDatosConexion(puerto.getText(), user.getText(), comboSistemaGestor.getSelectedItem().toString());
         System.exit(0);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
