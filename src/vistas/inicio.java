@@ -4,6 +4,7 @@ import clases.*;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowListener;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 
@@ -22,6 +23,15 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         comboSistemaGestor.addKeyListener(this);
         cargar();
         setLocationRelativeTo(null);
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                op.guardarDatosConexion(puerto.getText(), user.getText(),
+                        comboSistemaGestor.getSelectedItem().toString());
+                System.exit(0);
+            }
+        });
     }
 
     private void cargar() {
@@ -62,7 +72,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
         jLabel1.setText("puerto");
 
@@ -176,20 +186,22 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
             return;
         }
         setCursor(Cursor.DEFAULT_CURSOR);
-        op.setConexion(con, user.getText());
+        op.setConexion(con, user.getText(), user.getText());
         p = new principal(op, this);
         p.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        op.guardarDatosConexion(puerto.getText(), user.getText(), comboSistemaGestor.getSelectedItem().toString());
+        op.guardarDatosConexion(puerto.getText(), user.getText(),
+                comboSistemaGestor.getSelectedItem().toString());
         System.exit(0);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL v2.0");
-        JOptionPane.showMessageDialog(null, "En desarrollo...");
+        JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL v2");
+        JOptionPane.showMessageDialog(null, "Version 2.0");
+        JOptionPane.showMessageDialog(null, "desarrollado por:\nWilmer Castrillon");
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     public static void main(String args[]) {

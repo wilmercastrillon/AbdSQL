@@ -118,4 +118,10 @@ public abstract class Conexion {
     abstract public ResultSet getTriggers() throws SQLException;
     
     abstract public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException;
+    
+    abstract public int crearTrigger(String sql) throws SQLException;
+    
+    abstract public int borrarTrigger(String nombreTrigger) throws SQLException;
+    
+    abstract public int crearLlaveUnique(String tabla, String columna) throws SQLException;
 }

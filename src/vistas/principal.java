@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 public class principal extends javax.swing.JFrame implements KeyListener {
@@ -28,7 +29,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private DefaultMutableTreeNode raiz;
     private Vector<DefaultMutableTreeNode> nodos;
     private final operaciones op;
-    private JPopupMenu menu2, menu1, menu3;
+    private JPopupMenu menu2, menu1, menu3, menu4;
     public inicio ini;
 
     public principal(operaciones x, inicio i) {
@@ -40,8 +41,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         menu1 = new JPopupMenu();
         menu2 = new JPopupMenu();
         menu3 = new JPopupMenu();
+        menu4 = new JPopupMenu();
 
-        JMenuItem agregar = new JMenuItem("crear tabla");
+        JMenuItem agregar = new JMenuItem("Crear tabla");
         agregar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 TreePath path = jTree1.getSelectionPath();
@@ -67,7 +69,26 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 }
             }
         });
-        JMenuItem borrar = new JMenuItem("borrar tabla");
+        JMenuItem agregarTrigger = new JMenuItem("Crear trigger");
+        agregarTrigger.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("evento");
+                TreePath path = jTree1.getSelectionPath();
+                if (path.getPathCount() == 2) {
+                    System.out.println("entra");
+                    String h = JOptionPane.showInputDialog(null, "Nombre del trigger:");
+                    if (h == null) {
+                        return;
+                    }
+
+                    Object ob = path.getLastPathComponent();
+                    DefaultMutableTreeNode d = (DefaultMutableTreeNode) ob;
+                    agregarPanel(d.toString(), h, "TriggerNuevo");
+                }
+                System.out.println("fin");
+            }
+        });
+        JMenuItem borrar = new JMenuItem("Borrar tabla");
         borrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
@@ -84,6 +105,35 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         op.getConexion().BorrarTabla(path.getPathComponent(2).toString());
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         modelo_arbol.removeNodeFromParent(currentNode);
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(null, "Error al borrar tabla", "Error", 0);
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
+                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
+                        System.out.println(ex.getMessage() + "\n");
+                    }
+                }
+            }
+        });
+        JMenuItem borrarTrigger = new JMenuItem("Borrar Trigger");
+        borrarTrigger.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                TreePath path = jTree1.getSelectionPath();
+                if (path.getPathCount() == 4) {
+                    if (JOptionPane.showConfirmDialog(null, "Seguro que quiere\nborrar el Trigger")
+                            != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                    try {
+                        op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
+                        op.getConexion().borrarTrigger(path.getPathComponent(3).toString());
+                        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
+                        modelo_arbol.removeNodeFromParent(currentNode);
+                         
+                        if (modelo_arbol.isLeaf(path.getPathComponent(2))) {
+                            modelo_arbol.removeNodeFromParent((DefaultMutableTreeNode) path.getPathComponent(2));
+                        }
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al borrar tabla", "Error", 0);
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
@@ -143,7 +193,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
 
         menu2.add(agregar);
+        menu2.add(agregarTrigger);
         menu3.add(borrar);
+        menu4.add(borrarTrigger);
 
         eventojtree();
 //        jButton1.addKeyListener(this);
@@ -231,7 +283,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                             menu2.show(me.getComponent(), me.getX(), me.getY());
                             break;
                         case 3:
+                            if (!modelo_arbol.isLeaf(tp.getLastPathComponent())) {
+                                return;
+                            }
                             menu3.show(me.getComponent(), me.getX(), me.getY());
+                            break;
+                        case 4:
+                            menu4.show(me.getComponent(), me.getX(), me.getY());
                             break;
                     }
                     return;
@@ -293,7 +351,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             if (tipo.equals("Tabla")) {
                 pt = new panelTabla(op, DB, nombre, op.getConexion().GetDatosTabla(nombre));
             } else {
-                pt = new panelTrigger(op, DB, nombre);
+                if (tipo.equals("TriggerNuevo")) {
+                    pt = new panelTrigger(op, DB, nombre, true);
+                } else {
+                    pt = new panelTrigger(op, DB, nombre, false);
+                }
             }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
             jTabbedPane1.addTab(nombre, pt);
@@ -334,6 +396,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         salir = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        botonCerrarVentanas = new javax.swing.JButton();
+        botonRecargar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -355,17 +419,34 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        botonCerrarVentanas.setText("Cerrar ventanas");
+        botonCerrarVentanas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonCerrarVentanasActionPerformed(evt);
+            }
+        });
+
+        botonRecargar.setText("Recargar");
+        botonRecargar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonRecargarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(botonRecargar)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 283, Short.MAX_VALUE)
+                        .addComponent(botonCerrarVentanas)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addGap(159, 159, 159)
                         .addComponent(salir))
@@ -382,7 +463,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salir)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(botonCerrarVentanas)
+                    .addComponent(botonRecargar))
                 .addContainerGap())
         );
 
@@ -398,6 +481,14 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         op.mostrarConsola();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void botonCerrarVentanasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCerrarVentanasActionPerformed
+        jTabbedPane1.removeAll();
+    }//GEN-LAST:event_botonCerrarVentanasActionPerformed
+
+    private void botonRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRecargarActionPerformed
+        cargar();
+    }//GEN-LAST:event_botonRecargarActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -432,6 +523,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton botonCerrarVentanas;
+    private javax.swing.JButton botonRecargar;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -461,7 +554,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                 }
-                
+
                 if (jTree1.isExpanded(p)) {
                     jTree1.collapsePath(p);
                 } else {

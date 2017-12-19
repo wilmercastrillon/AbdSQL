@@ -231,4 +231,25 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeQuery(z);
     }
+
+    @Override
+    public int crearTrigger(String sql) throws SQLException {
+        String z = sql;
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
+
+    @Override
+    public int borrarTrigger(String nombreTrigger) throws SQLException {
+        String z = "DROP TRIGGER IF EXISTS " + nombreTrigger + ";";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
+
+    @Override
+    public int crearLlaveUnique(String tabla, String columna) throws SQLException {
+        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ");";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
 }

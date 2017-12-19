@@ -15,18 +15,24 @@ public class operaciones {
 
     private Conexion con;
     private String puerto;
+    private String usuario;
 
     public operaciones() {
     }
 
-    public void setConexion(Conexion con, String puerto) {
+    public void setConexion(Conexion con, String puerto, String user) {
         this.puerto = puerto;
         this.con = con;
         this.con.BaseDeDatosSeleccionada = puerto;
+        usuario = user;
     }
 
     public Conexion getConexion() {
         return con;
+    }
+    
+    public String getUsuario(){
+        return usuario;
     }
 
     public void mostrarConsola() {

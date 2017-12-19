@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 import vistas.consola;
 
 public class ConexionOracle extends Conexion {
@@ -159,7 +160,7 @@ public class ConexionOracle extends Conexion {
 
     @Override
     public int borrarColumnaTabla(String tabla, String columna) throws SQLException {
-        String z = "ALTER TABLE " + tabla + " DROP " + columna;
+        String z = "ALTER TABLE " + tabla + " DROP COLUMN " + columna;
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
@@ -173,7 +174,11 @@ public class ConexionOracle extends Conexion {
 
     @Override
     public int crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) throws SQLException {
-        String constraint = "FK_" + tabla + "_" + atri + "_TO_" + tabla_ref + "_" + atri_ref;
+        String constraint = JOptionPane.showInputDialog(null, "ingrese nombre constraint:");
+        if (constraint == null) {
+            return Statement.EXECUTE_FAILED;
+        }
+        
         String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + constraint
                 + " FOREIGN KEY(" + atri + ") REFERENCES " + tabla_ref + "(" + atri_ref + ")";
         cons.agregar(z);
@@ -182,13 +187,38 @@ public class ConexionOracle extends Conexion {
 
     @Override
     public ResultSet getTriggers() throws SQLException {
-        String z = "SHOW TRIGGERS;";
+        String z = "SELECT trigger_name, trigger_type, triggering_event, ";
+        z += "table_name, status, trigger_body FROM ALL_TRIGGERS";
         cons.agregar(z);
         return sta.executeQuery(z);
     }
 
     @Override
     public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String z = "SELECT trigger_name, trigger_type, trigger_body, ";
+        z += "table_name, triggering_event, status FROM ALL_TRIGGERS";
+        cons.agregar(z);
+        return sta.executeQuery(z);
+    }
+
+    @Override
+    public int crearTrigger(String sql) throws SQLException {
+        String z = sql;
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
+
+    @Override
+    public int borrarTrigger(String nombreTrigger) throws SQLException {
+        String z = "DROP TRIGGER " + nombreTrigger;
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
+
+    @Override
+    public int crearLlaveUnique(String tabla, String columna) throws SQLException {
+        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ")";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
     }
 }
