@@ -252,4 +252,16 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
+
+    @Override
+    public int actualizarAtributo(String tabla, String columna) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException {
+        String z = "ALTER TABLE " + tabla + " RENAME " + nuevoNombre + ";";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
 }

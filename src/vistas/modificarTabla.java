@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-public class modificarTabla extends javax.swing.JFrame implements KeyListener{
+public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
     private final operaciones op;
     private final String tabla;
@@ -31,7 +31,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener{
         botonCrearPrimaria.addKeyListener(this);
     }
 
-    private void cargar() {
+    protected void cargar() {
         try {
             //cargar columnas 
             comboColumnasBorrar.removeAllItems();
@@ -60,7 +60,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener{
             while (rs.next()) {
                 comboOtrasTablas.addItem(rs.getString(1));
             }
-            
+
             //cargar tabla
             DefaultTableModel dft = new DefaultTableModel() {
                 @Override
@@ -71,7 +71,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener{
             op.llenarTableModel(op.getConexion().GetColumnasTabla(tabla), dft);
             jTable1.setModel(dft);
             jTable2.setModel(dft);
-            
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
@@ -448,7 +448,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener{
             JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
             return;
         }
-        
+
         setCursor(Cursor.WAIT_CURSOR);
         String lon = null, Def = null;
         if (!textLongitud.getText().isEmpty()) {
@@ -506,7 +506,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener{
                 || ComboColumnaForanea.getSelectedIndex() == 0) {
             return;
         }
-        
+
         setCursor(Cursor.WAIT_CURSOR);
         try {
             op.getConexion().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
@@ -523,12 +523,12 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener{
         if (flag) {
             return;
         }
+        comboAtributosReferencia.removeAllItems();
+        comboAtributosReferencia.addItem("------------");
         if (comboOtrasTablas.getSelectedIndex() == 0) {
-            comboAtributosReferencia.removeAllItems();
-            comboAtributosReferencia.addItem("------------");
             return;
         }
-
+        
         try {
             ResultSet rs = op.getConexion().GetColumnasTabla(comboOtrasTablas.getSelectedItem().toString());
             while (rs.next()) {

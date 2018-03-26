@@ -124,4 +124,8 @@ public abstract class Conexion {
     abstract public int borrarTrigger(String nombreTrigger) throws SQLException;
     
     abstract public int crearLlaveUnique(String tabla, String columna) throws SQLException;
+    
+    abstract public int actualizarAtributo(String tabla, String columna) throws SQLException;
+    
+    abstract public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException;
 }

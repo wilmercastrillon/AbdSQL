@@ -254,6 +254,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
     private void botonRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRecargarActionPerformed
         recargarResultSet();
         llenarTabla();
+        ma.cargar();
         nuevaFila = false;
     }//GEN-LAST:event_botonRecargarActionPerformed
 

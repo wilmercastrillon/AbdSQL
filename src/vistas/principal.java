@@ -110,7 +110,34 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
-                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
+//                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
+                        System.out.println(ex.getMessage() + "\n");
+                    }
+                }
+            }
+        });
+        JMenuItem renombrarTabla = new JMenuItem("Renombrar tabla");
+        renombrarTabla.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                TreePath path = jTree1.getSelectionPath();
+                if (path.getPathCount() == 3) {
+                    String str = JOptionPane.showInputDialog(null, "Ingrese nuevo nombre");
+                    if (str == null){
+                        return;
+                    }
+                    try {
+                        op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
+                        op.getConexion().renombrarTabla(path.getPathComponent(2).toString(), str);
+//                        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
+//                        modelo_arbol.removeNodeFromParent(currentNode);
+                        JOptionPane.showMessageDialog(null, "Nombre cambiado", "Exitoso", 1);
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(null, "Error al renombrar tabla", "Error", 0);
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
+                        System.out.println("\nError: princiapl: constructor: renombrarTabla.addActionListener");
                         System.out.println(ex.getMessage() + "\n");
                     }
                 }
@@ -139,7 +166,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
-                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
+//                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
                         System.out.println(ex.getMessage() + "\n");
                     }
                 }
@@ -195,6 +222,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         menu2.add(agregar);
         menu2.add(agregarTrigger);
         menu3.add(borrar);
+        menu3.add(renombrarTabla);
         menu4.add(borrarTrigger);
 
         eventojtree();
