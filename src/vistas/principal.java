@@ -28,6 +28,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private DefaultTreeModel modelo_arbol;
     private DefaultMutableTreeNode raiz;
     private Vector<DefaultMutableTreeNode> nodos;
+    private Vector<JPanel> paneles;
     private final operaciones op;
     private JPopupMenu menu2, menu1, menu3, menu4;
     public inicio ini;
@@ -123,7 +124,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 TreePath path = jTree1.getSelectionPath();
                 if (path.getPathCount() == 3) {
                     String str = JOptionPane.showInputDialog(null, "Ingrese nuevo nombre");
-                    if (str == null){
+                    if (str == null) {
                         return;
                     }
                     try {
@@ -157,7 +158,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         op.getConexion().borrarTrigger(path.getPathComponent(3).toString());
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         modelo_arbol.removeNodeFromParent(currentNode);
-                         
+
                         if (modelo_arbol.isLeaf(path.getPathComponent(2))) {
                             modelo_arbol.removeNodeFromParent((DefaultMutableTreeNode) path.getPathComponent(2));
                         }
@@ -252,6 +253,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             jTree1.setModel(modelo_arbol);
 
             nodos = new Vector<>();
+            paneles = new Vector<>();
             int pos2;
             Vector<String> bd = op.getBasesDeDatos();
             for (int i = 0; i < bd.size(); i++) {
@@ -387,6 +389,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
             jTabbedPane1.addTab(nombre, pt);
+            paneles.add(pt);
 
             tabButton.setPreferredSize(new Dimension(15, 15));
             tabButton.setContentAreaFilled(false);
@@ -414,6 +417,15 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }
+    
+    private void cerrarVentanas(){
+        for (int i = 0; i < paneles.size(); i++) {
+            if (paneles.get(i) instanceof panelTabla) {
+                ((panelTabla) paneles.get(i)).cerrarVentana();
+            }
+        }
+        paneles.clear();
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -424,8 +436,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         salir = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
-        botonCerrarVentanas = new javax.swing.JButton();
+        botonCerrartab = new javax.swing.JButton();
         botonRecargar = new javax.swing.JButton();
+        botonCerrarVentanas = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -447,10 +460,10 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
 
-        botonCerrarVentanas.setText("Cerrar ventanas");
-        botonCerrarVentanas.addActionListener(new java.awt.event.ActionListener() {
+        botonCerrartab.setText("Cerrar pestañas");
+        botonCerrartab.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonCerrarVentanasActionPerformed(evt);
+                botonCerrartabActionPerformed(evt);
             }
         });
 
@@ -458,6 +471,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         botonRecargar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonRecargarActionPerformed(evt);
+            }
+        });
+
+        botonCerrarVentanas.setText("Cerrar ventanas");
+        botonCerrarVentanas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonCerrarVentanasActionPerformed(evt);
             }
         });
 
@@ -473,10 +493,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(botonCerrartab)
+                        .addGap(18, 18, 18)
                         .addComponent(botonCerrarVentanas)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 98, Short.MAX_VALUE)
                         .addComponent(jButton1)
-                        .addGap(159, 159, 159)
+                        .addGap(104, 104, 104)
                         .addComponent(salir))
                     .addComponent(jTabbedPane1))
                 .addContainerGap())
@@ -492,8 +514,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salir)
                     .addComponent(jButton1)
-                    .addComponent(botonCerrarVentanas)
-                    .addComponent(botonRecargar))
+                    .addComponent(botonCerrartab)
+                    .addComponent(botonRecargar)
+                    .addComponent(botonCerrarVentanas))
                 .addContainerGap())
         );
 
@@ -501,6 +524,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salirActionPerformed
+        cerrarVentanas();
         op.getConexion().desconectar();
         this.setVisible(false);
         ini.setVisible(true);
@@ -510,13 +534,17 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         op.mostrarConsola();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void botonCerrarVentanasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCerrarVentanasActionPerformed
+    private void botonCerrartabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCerrartabActionPerformed
         jTabbedPane1.removeAll();
-    }//GEN-LAST:event_botonCerrarVentanasActionPerformed
+    }//GEN-LAST:event_botonCerrartabActionPerformed
 
     private void botonRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRecargarActionPerformed
         cargar();
     }//GEN-LAST:event_botonRecargarActionPerformed
+
+    private void botonCerrarVentanasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCerrarVentanasActionPerformed
+        cerrarVentanas();
+    }//GEN-LAST:event_botonCerrarVentanasActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -552,6 +580,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonCerrarVentanas;
+    private javax.swing.JButton botonCerrartab;
     private javax.swing.JButton botonRecargar;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;

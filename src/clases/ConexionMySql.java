@@ -79,7 +79,7 @@ public class ConexionMySql extends Conexion {
 
     @Override
     public void CrearTabla(String nombre) throws SQLException {
-        String z = "Create Table " + nombre + " (ID int NOT NULL);";
+        String z = "Create Table " + nombre + " (id" + nombre.replace(" ", "") + " int NOT NULL);";
         cons.agregar(z);
         sta.executeUpdate(z);
     }

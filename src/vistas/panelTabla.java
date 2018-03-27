@@ -163,6 +163,10 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         }
         return vs;
     }
+    
+    protected void cerrarVentana(){
+        ma.setVisible(false);
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

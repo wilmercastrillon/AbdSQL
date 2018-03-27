@@ -32,10 +32,12 @@
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
+                      <Component id="botonCerrartab" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="botonCerrarVentanas" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="172" max="32767" attributes="0"/>
+                      <EmptySpace pref="98" max="32767" attributes="0"/>
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="159" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="104" max="-2" attributes="0"/>
                       <Component id="salir" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jTabbedPane1" max="32767" attributes="0"/>
@@ -56,8 +58,9 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="salir" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="botonCerrarVentanas" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="botonCerrartab" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="botonRecargar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="botonCerrarVentanas" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -103,12 +106,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="botonCerrarVentanas">
+    <Component class="javax.swing.JButton" name="botonCerrartab">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Cerrar ventanas"/>
+        <Property name="text" type="java.lang.String" value="Cerrar pesta&#xf1;as"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonCerrarVentanasActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonCerrartabActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="botonRecargar">
@@ -117,6 +120,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonRecargarActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="botonCerrarVentanas">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Cerrar ventanas"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonCerrarVentanasActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
