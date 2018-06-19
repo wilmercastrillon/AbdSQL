@@ -233,4 +233,9 @@ public class ConexionOracle extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
+
+    @Override
+    public int CrearAuto_increment(String tabla, String columna, String tipo) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

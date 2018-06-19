@@ -431,20 +431,17 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
         salir = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         botonCerrartab = new javax.swing.JButton();
         botonRecargar = new javax.swing.JButton();
         botonCerrarVentanas = new javax.swing.JButton();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTree1 = new javax.swing.JTree();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jScrollPane1.setViewportView(jTree1);
-
-        jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         salir.setText("salir");
         salir.addActionListener(new java.awt.event.ActionListener() {
@@ -481,6 +478,16 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        jSplitPane1.setDividerLocation(190);
+        jSplitPane1.setDividerSize(15);
+
+        jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jSplitPane1.setRightComponent(jTabbedPane1);
+
+        jScrollPane1.setViewportView(jTree1);
+
+        jSplitPane1.setLeftComponent(jScrollPane1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -488,11 +495,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(botonRecargar)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(botonRecargar)
+                        .addGap(191, 191, 191)
                         .addComponent(botonCerrartab)
                         .addGap(18, 18, 18)
                         .addComponent(botonCerrarVentanas)
@@ -500,16 +505,14 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         .addComponent(jButton1)
                         .addGap(104, 104, 104)
                         .addComponent(salir))
-                    .addComponent(jTabbedPane1))
+                    .addComponent(jSplitPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE))
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salir)
@@ -584,6 +587,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JButton botonRecargar;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTree jTree1;
     private javax.swing.JButton salir;

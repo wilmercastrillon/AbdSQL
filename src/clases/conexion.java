@@ -128,4 +128,6 @@ public abstract class Conexion {
     abstract public int actualizarAtributo(String tabla, String columna) throws SQLException;
     
     abstract public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException;
+    
+    abstract public int CrearAuto_increment(String tabla, String columna, String tipo) throws SQLException;
 }

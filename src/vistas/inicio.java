@@ -199,8 +199,8 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL v2");
-        JOptionPane.showMessageDialog(null, "Version 2.05");
+        JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL");
+        JOptionPane.showMessageDialog(null, "Version 2.1");
         JOptionPane.showMessageDialog(null, "desarrollado por:\nWilmer Castrillon");
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 

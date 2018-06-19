@@ -264,4 +264,12 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
+
+    @Override
+    public int CrearAuto_increment(String tabla, String columna, String tipo) throws SQLException {
+        String z = "ALTER TABLE " + tabla + " CHANGE " + columna;
+        z += " " + columna + " " + tipo + "  AUTO_INCREMENT;";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
 }
