@@ -125,7 +125,8 @@ public abstract class Conexion {
     
     abstract public int crearLlaveUnique(String tabla, String columna) throws SQLException;
     
-    abstract public int actualizarAtributo(String tabla, String columna) throws SQLException;
+    abstract public int actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre, 
+            String longitud, String Default, boolean Nonulo) throws SQLException;
     
     abstract public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException;
     

@@ -66,7 +66,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
                     }
                 }
-                
+
                 if (filas.length == 1) {
                     modelo.removeRow(filas[0]);
                 } else {
@@ -120,15 +120,15 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                     }
 
                     Vector<String> datos = new Vector<>();
+                    Vector<String> col = new Vector<>();
                     for (int i = 0; i < modelo.getColumnCount(); i++) {
-                        if (modelo.getValueAt(fila, i) == null) {
-                            datos.add(null);
-                        } else {
+                        if (modelo.getValueAt(fila, i) != null) {
+                            col.add(modelo.getColumnName(i));
                             datos.add(modelo.getValueAt(fila, i).toString());
                         }
                     }
 
-                    op.getConexion().actualizarFila(tabla, columnas, datos, modelo.getColumnName(columna),
+                    op.getConexion().actualizarFila(tabla, col, datos, modelo.getColumnName(columna),
                             modelo.getValueAt(fila, columna).toString());
                 } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error al modificar los datos", "Error", 0);
@@ -163,8 +163,8 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         }
         return vs;
     }
-    
-    protected void cerrarVentana(){
+
+    protected void cerrarVentana() {
         ma.setVisible(false);
     }
 

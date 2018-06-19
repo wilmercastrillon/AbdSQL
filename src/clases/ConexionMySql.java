@@ -163,10 +163,10 @@ public class ConexionMySql extends Conexion {
         String z = "UPDATE " + tabla + " SET " + columnaCambiar + " = '" + datoCambiar + "' WHERE ";
         for (int i = 0; i < columnas.size(); i++) {
             if (!columnaCambiar.equals(columnas.get(i))) {
-                z += columnas.get(i) + " = '" + datos.get(i) + "' AND ";
+                z += columnas.get(i) + " = '" + datos.get(i) + "' AND  ";
             }
         }
-        z = z.substring(0, z.length() - 5) + ";";
+        z = z.substring(0, z.length() - 6) + ";";
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
@@ -217,16 +217,16 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
-    
+
     @Override
-    public ResultSet getTriggers() throws SQLException{
+    public ResultSet getTriggers() throws SQLException {
         String z = "SHOW TRIGGERS;";
         cons.agregar(z);
         return sta.executeQuery(z);
     }
-    
+
     @Override
-    public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException{
+    public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException {
         String z = "SHOW CREATE TRIGGER " + BD + "." + nombreTrigger + ";";
         cons.agregar(z);
         return sta.executeQuery(z);
@@ -254,8 +254,23 @@ public class ConexionMySql extends Conexion {
     }
 
     @Override
-    public int actualizarAtributo(String tabla, String columna) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
+            String longitud, String Default, boolean Nonulo) throws SQLException {
+
+        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
+        z += " " + Nuevonombre + " " + tipo;
+        if (longitud != null && longitud.length() > 0) {
+            z += "(" + longitud + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT '" + Default + "'";
+        }
+        if (Nonulo) {
+            z += " NOT NULL";
+        }
+        z += ";";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
     }
 
     @Override
@@ -272,4 +287,5 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
+
 }

@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -30,8 +31,8 @@ public class operaciones {
     public Conexion getConexion() {
         return con;
     }
-    
-    public String getUsuario(){
+
+    public String getUsuario() {
         return usuario;
     }
 
@@ -67,15 +68,15 @@ public class operaciones {
     public Vector<DefaultMutableTreeNode> getTriggers() throws SQLException {
         Vector<DefaultMutableTreeNode> triggers = new Vector<>();
         ResultSet res = con.getTriggers();
-        
+
         while (res.next()) {
             triggers.add(new DefaultMutableTreeNode(res.getString(1)));
         }
 
         return triggers;
     }
-    
-    public String getSqlTrigger(String bd, String nombreTrigger) throws SQLException{
+
+    public String getSqlTrigger(String bd, String nombreTrigger) throws SQLException {
         ResultSet res = con.getDatosTrigger(bd, nombreTrigger);
         res.next();
         return res.getString(3);
@@ -95,8 +96,50 @@ public class operaciones {
             modeloJtable.addRow(datos);
         }
     }
-    
-    public Vector<String> cargarDatosConexion(){
+
+    public Vector<String> getDatosColumna(JTable modelo, String Columna) {
+        Vector<String> datos = new Vector<>();//nombre, tipo, default y nulo.
+        int index = -1;
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+            if (modelo.getValueAt(i, 0).toString().equals(Columna)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            return null;
+        }
+        datos.add(modelo.getValueAt(index, 0).toString());
+
+        if (con instanceof ConexionMySql) {
+            datos.add(modelo.getValueAt(index, 1).toString().toUpperCase());
+            Object obj = modelo.getValueAt(index, 4);
+            if (obj == null) {
+                datos.add(null);
+            } else {
+                datos.add(obj.toString());
+            }
+            datos.add(modelo.getValueAt(index, 2).toString());
+        } else {//nombre, tipo, default y nulo.
+            if (modelo.getValueAt(index, 1).toString().equalsIgnoreCase("NUMBER")) {
+                datos.add("INT");
+            } else {
+                datos.add(modelo.getValueAt(index, 1).toString().toUpperCase());
+            }
+
+            Object obj = modelo.getValueAt(index, 4);
+            if (obj == null) {
+                datos.add(null);
+            } else {
+                datos.add(obj.toString().replace("'", ""));
+            }
+            datos.add(modelo.getValueAt(index, 3).toString());
+        }
+//        System.out.println("datos: " + java.util.Arrays.toString(datos.toArray()));
+        return datos;
+    }
+
+    public Vector<String> cargarDatosConexion() {
         Vector<String> vs = new Vector<>();
         try {
             System.out.println(System.getProperty("user.dir") + "\\config");
@@ -109,8 +152,8 @@ public class operaciones {
         }
         return vs;
     }
-    
-    public void guardarDatosConexion(String puerto, String usuario, String sistemaGestor){
+
+    public void guardarDatosConexion(String puerto, String usuario, String sistemaGestor) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(System.getProperty("user.dir") + "\\config"));
             bw.write(puerto + "\r\n");

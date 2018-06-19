@@ -417,8 +417,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }
-    
-    private void cerrarVentanas(){
+
+    private void cerrarVentanas() {
         for (int i = 0; i < paneles.size(); i++) {
             if (paneles.get(i) instanceof panelTabla) {
                 ((panelTabla) paneles.get(i)).cerrarVentana();

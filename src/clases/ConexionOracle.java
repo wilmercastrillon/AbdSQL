@@ -178,7 +178,7 @@ public class ConexionOracle extends Conexion {
         if (constraint == null) {
             return Statement.EXECUTE_FAILED;
         }
-        
+
         String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + constraint
                 + " FOREIGN KEY(" + atri + ") REFERENCES " + tabla_ref + "(" + atri_ref + ")";
         cons.agregar(z);
@@ -223,8 +223,30 @@ public class ConexionOracle extends Conexion {
     }
 
     @Override
-    public int actualizarAtributo(String tabla, String columna) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
+            String longitud, String Default, boolean Nonulo) throws SQLException {
+        if (!Nuevonombre.equals(nombre)) {
+            String z0 = "alter table " + tabla + " rename column " + nombre;
+            z0 += " to " + Nuevonombre + ";";
+            cons.agregar(z0);
+            if (Statement.EXECUTE_FAILED == sta.executeUpdate(z0)) {
+                System.out.println("Fallo");
+                return Statement.EXECUTE_FAILED;
+            }
+        }
+        String z = "ALTER TABLE " + tabla + " MODIFY " + Nuevonombre;
+        z += " " + tipo;
+        if (longitud != null && longitud.length() > 0) {
+            z += "(" + longitud + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT '" + Default + "'";
+        }
+        if (Nonulo) {
+            z += " NOT NULL";
+        }
+        cons.agregar(z);
+        return sta.executeUpdate(z);
     }
 
     @Override
