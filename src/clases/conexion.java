@@ -66,6 +66,13 @@ public abstract class Conexion {
         if (sta == null) {
             return;
         }
+//        String comandos[] = comando.trim().split(";");
+//        for (String comando1 : comandos) {
+//            System.out.println(comando1);
+//            sta.addBatch(comando1);
+//        }
+//        sta.executeBatch();
+//        sta.clearBatch();
         sta.executeUpdate(comando);
         cons.agregar(comando);
     }
@@ -77,6 +84,12 @@ public abstract class Conexion {
         ResultSet r = sta.executeQuery(comando);
         cons.agregar(comando);
         return r;
+    }
+    
+    public void LlamarProcedimiento(String procedimiento, String parametros) throws SQLException{
+        String comando = "CALL " + procedimiento + " (" + parametros + ");";
+        sta.executeUpdate(comando);
+        cons.agregar(comando);
     }
 
     abstract public ResultSet GetDataBases() throws SQLException;
@@ -131,4 +144,12 @@ public abstract class Conexion {
     abstract public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException;
     
     abstract public int CrearAuto_increment(String tabla, String columna, String tipo) throws SQLException;
+    
+    abstract public ResultSet getProcedimientos(String BD) throws SQLException;
+    
+    abstract public ResultSet getDatosProcedimiento(String BD, String nombreP) throws SQLException;
+    
+    abstract public int crearProcedimiento(String sql) throws SQLException;
+    
+    abstract public int borrarProcedimiento(String nombreP) throws SQLException;
 }

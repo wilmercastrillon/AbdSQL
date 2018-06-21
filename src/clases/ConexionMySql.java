@@ -288,4 +288,30 @@ public class ConexionMySql extends Conexion {
         return sta.executeUpdate(z);
     }
 
+    @Override
+    public ResultSet getProcedimientos(String BD) throws SQLException {
+        String z = "SELECT name FROM mysql.proc WHERE db = '" + BD + "' and type= 'procedure';";
+        cons.agregar(z);
+        return sta.executeQuery(z);
+    }
+
+    @Override
+    public ResultSet getDatosProcedimiento(String BD, String nombreP) throws SQLException {
+        String z = "select name, param_list, body from mysql.proc where db = '" + BD + "' ";
+        z += "and type = 'procedure' and name = '" + nombreP + "' ";
+        cons.agregar(z);
+        return sta.executeQuery(z);
+    }
+
+    @Override
+    public int crearProcedimiento(String sql) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int borrarProcedimiento(String nombreP) throws SQLException {
+        String z = "DROP  PROCEDURE IF EXISTS " + nombreP + ";";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
 }

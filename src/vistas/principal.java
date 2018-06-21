@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 public class principal extends javax.swing.JFrame implements KeyListener {
@@ -89,6 +88,21 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 System.out.println("fin");
             }
         });
+        JMenuItem agregarProcedimiento = new JMenuItem("Crear procedimiento");
+        agregarProcedimiento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                TreePath path = jTree1.getSelectionPath();
+                if (path.getPathCount() == 2) {
+                    String h = JOptionPane.showInputDialog(null, "Nombre del procedimiento:");
+                    if (h == null) {
+                        return;
+                    }
+                    Object ob = path.getLastPathComponent();
+                    DefaultMutableTreeNode d = (DefaultMutableTreeNode) ob;
+                    agregarPanel(d.toString(), h, "ProcedimientoNuevo");
+                }
+            }
+        });
         JMenuItem borrar = new JMenuItem("Borrar tabla");
         borrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -100,8 +114,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        System.out.println("de la base de datos " + path.getPathComponent(1).toString());
-                        System.out.println("se borra la tabla " + path.getPathComponent(2).toString());
                         op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
                         op.getConexion().BorrarTabla(path.getPathComponent(2).toString());
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
@@ -111,7 +123,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
-//                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
                         System.out.println(ex.getMessage() + "\n");
                     }
                 }
@@ -130,8 +141,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     try {
                         op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
                         op.getConexion().renombrarTabla(path.getPathComponent(2).toString(), str);
-//                        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
-//                        modelo_arbol.removeNodeFromParent(currentNode);
                         JOptionPane.showMessageDialog(null, "Nombre cambiado", "Exitoso", 1);
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al renombrar tabla", "Error", 0);
@@ -153,23 +162,20 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                             != JOptionPane.YES_OPTION) {
                         return;
                     }
-                    try {
-                        op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
-                        op.getConexion().borrarTrigger(path.getPathComponent(3).toString());
-                        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
-                        modelo_arbol.removeNodeFromParent(currentNode);
-
-                        if (modelo_arbol.isLeaf(path.getPathComponent(2))) {
-                            modelo_arbol.removeNodeFromParent((DefaultMutableTreeNode) path.getPathComponent(2));
-                        }
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(null, "Error al borrar tabla", "Error", 0);
-                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
-//                        System.out.println("\nError: princiapl: constructor: borrar.addActionListener");
-                        System.out.println(ex.getMessage() + "\n");
+                    borrarNodoJtree(path, "trigger");
+                }
+            }
+        });
+        JMenuItem borrarProcedimiento = new JMenuItem("Borrar procedimiento");
+        borrarProcedimiento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                TreePath path = jTree1.getSelectionPath();
+                if (path.getPathCount() == 4) {
+                    if (JOptionPane.showConfirmDialog(null, "Seguro que quiere\nborrar el procedimiento")
+                            != JOptionPane.YES_OPTION) {
+                        return;
                     }
+                    borrarNodoJtree(path, "procedimiento");
                 }
             }
         });
@@ -222,19 +228,37 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
         menu2.add(agregar);
         menu2.add(agregarTrigger);
+        menu2.add(agregarProcedimiento);
         menu3.add(borrar);
         menu3.add(renombrarTabla);
         menu4.add(borrarTrigger);
+        menu4.add(borrarProcedimiento);
 
         eventojtree();
-//        jButton1.addKeyListener(this);
-//        jButton2.addKeyListener(this);
         jTree1.addKeyListener(this);
         TreePath p = jTree1.getPathForRow(0);
         jTree1.expandPath(p);
 
         setTitle("Bases de datos");
         setLocationRelativeTo(null);
+    }
+
+    private void borrarNodoJtree(TreePath path, String tipo) {
+        try {
+            op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
+            op.getConexion().borrarProcedimiento(path.getPathComponent(3).toString());
+            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
+            modelo_arbol.removeNodeFromParent(currentNode);
+            if (modelo_arbol.isLeaf(path.getPathComponent(2))) {
+                modelo_arbol.removeNodeFromParent((DefaultMutableTreeNode) path.getPathComponent(2));
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al borrar " + tipo, "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
+            System.out.println(ex.getMessage() + "\n");
+        }
     }
 
     public void cerrarTab(String titulo) {
@@ -281,6 +305,15 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         modelo_arbol.insertNodeInto(triggers, nodos.get(i), 0);
                         for (int j = 0; j < v.size(); j++) {
                             modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
+                        }
+                    }
+
+                    Vector<DefaultMutableTreeNode> v2 = op.getProcedimientos(nodos.get(i).toString());
+                    if (v2.size() > 0) {
+                        DefaultMutableTreeNode Proc = new DefaultMutableTreeNode("Procedimientos");
+                        modelo_arbol.insertNodeInto(Proc, nodos.get(i), 0);
+                        for (int j = 0; j < v2.size(); j++) {
+                            modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v2.get(j)), Proc, j);
                         }
                     }
                 } catch (Exception e) {
@@ -338,7 +371,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 }
 
                 if (tp.getPathCount() == 4) {
-                    agregarPanel(tp.getPathComponent(1).toString(), tp.getPathComponent(3).toString(), "Trigger");
+                    Object nodo = tp.getPathComponent(2);
+                    if (nodo.toString().equals("Procedimientos")) {
+                        agregarPanel(tp.getPathComponent(1).toString(), tp.getPathComponent(3).toString(), "Procedimiento");
+                    } else {
+                        agregarPanel(tp.getPathComponent(1).toString(), tp.getPathComponent(3).toString(), "Trigger");
+                    }
                 }
             }
 
@@ -380,12 +418,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JPanel pt;
             if (tipo.equals("Tabla")) {
                 pt = new panelTabla(op, DB, nombre, op.getConexion().GetDatosTabla(nombre));
+            } else if (tipo.equals("TriggerNuevo")) {
+                pt = new panelTrigger(op, DB, nombre, true);
+            } else if (tipo.equals("Trigger")) {
+                pt = new panelTrigger(op, DB, nombre, false);
             } else {
-                if (tipo.equals("TriggerNuevo")) {
-                    pt = new panelTrigger(op, DB, nombre, true);
-                } else {
-                    pt = new panelTrigger(op, DB, nombre, false);
-                }
+                pt = new panelProcedimiento(op, DB, nombre, false);
             }
             JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
             jTabbedPane1.addTab(nombre, pt);
@@ -408,7 +446,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             jTabbedPane1.setTabComponentAt(jTabbedPane1.getTabCount() - 1, pnl);
             jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al cargar tabla", "Error", 0);
+            JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error inseperado", "Error", 0);
@@ -611,7 +649,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     }
                 } else {
                     if (p.getPathCount() == 4) {
-                        agregarPanel(p.getPathComponent(1).toString(), p.getPathComponent(3).toString(), "Trigger");
+                        if (p.getPathComponent(2).equals("Procedimientos")) {
+                            agregarPanel(p.getPathComponent(1).toString(), p.getPathComponent(3).toString(), "Procedimiento");
+                        } else {
+                            agregarPanel(p.getPathComponent(1).toString(), p.getPathComponent(3).toString(), "Trigger");
+                        }
                         return;
                     }
                 }

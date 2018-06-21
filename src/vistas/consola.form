@@ -34,7 +34,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jTabbedPane1" pref="458" max="32767" attributes="0"/>
+              <Component id="jTabbedPane1" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -102,7 +102,7 @@
             </Component>
             <Container class="javax.swing.JSplitPane" name="jSplitPane1">
               <Properties>
-                <Property name="dividerLocation" type="int" value="100"/>
+                <Property name="dividerLocation" type="int" value="125"/>
                 <Property name="dividerSize" type="int" value="15"/>
                 <Property name="orientation" type="int" value="0"/>
               </Properties>

@@ -196,7 +196,8 @@ public class ConexionOracle extends Conexion {
     @Override
     public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException {
         String z = "SELECT trigger_name, trigger_type, trigger_body, ";
-        z += "table_name, triggering_event, status FROM ALL_TRIGGERS";
+        z += "table_name, triggering_event, status FROM ALL_TRIGGERS ";
+        z += "where trigger_name = '" + nombreTrigger + "'";
         cons.agregar(z);
         return sta.executeQuery(z);
     }
@@ -258,6 +259,26 @@ public class ConexionOracle extends Conexion {
 
     @Override
     public int CrearAuto_increment(String tabla, String columna, String tipo) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ResultSet getProcedimientos(String BD) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ResultSet getDatosProcedimiento(String BD, String nombreP) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int crearProcedimiento(String sql) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int borrarProcedimiento(String nombreTrigger) throws SQLException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

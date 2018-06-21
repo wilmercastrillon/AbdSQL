@@ -76,10 +76,31 @@ public class operaciones {
         return triggers;
     }
 
+    public Vector<DefaultMutableTreeNode> getProcedimientos(String bd) throws SQLException {
+        Vector<DefaultMutableTreeNode> proc = new Vector<>();
+        ResultSet res = con.getProcedimientos(bd);
+        while (res.next()) {
+            proc.add(new DefaultMutableTreeNode(res.getString(1)));
+        }
+        
+        return proc;
+    }
+
     public String getSqlTrigger(String bd, String nombreTrigger) throws SQLException {
         ResultSet res = con.getDatosTrigger(bd, nombreTrigger);
         res.next();
         return res.getString(3);
+    }
+
+    public String getSqlProcedimiento(String bd, String nombreP) throws SQLException {
+        ResultSet res = con.getDatosProcedimiento(bd, nombreP);
+        String sql = "";
+        if (con instanceof ConexionMySql) {
+            res.next();
+            sql += "CREATE PROCEDURE " + nombreP + "(" + res.getString(2) + ")\n";
+            sql += res.getString(3);
+        }
+        return sql;
     }
 
     public void llenarTableModel(ResultSet res, DefaultTableModel modeloJtable) throws SQLException {

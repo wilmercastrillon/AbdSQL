@@ -115,7 +115,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
 
         jLabel4.setText("Ingrese comando o consulta");
 
-        jSplitPane1.setDividerLocation(100);
+        jSplitPane1.setDividerLocation(125);
         jSplitPane1.setDividerSize(15);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -230,7 +230,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1)
                 .addContainerGap())
         );
 
