@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.operaciones;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,9 +11,13 @@ import java.util.Vector;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -35,6 +40,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         res = rs;
         columnas = new Vector<>();
         initComponents();
+//        jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         llenarTabla();
         inserta = nuevaFila = false;
         ma = new modificarTabla(op, tabla);
@@ -78,6 +84,21 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         });
         menu.add(menuitem);
         jTable1.setComponentPopupMenu(menu);
+//        resizeColumnWidth(jTable1);
+    }
+
+    private void resizeColumnWidth(JTable table) {
+        final TableColumnModel columnModel = table.getColumnModel();
+        int acum = 0;
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            acum += columnModel.getColumn(i).getWidth();
+        }
+        if (acum < jScrollPane1.getWidth()) {
+            int tam = (jScrollPane1.getWidth() / columnModel.getColumnCount()) + 1;
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                columnModel.getColumn(i).setPreferredWidth(tam);
+            }
+        }
     }
 
     private void llenarTabla() {
@@ -172,11 +193,13 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jTable1 = new javax.swing.JTable();
         botonAtributos = new javax.swing.JButton();
         botonAgregarRegistro = new javax.swing.JButton();
         botonRecargar = new javax.swing.JButton();
+        RadioAjustar = new javax.swing.JRadioButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -189,6 +212,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
             }
         ));
+        jTable1.setAutoscrolls(false);
         jScrollPane1.setViewportView(jTable1);
 
         botonAtributos.setText("Modificar tabla");
@@ -212,6 +236,13 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
             }
         });
 
+        RadioAjustar.setText("Ajustar");
+        RadioAjustar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RadioAjustarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -219,14 +250,16 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(botonAtributos)
                         .addGap(18, 18, 18)
                         .addComponent(botonAgregarRegistro)
                         .addGap(18, 18, 18)
                         .addComponent(botonRecargar)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(RadioAjustar)
+                        .addGap(0, 20, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -236,7 +269,8 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(botonAtributos)
                     .addComponent(botonAgregarRegistro)
-                    .addComponent(botonRecargar))
+                    .addComponent(botonRecargar)
+                    .addComponent(RadioAjustar))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
                 .addContainerGap())
@@ -272,7 +306,17 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         nuevaFila = true;
     }//GEN-LAST:event_botonAgregarRegistroActionPerformed
 
+    private void RadioAjustarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RadioAjustarActionPerformed
+        if (RadioAjustar.isSelected()) {
+            jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//            resizeColumnWidth(jTable1);
+        } else {
+            jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        }
+    }//GEN-LAST:event_RadioAjustarActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton RadioAjustar;
     private javax.swing.JButton botonAgregarRegistro;
     private javax.swing.JButton botonAtributos;
     private javax.swing.JButton botonRecargar;

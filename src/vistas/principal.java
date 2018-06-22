@@ -162,7 +162,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                             != JOptionPane.YES_OPTION) {
                         return;
                     }
-                    borrarNodoJtree(path, "trigger");
+                    borrarNodoJtree(path, "trigger", "Triggers");
                 }
             }
         });
@@ -175,7 +175,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                             != JOptionPane.YES_OPTION) {
                         return;
                     }
-                    borrarNodoJtree(path, "procedimiento");
+                    borrarNodoJtree(path, "procedimiento", "Procedimientos");
                 }
             }
         });
@@ -243,10 +243,18 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         setLocationRelativeTo(null);
     }
 
-    private void borrarNodoJtree(TreePath path, String tipo) {
+    private void borrarNodoJtree(TreePath path, String tipo, String parent) {
         try {
+            if (!path.getPathComponent(2).toString().equals(parent)) {
+                return;
+            }
+
             op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
-            op.getConexion().borrarProcedimiento(path.getPathComponent(3).toString());
+            if (tipo.equalsIgnoreCase("trigger")) {
+                op.getConexion().borrarTrigger(path.getPathComponent(3).toString());
+            } else {
+                op.getConexion().borrarProcedimiento(path.getPathComponent(3).toString());
+            }
             DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
             modelo_arbol.removeNodeFromParent(currentNode);
             if (modelo_arbol.isLeaf(path.getPathComponent(2))) {
@@ -422,6 +430,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 pt = new panelTrigger(op, DB, nombre, true);
             } else if (tipo.equals("Trigger")) {
                 pt = new panelTrigger(op, DB, nombre, false);
+            } else if (tipo.equals("ProcedimientoNuevo")) {
+                pt = new panelProcedimiento(op, DB, nombre, true);
             } else {
                 pt = new panelProcedimiento(op, DB, nombre, false);
             }
@@ -598,16 +608,24 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(principal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(principal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(principal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(principal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 

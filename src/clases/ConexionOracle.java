@@ -264,12 +264,18 @@ public class ConexionOracle extends Conexion {
 
     @Override
     public ResultSet getProcedimientos(String BD) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SELECT Distinct name FROM all_source WHERE UPPER(owner) = UPPER('"+BD+"') AND type = 'PROCEDURE'";
+        cons.agregar(z);
+        return sta.executeQuery(z);
     }
 
     @Override
     public ResultSet getDatosProcedimiento(String BD, String nombreP) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SELECT LISTAGG(TEXT, CHR(13)) WITHIN GROUP (ORDER BY LINE) \"texto\" ";
+        z += "FROM  all_source WHERE NAME = '" + nombreP + "' AND type = 'PROCEDURE' ";
+        z += "AND UPPER(owner) = UPPER('" + BD + "') ORDER BY LINE";
+        cons.agregar(z);
+        return sta.executeQuery(z);
     }
 
     @Override
@@ -278,7 +284,9 @@ public class ConexionOracle extends Conexion {
     }
 
     @Override
-    public int borrarProcedimiento(String nombreTrigger) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int borrarProcedimiento(String nombreP) throws SQLException {
+        String z = "DROP PROCEDURE " + nombreP;
+        cons.agregar(z);
+        return sta.executeUpdate(z);
     }
 }

@@ -26,8 +26,8 @@ public class panelProcedimiento extends javax.swing.JPanel {
     private void cargar() {
         try {
             if (nuevo) {
-                String sql = "CREATE PROCEDURE " + nombre + " ( )\n";
-                sql += "Begin\n\nEnd\n";
+                String sql = "CREATE OR REPLACE PROCEDURE " + nombre + " ( )\n";
+                sql += "IS\nBegin\n\nEnd;\n";
                 textProcedimiento.setText(sql);
             } else {
                 textProcedimiento.setText(op.getSqlProcedimiento(BaseDeDatos, nombre));
@@ -112,15 +112,14 @@ public class panelProcedimiento extends javax.swing.JPanel {
 
     private void botonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonGuardarActionPerformed
         try {
-            if (!nuevo) {
-                op.getConexion().borrarProcedimiento(nombre);
-                nuevo = false;
-            }
-            op.getConexion().EjecutarUpdate(textProcedimiento.getText());
+            op.GuardarProcedimiento(nombre, textProcedimiento.getText(), nuevo);
+            nuevo = false;
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al guardar procedimiento", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error inesperado", "Error", 0);
         }
     }//GEN-LAST:event_botonGuardarActionPerformed
 
@@ -131,6 +130,8 @@ public class panelProcedimiento extends javax.swing.JPanel {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al ejecutar procedimiento", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error inesperado", "Error", 0);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

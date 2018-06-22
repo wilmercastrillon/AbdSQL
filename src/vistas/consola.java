@@ -18,8 +18,11 @@ import javax.swing.DefaultListModel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 public class consola extends javax.swing.JFrame implements KeyListener {
 
@@ -71,6 +74,25 @@ public class consola extends javax.swing.JFrame implements KeyListener {
 
         setTitle("consola");
     }
+    
+    private void resizeColumnWidth(JTable table) {
+        final TableColumnModel columnModel = table.getColumnModel();
+        int acum = 0;
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            acum += columnModel.getColumn(i).getWidth();
+        }
+        System.out.println("acum " + acum);
+        System.out.println(jScrollPane2.getWidth());
+        System.out.println("tabla " + jTable1.getBounds().toString());
+        System.out.println("scroll " + jScrollPane2.getBounds().toString());
+        if (acum < jScrollPane2.getWidth() && acum > 0) {
+            System.out.println("se reajusta");
+            int tam = (jScrollPane2.getWidth() / columnModel.getColumnCount()) + 1;
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                columnModel.getColumn(i).setPreferredWidth(tam);
+            }
+        }
+    }
 
     private void pegar(JTextArea jtex) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -100,12 +122,14 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jSplitPane1 = new javax.swing.JSplitPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPane2 = new javax.swing.JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jTable1 = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         comando = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        RadioAjustar = new javax.swing.JRadioButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
@@ -154,6 +178,13 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        RadioAjustar.setText("Ajustar tabla");
+        RadioAjustar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RadioAjustarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -163,13 +194,14 @@ public class consola extends javax.swing.JFrame implements KeyListener {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 595, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton2)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton1)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jLabel4)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(RadioAjustar)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -180,7 +212,8 @@ public class consola extends javax.swing.JFrame implements KeyListener {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(RadioAjustar))
                 .addGap(18, 18, 18)
                 .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
                 .addContainerGap())
@@ -280,6 +313,15 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void RadioAjustarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RadioAjustarActionPerformed
+        if (RadioAjustar.isSelected()) {
+            jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//            resizeColumnWidth(jTable1);
+        } else {
+            jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        }
+    }//GEN-LAST:event_RadioAjustarActionPerformed
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -314,6 +356,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton RadioAjustar;
     private javax.swing.JTextArea comando;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

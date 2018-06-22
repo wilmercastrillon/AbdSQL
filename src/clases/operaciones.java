@@ -82,7 +82,7 @@ public class operaciones {
         while (res.next()) {
             proc.add(new DefaultMutableTreeNode(res.getString(1)));
         }
-        
+
         return proc;
     }
 
@@ -99,8 +99,19 @@ public class operaciones {
             res.next();
             sql += "CREATE PROCEDURE " + nombreP + "(" + res.getString(2) + ")\n";
             sql += res.getString(3);
+        } else {
+            res.next();
+            sql += "CREATE OR REPLACE ";
+            sql += res.getString(1);
         }
         return sql;
+    }
+
+    public void GuardarProcedimiento(String nombre, String sql, boolean nuevo) throws SQLException {
+        if (con instanceof ConexionMySql && !nuevo) {
+            con.borrarProcedimiento(nombre);
+        }
+        con.EjecutarUpdate(sql);
     }
 
     public void llenarTableModel(ResultSet res, DefaultTableModel modeloJtable) throws SQLException {

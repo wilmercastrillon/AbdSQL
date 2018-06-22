@@ -9,7 +9,7 @@ import java.util.Vector;
 import vistas.consola;
 
 public abstract class Conexion {
-    
+
     protected Connection con;
     protected Statement sta;
     protected String driver;
@@ -85,9 +85,14 @@ public abstract class Conexion {
         cons.agregar(comando);
         return r;
     }
-    
-    public void LlamarProcedimiento(String procedimiento, String parametros) throws SQLException{
-        String comando = "CALL " + procedimiento + " (" + parametros + ");";
+
+    public void LlamarProcedimiento(String procedimiento, String parametros) throws SQLException {
+        String comando;
+        if (con instanceof ConexionMySql) {
+            comando = "CALL " + procedimiento + " (" + parametros + ");";
+        }else{
+            comando = "EXEC " + procedimiento + " (" + parametros + ");";
+        }
         sta.executeUpdate(comando);
         cons.agregar(comando);
     }
@@ -125,31 +130,31 @@ public abstract class Conexion {
 
     abstract public int crearLlavePrimaria(String tabla, String columna) throws SQLException;
 
-    abstract public int crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) 
+    abstract public int crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref)
             throws SQLException;
-    
+
     abstract public ResultSet getTriggers() throws SQLException;
-    
+
     abstract public ResultSet getDatosTrigger(String BD, String nombreTrigger) throws SQLException;
-    
+
     abstract public int crearTrigger(String sql) throws SQLException;
-    
+
     abstract public int borrarTrigger(String nombreTrigger) throws SQLException;
-    
+
     abstract public int crearLlaveUnique(String tabla, String columna) throws SQLException;
-    
-    abstract public int actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre, 
+
+    abstract public int actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
             String longitud, String Default, boolean Nonulo) throws SQLException;
-    
+
     abstract public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException;
-    
+
     abstract public int CrearAuto_increment(String tabla, String columna, String tipo) throws SQLException;
-    
+
     abstract public ResultSet getProcedimientos(String BD) throws SQLException;
-    
+
     abstract public ResultSet getDatosProcedimiento(String BD, String nombreP) throws SQLException;
-    
+
     abstract public int crearProcedimiento(String sql) throws SQLException;
-    
+
     abstract public int borrarProcedimiento(String nombreP) throws SQLException;
 }
