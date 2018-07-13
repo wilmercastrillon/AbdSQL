@@ -143,7 +143,9 @@ public class ConexionMySql extends Conexion {
     public void borrarFila(Vector<String> datos, Vector<String> columas, String table) throws SQLException {
         String z = "DELETE FROM " + table + " WHERE";
         for (int i = 0; i < columas.size(); i++) {
-            z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
+            if (datos.get(i) != null) {
+                z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
+            }
         }
         z = z.substring(0, z.length() - 4) + ";";
         cons.agregar(z);
