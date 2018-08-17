@@ -8,11 +8,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -225,10 +227,42 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             menu1.add(crearBD);
             menu2.add(borrarBD);
         }
+        JMenuItem CrearMVC = new JMenuItem("Crear plantilla MVC");
+        CrearMVC.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int seleccion = chooser.showOpenDialog(null);
+                if (seleccion != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+                setCursor(Cursor.WAIT_CURSOR);
+                TreePath path = jTree1.getSelectionPath();
+                String bd = path.getLastPathComponent().toString();
+                File fichero = chooser.getSelectedFile();
+                File m = new File(fichero.getPath() + "\\Models");
+                m.mkdirs();
+                File c = new File(fichero.getPath() + "\\Controllers");
+                c.mkdirs();
+                
+                try {
+                    if(op.generaraMVC(op.getTablesDataBase(bd), fichero.getPath())){
+                        JOptionPane.showMessageDialog(null, "Modelos y controladores\nCreados", "Exitoso", 1);
+                    }else{
+                        JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                }
+                setCursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
 
         menu2.add(agregar);
         menu2.add(agregarTrigger);
         menu2.add(agregarProcedimiento);
+        menu2.add(CrearMVC);
         menu3.add(borrar);
         menu3.add(renombrarTabla);
         menu4.add(borrarTrigger);

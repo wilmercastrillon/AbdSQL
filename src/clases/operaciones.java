@@ -195,4 +195,14 @@ public class operaciones {
         } catch (Exception e) {
         }
     }
+
+    public boolean generaraMVC(Vector<String> tablas, String ruta) {
+        GeneradorMVC gen = new GeneradorMVC(tablas, getConexion());
+        try {
+            gen.GenerarModelos(ruta);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 }

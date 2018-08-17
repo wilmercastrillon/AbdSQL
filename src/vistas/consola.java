@@ -1,7 +1,9 @@
 package vistas;
 
 import clases.Conexion;
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.LayoutManager;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -14,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -21,20 +24,28 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.Element;
 
 public class consola extends javax.swing.JFrame implements KeyListener {
 
     private DefaultListModel<String> modelo_lista;
     private Conexion x4;
     private JPopupMenu menu, menu2, menu3;
+    private JTextArea numeros, comando;
+    private JScrollPane scroll;
 
     public consola(Conexion q) {
         x4 = q;
         initComponents();
         modelo_lista = new DefaultListModel<>();
         jList1.setModel(modelo_lista);
+        contadorLineas();
+        
         menu = new JPopupMenu();
         menu2 = new JPopupMenu();
         menu3 = new JPopupMenu();
@@ -68,13 +79,60 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         menu.add(item2);
         menu.add(item);
         jList1.setComponentPopupMenu(menu);
-
         menu2.add(item3);
         comando.setComponentPopupMenu(menu2);
 
         setTitle("consola");
     }
-    
+
+    private void contadorLineas() {
+        comando = new JTextArea();
+        numeros = new JTextArea("1");
+        numeros.setBackground(Color.LIGHT_GRAY);
+        numeros.setEditable(false);
+        scroll = new JScrollPane(comando);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setRowHeaderView(numeros);
+        panelComandos.setLayout((LayoutManager) new BoxLayout(panelComandos, BoxLayout.Y_AXIS));
+        panelComandos.add(scroll);
+        comando.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent documentEvent) {
+                updateLineNumbers();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent documentEvent) {
+                updateLineNumbers();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent documentEvent) {
+                updateLineNumbers();
+            }
+        });
+    }
+
+    public void updateLineNumbers() {
+        String lineNumbersText = getLineNumbersText();
+        numeros.setText(lineNumbersText);
+    }
+
+    private String getLineNumbersText() {
+        int caretPosition = comando.getDocument().getLength();
+        Element root = comando.getDocument().getDefaultRootElement();
+        StringBuilder lineNumbersTextBuilder = new StringBuilder();
+        lineNumbersTextBuilder.append("1").append(System.lineSeparator());
+        int max = root.getElementIndex(caretPosition) + 2;
+
+        for (int elementIndex = 2; elementIndex < max; elementIndex++) {
+            lineNumbersTextBuilder.append(elementIndex).append(System.lineSeparator());
+        }
+
+        return lineNumbersTextBuilder.toString();
+    }
+
     private void resizeColumnWidth(JTable table) {
         final TableColumnModel columnModel = table.getColumnModel();
         int acum = 0;
@@ -125,8 +183,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         jScrollPane2 = new javax.swing.JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jTable1 = new javax.swing.JTable();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        comando = new javax.swing.JTextArea();
+        panelComandos = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         RadioAjustar = new javax.swing.JRadioButton();
@@ -158,11 +215,18 @@ public class consola extends javax.swing.JFrame implements KeyListener {
 
         jSplitPane1.setRightComponent(jScrollPane2);
 
-        comando.setColumns(20);
-        comando.setRows(5);
-        jScrollPane3.setViewportView(comando);
+        javax.swing.GroupLayout panelComandosLayout = new javax.swing.GroupLayout(panelComandos);
+        panelComandos.setLayout(panelComandosLayout);
+        panelComandosLayout.setHorizontalGroup(
+            panelComandosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 593, Short.MAX_VALUE)
+        );
+        panelComandosLayout.setVerticalGroup(
+            panelComandosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
 
-        jSplitPane1.setLeftComponent(jScrollPane3);
+        jSplitPane1.setLeftComponent(panelComandos);
 
         jButton2.setText("Ejecutar Update");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -192,7 +256,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 595, Short.MAX_VALUE)
+                    .addComponent(jSplitPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -276,7 +340,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             ResultSet res = x4.EjecutarConsulta(comando.getText());
             ResultSetMetaData rsmd = res.getMetaData();
 
-            DefaultTableModel modelo = new DefaultTableModel(){
+            DefaultTableModel modelo = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
@@ -294,7 +358,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
                 }
                 modelo.addRow(v);
             }
-            
+
             jTable1.setModel(modelo);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error en el comando", "Error", 0);
@@ -357,7 +421,6 @@ public class consola extends javax.swing.JFrame implements KeyListener {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton RadioAjustar;
-    private javax.swing.JTextArea comando;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -367,10 +430,10 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JPanel panelComandos;
     // End of variables declaration//GEN-END:variables
 
     public void keyTyped(KeyEvent e) {
