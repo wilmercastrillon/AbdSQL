@@ -51,6 +51,16 @@ public class operaciones {
         return aux;
     }
 
+    public boolean esConexionMysql() {
+        return (con instanceof ConexionMySql);
+    }
+
+    public void actualizarAtributoMysql(String tabla, String nombre, String tipo, String Nuevonombre,
+            String longitud, String Default, boolean Nonulo, boolean primera, String despuesDe) throws SQLException {
+        ConexionMySql cm = (ConexionMySql) con;
+        cm.actualizarAtributo(tabla, nombre, tipo, Nuevonombre, longitud, Default, Nonulo, primera, despuesDe);
+    }
+
     public Vector<String> getBasesDeDatos() throws SQLException {
         Vector<String> aux = new Vector<>();
         if (con instanceof ConexionMySql) {
@@ -130,7 +140,7 @@ public class operaciones {
     }
 
     public Vector<String> getDatosColumna(JTable modelo, String Columna) {
-        Vector<String> datos = new Vector<>();//nombre, tipo, default y nulo.
+        Vector<String> datos = new Vector<>();//nombre, tipo, default, nulo y longitud.
         int index = -1;
         for (int i = 0; i < modelo.getRowCount(); i++) {
             if (modelo.getValueAt(i, 0).toString().equals(Columna)) {
@@ -144,7 +154,13 @@ public class operaciones {
         datos.add(modelo.getValueAt(index, 0).toString());
 
         if (con instanceof ConexionMySql) {
-            datos.add(modelo.getValueAt(index, 1).toString().toUpperCase());
+            String tipo = modelo.getValueAt(index, 1).toString().toUpperCase();
+            int parentesis = tipo.indexOf("(");
+            if (parentesis == -1) {
+                datos.add(tipo);
+            } else {
+                datos.add(tipo.substring(0, parentesis));
+            }
             Object obj = modelo.getValueAt(index, 4);
             if (obj == null) {
                 datos.add(null);
@@ -152,6 +168,11 @@ public class operaciones {
                 datos.add(obj.toString());
             }
             datos.add(modelo.getValueAt(index, 2).toString());
+            if (parentesis == -1) {
+                datos.add("");
+            } else {
+                datos.add(tipo.substring(parentesis + 1, tipo.length() - 1));
+            }
         } else {//nombre, tipo, default y nulo.
             if (modelo.getValueAt(index, 1).toString().equalsIgnoreCase("NUMBER")) {
                 datos.add("INT");
@@ -166,8 +187,8 @@ public class operaciones {
                 datos.add(obj.toString().replace("'", ""));
             }
             datos.add(modelo.getValueAt(index, 3).toString());
+            datos.add("");
         }
-//        System.out.println("datos: " + java.util.Arrays.toString(datos.toArray()));
         return datos;
     }
 

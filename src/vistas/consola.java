@@ -45,7 +45,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         modelo_lista = new DefaultListModel<>();
         jList1.setModel(modelo_lista);
         contadorLineas();
-        
+
         menu = new JPopupMenu();
         menu2 = new JPopupMenu();
         menu3 = new JPopupMenu();
@@ -131,25 +131,6 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         }
 
         return lineNumbersTextBuilder.toString();
-    }
-
-    private void resizeColumnWidth(JTable table) {
-        final TableColumnModel columnModel = table.getColumnModel();
-        int acum = 0;
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            acum += columnModel.getColumn(i).getWidth();
-        }
-        System.out.println("acum " + acum);
-        System.out.println(jScrollPane2.getWidth());
-        System.out.println("tabla " + jTable1.getBounds().toString());
-        System.out.println("scroll " + jScrollPane2.getBounds().toString());
-        if (acum < jScrollPane2.getWidth() && acum > 0) {
-            System.out.println("se reajusta");
-            int tam = (jScrollPane2.getWidth() / columnModel.getColumnCount()) + 1;
-            for (int i = 0; i < table.getColumnCount(); i++) {
-                columnModel.getColumn(i).setPreferredWidth(tam);
-            }
-        }
     }
 
     private void pegar(JTextArea jtex) {
@@ -380,7 +361,6 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     private void RadioAjustarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RadioAjustarActionPerformed
         if (RadioAjustar.isSelected()) {
             jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//            resizeColumnWidth(jTable1);
         } else {
             jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         }

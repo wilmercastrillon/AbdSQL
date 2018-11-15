@@ -2,8 +2,10 @@ package vistas;
 
 import clases.ConexionMySql;
 import clases.operaciones;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -244,11 +246,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 m.mkdirs();
                 File c = new File(fichero.getPath() + "\\Controllers");
                 c.mkdirs();
-                
+
                 try {
-                    if(op.generaraMVC(op.getTablesDataBase(bd), fichero.getPath())){
+                    if (op.generaraMVC(op.getTablesDataBase(bd), fichero.getPath())) {
                         JOptionPane.showMessageDialog(null, "Modelos y controladores\nCreados", "Exitoso", 1);
-                    }else{
+                    } else {
                         JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
                     }
                 } catch (SQLException ex) {
@@ -460,6 +462,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JPanel pt;
             if (tipo.equals("Tabla")) {
                 pt = new panelTabla(op, DB, nombre, op.getConexion().GetDatosTabla(nombre));
+                pt.setName(nombre);
             } else if (tipo.equals("TriggerNuevo")) {
                 pt = new panelTrigger(op, DB, nombre, true);
             } else if (tipo.equals("Trigger")) {
@@ -564,6 +567,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         jSplitPane1.setDividerSize(15);
 
         jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTabbedPane1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTabbedPane1MouseReleased(evt);
+            }
+        });
         jSplitPane1.setRightComponent(jTabbedPane1);
 
         jScrollPane1.setViewportView(jTree1);
@@ -630,6 +638,42 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private void botonCerrarVentanasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCerrarVentanasActionPerformed
         cerrarVentanas();
     }//GEN-LAST:event_botonCerrarVentanasActionPerformed
+
+    private void jTabbedPane1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTabbedPane1MouseReleased
+        int destino, inicio = jTabbedPane1.getSelectedIndex();
+        for (destino = 0; destino < jTabbedPane1.getTabCount(); destino++) {
+            Rectangle r = jTabbedPane1.getTabComponentAt(destino).getBounds();
+            if (r.contains(evt.getPoint())) {
+                break;
+            }
+        }
+
+        if (inicio == destino || destino == jTabbedPane1.getTabCount()) {
+            return;
+        }
+        
+        Component[] panels = new Component[jTabbedPane1.getTabCount()];
+        Component[] tabs = new Component[jTabbedPane1.getTabCount()];
+        for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
+            if (i == destino) {
+                panels[inicio] = jTabbedPane1.getComponentAt(i);
+                tabs[inicio] = jTabbedPane1.getTabComponentAt(i);
+            }else if(i == inicio){
+                panels[destino] = jTabbedPane1.getComponentAt(i);
+                tabs[destino] = jTabbedPane1.getTabComponentAt(i);
+            }else{
+                panels[i] = jTabbedPane1.getComponentAt(i);
+                tabs[i] = jTabbedPane1.getTabComponentAt(i);
+            }
+        }
+        jTabbedPane1.removeAll();
+        
+        for (int i = 0; i < panels.length; i++) {
+            jTabbedPane1.addTab(panels[i].getName(), panels[i]);
+            jTabbedPane1.setTabComponentAt(i, tabs[i]);
+        }
+        jTabbedPane1.setSelectedIndex(destino);
+    }//GEN-LAST:event_jTabbedPane1MouseReleased
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

@@ -90,20 +90,6 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 //        resizeColumnWidth(jTable1);
     }
 
-    private void resizeColumnWidth(JTable table) {
-        final TableColumnModel columnModel = table.getColumnModel();
-        int acum = 0;
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            acum += columnModel.getColumn(i).getWidth();
-        }
-        if (acum < jScrollPane1.getWidth()) {
-            int tam = (jScrollPane1.getWidth() / columnModel.getColumnCount()) + 1;
-            for (int i = 0; i < table.getColumnCount(); i++) {
-                columnModel.getColumn(i).setPreferredWidth(tam);
-            }
-        }
-    }
-
     private void llenarTabla() {
         inserta = true;
         try {
@@ -294,7 +280,15 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     private void botonRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRecargarActionPerformed
         recargarResultSet();
+        int tam[] = new int[jTable1.getColumnCount()];
+        TableColumnModel tcm = jTable1.getColumnModel();
+        for (int i = 0; i < tcm.getColumnCount(); i++) {
+            tam[i] = tcm.getColumn(i).getWidth();
+        }
         llenarTabla();
+        for (int i = 0; i < tcm.getColumnCount(); i++) {
+            tcm.getColumn(i).setPreferredWidth(tam[i]);
+        }
         ma.cargar();
         nuevaFila = false;
     }//GEN-LAST:event_botonRecargarActionPerformed
@@ -312,7 +306,6 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
     private void RadioAjustarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RadioAjustarActionPerformed
         if (RadioAjustar.isSelected()) {
             jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//            resizeColumnWidth(jTable1);
         } else {
             jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         }

@@ -274,6 +274,30 @@ public class ConexionMySql extends Conexion {
         cons.agregar(z);
         return sta.executeUpdate(z);
     }
+    
+    public int actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
+            String longitud, String Default, boolean Nonulo, boolean primera, String despuesDe) throws SQLException {
+
+        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
+        z += " " + Nuevonombre + " " + tipo;
+        if (longitud != null && longitud.length() > 0) {
+            z += "(" + longitud + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT '" + Default + "'";
+        }
+        if (Nonulo) {
+            z += " NOT NULL";
+        }
+        if (primera) {
+            z += " FIRST";
+        }else if (despuesDe != null) {
+            z += " AFTER " + despuesDe;
+        }
+        z += ";";
+        cons.agregar(z);
+        return sta.executeUpdate(z);
+    }
 
     @Override
     public int renombrarTabla(String tabla, String nuevoNombre) throws SQLException {

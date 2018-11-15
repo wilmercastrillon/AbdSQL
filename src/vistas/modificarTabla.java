@@ -1,13 +1,22 @@
 package vistas;
 
+import clases.ConexionMySql;
 import clases.operaciones;
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTable;
+import javax.swing.TransferHandler;
 import javax.swing.table.DefaultTableModel;
 
 public class modificarTabla extends javax.swing.JFrame implements KeyListener {
@@ -30,6 +39,13 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         botonCrearForanea.addKeyListener(this);
         botonCrearLlaveUnica.addKeyListener(this);
         botonCrearPrimaria.addKeyListener(this);
+        
+        if (!op.esConexionMysql()) {
+            labelMover.setVisible(false);
+            radioDespues.setVisible(false);
+            radioPrimera.setVisible(false);
+            comboDespuesDe.setVisible(false);
+        }
     }
 
     protected void cargar() {
@@ -77,6 +93,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             };
             op.llenarTableModel(op.getConexion().GetColumnasTabla(tabla), dft);
             jTable2.setModel(dft);
+            addPoppupMenu(jTable2);
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
@@ -87,6 +104,23 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             System.out.println(ex.getMessage() + "\n");
         }
         flag = false;
+    }
+
+    private void addPoppupMenu(JTable jt) {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem menuitem = new JMenuItem("Mover fila");
+        menuitem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    int pos = Integer.parseInt(JOptionPane.showInputDialog(null, "Mover a posicion"));
+
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Numero de posicion no valido", "Error", 0);
+                }
+            }
+        });
+        menu.add(menuitem);
+        jt.setComponentPopupMenu(menu);
     }
 
     @SuppressWarnings("unchecked")
@@ -144,6 +178,10 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         TextNuevoDefault = new javax.swing.JTextField();
         RadioNuevoNull = new javax.swing.JRadioButton();
         BotonActualizar = new javax.swing.JButton();
+        labelMover = new javax.swing.JLabel();
+        radioPrimera = new javax.swing.JRadioButton();
+        radioDespues = new javax.swing.JRadioButton();
+        comboDespuesDe = new javax.swing.JComboBox<>();
         jButton3 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -458,6 +496,24 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        labelMover.setText("Mover columna:");
+
+        radioPrimera.setText("Primera");
+        radioPrimera.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioPrimeraActionPerformed(evt);
+            }
+        });
+
+        radioDespues.setText("Despues de:");
+        radioDespues.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioDespuesActionPerformed(evt);
+            }
+        });
+
+        comboDespuesDe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-----------" }));
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -466,33 +522,49 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel13)
+                        .addComponent(labelMover)
                         .addGap(18, 18, 18)
-                        .addComponent(comboActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(RadioNuevoDefault)
-                                .addGap(18, 18, 18)
-                                .addComponent(TextNuevoDefault))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(jLabel14)
-                                .addGap(18, 18, 18)
-                                .addComponent(textNuevoNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(radioPrimera)
                         .addGap(18, 18, 18)
+                        .addComponent(radioDespues)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addComponent(jLabel15)
                                 .addGap(18, 18, 18)
-                                .addComponent(comboNuevoTipoDato, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(comboDespuesDe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(BotonActualizar)
+                                .addContainerGap())))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel5Layout.createSequentialGroup()
-                                .addComponent(RadioNuevoNull)
+                                .addComponent(jLabel13)
                                 .addGap(18, 18, 18)
-                                .addComponent(jLabel16)
+                                .addComponent(comboActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel5Layout.createSequentialGroup()
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel5Layout.createSequentialGroup()
+                                        .addComponent(RadioNuevoDefault)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(TextNuevoDefault))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel5Layout.createSequentialGroup()
+                                        .addComponent(jLabel14)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(textNuevoNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(18, 18, 18)
-                                .addComponent(TextNuevoLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(BotonActualizar))
-                .addContainerGap(107, Short.MAX_VALUE))
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel5Layout.createSequentialGroup()
+                                        .addComponent(jLabel15)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(comboNuevoTipoDato, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel5Layout.createSequentialGroup()
+                                        .addComponent(RadioNuevoNull)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel16)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(TextNuevoLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addContainerGap(107, Short.MAX_VALUE))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -515,8 +587,16 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     .addComponent(jLabel16)
                     .addComponent(TextNuevoLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(BotonActualizar)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelMover)
+                    .addComponent(radioPrimera)
+                    .addComponent(radioDespues)
+                    .addComponent(comboDespuesDe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(33, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(BotonActualizar)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Actualizar", jPanel5);
@@ -734,7 +814,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         Vector<String> v = op.getDatosColumna(jTable2, comboActualizar.getSelectedItem().toString());
         textNuevoNombre.setText(v.get(0));
         for (int i = 1; i < comboNuevoTipoDato.getItemCount(); i++) {
-            if (v.get(1).startsWith(comboNuevoTipoDato.getItemAt(i))) {
+            if (v.get(1).equals(comboNuevoTipoDato.getItemAt(i))) {
                 comboNuevoTipoDato.setSelectedIndex(i);
                 break;
             }
@@ -744,22 +824,37 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             TextNuevoDefault.setText(v.get(2));
         }
         RadioNuevoNull.setSelected(!v.get(3).startsWith("Y"));
+        TextNuevoLongitud.setText(v.get(4));
+
+        comboDespuesDe.removeAllItems();
+        for (int i = 0; i < comboActualizar.getItemCount(); i++) {
+            if (i != comboActualizar.getSelectedIndex()) {
+                comboDespuesDe.addItem(comboActualizar.getItemAt(i));
+            }
+        }
     }//GEN-LAST:event_comboActualizarActionPerformed
 
     private void BotonActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonActualizarActionPerformed
         if (comboActualizar.getSelectedIndex() < 1) {
             return;
         }
-        
+
         setCursor(Cursor.WAIT_CURSOR);
         try {
             String def = null;
             if (RadioNuevoDefault.isSelected()) {
                 def = TextNuevoDefault.getText();
             }
-            op.getConexion().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
-                comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
-                def, RadioNuevoNull.isSelected());
+            if (op.esConexionMysql()) {
+                String despues = (radioDespues.isSelected())? comboDespuesDe.getSelectedItem().toString() : null;
+                op.actualizarAtributoMysql(tabla, comboActualizar.getSelectedItem().toString(),
+                        comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
+                        def, RadioNuevoNull.isSelected(), radioPrimera.isSelected(), despues);
+            } else {
+                op.getConexion().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
+                        comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
+                        def, RadioNuevoNull.isSelected());
+            }
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nactualizar", "Error", 0);
@@ -770,6 +865,18 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_BotonActualizarActionPerformed
+
+    private void radioPrimeraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioPrimeraActionPerformed
+        if (radioPrimera.isSelected()) {
+            radioDespues.setSelected(false);
+        }
+    }//GEN-LAST:event_radioPrimeraActionPerformed
+
+    private void radioDespuesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDespuesActionPerformed
+        if (radioDespues.isSelected()) {
+            radioPrimera.setSelected(false);
+        }
+    }//GEN-LAST:event_radioDespuesActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -820,6 +927,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JComboBox<String> comboAtributosReferencia;
     private javax.swing.JComboBox<String> comboColumnaPrimaria;
     private javax.swing.JComboBox<String> comboColumnasBorrar;
+    private javax.swing.JComboBox<String> comboDespuesDe;
     private javax.swing.JComboBox<String> comboIncrement;
     private javax.swing.JComboBox<String> comboLlaveUnica;
     private javax.swing.JComboBox<String> comboNuevoTipoDato;
@@ -854,8 +962,11 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JLabel labelMover;
     private javax.swing.JRadioButton radioDefault;
+    private javax.swing.JRadioButton radioDespues;
     private javax.swing.JRadioButton radioNoNulo;
+    private javax.swing.JRadioButton radioPrimera;
     private javax.swing.JTextField textDefault;
     private javax.swing.JTextField textLongitud;
     private javax.swing.JTextField textNombreColumna;
