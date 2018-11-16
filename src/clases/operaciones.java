@@ -31,7 +31,7 @@ public class operaciones {
     public Conexion getConexion() {
         return con;
     }
-
+    
     public String getUsuario() {
         return usuario;
     }
@@ -197,21 +197,30 @@ public class operaciones {
         try {
             System.out.println(System.getProperty("user.dir") + "\\config");
             BufferedReader tec = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\config"));
-            vs.add(tec.readLine());
-            vs.add(tec.readLine());
-            vs.add(tec.readLine());
+            while (tec.ready()) {
+                String s = tec.readLine();
+                s += " " + tec.readLine();
+                s += " " + tec.readLine();
+                vs.add(s);
+            }
         } catch (Exception e) {
-            return null;
+            if (vs.isEmpty()) {
+                return null;
+            }
         }
         return vs;
     }
 
-    public void guardarDatosConexion(String puerto, String usuario, String sistemaGestor) {
+    public void guardarDatosConexion(Vector<String> vs) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(System.getProperty("user.dir") + "\\config"));
-            bw.write(puerto + "\r\n");
-            bw.write(usuario + "\r\n");
-            bw.write(sistemaGestor + "\r\n");
+            String s[];
+            for (int i = 0; i < vs.size(); i++) {
+                s = vs.get(i).split(" ");
+                bw.write(s[0] + "\r\n");
+                bw.write(s[1] + "\r\n");
+                bw.write(s[2] + "\r\n");
+            }
             bw.close();
         } catch (Exception e) {
         }

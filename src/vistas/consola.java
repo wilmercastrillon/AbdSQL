@@ -3,6 +3,7 @@ package vistas;
 import clases.Conexion;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Event;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -16,20 +17,29 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
+import javax.swing.text.Document;
 import javax.swing.text.Element;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 public class consola extends javax.swing.JFrame implements KeyListener {
 
@@ -45,6 +55,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         modelo_lista = new DefaultListModel<>();
         jList1.setModel(modelo_lista);
         contadorLineas();
+        deshacerRehacer(comando);
 
         menu = new JPopupMenu();
         menu2 = new JPopupMenu();
@@ -54,16 +65,13 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         item.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 limpiar();
-//                System.out.println("index seleccionado: " + jList1.getSelectedIndex());
             }
         });
         JMenuItem item2 = new JMenuItem("copiar");
         item2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-//                System.out.println("index seleccionado: " + jList1.getSelectedIndex());
                 if (jList1.getSelectedIndex() != -1) {
                     String texto = modelo_lista.get(jList1.getSelectedIndex());
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                     StringSelection ss = new StringSelection(texto.substring(texto.indexOf(" ") + 1));
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, ss);
                 }
@@ -83,6 +91,61 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         comando.setComponentPopupMenu(menu2);
 
         setTitle("consola");
+    }
+
+    private void deshacerRehacer(JTextArea textArea) {
+        JButton undo = new JButton("Undo");
+        JButton redo = new JButton("Redo");
+        KeyStroke undoKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK);
+        KeyStroke redoKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.CTRL_MASK);
+        UndoManager undoManager = new UndoManager();
+
+        Document document = textArea.getDocument();
+        document.addUndoableEditListener(new UndoableEditListener() {
+            @Override
+            public void undoableEditHappened(UndoableEditEvent e) {
+                undoManager.addEdit(e.getEdit());
+            }
+        });
+
+        // Add ActionListeners 
+        undo.addActionListener((ActionEvent e) -> {
+            try {
+                undoManager.undo();
+            } catch (CannotUndoException cue) {
+            }
+        });
+        redo.addActionListener((ActionEvent e) -> {
+            try {
+                undoManager.redo();
+            } catch (CannotRedoException cre) {
+            }
+        });
+
+        // Map undo action 
+        textArea.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(undoKeyStroke, "undoKeyStroke");
+        textArea.getActionMap().put("undoKeyStroke", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    undoManager.undo();
+                } catch (CannotUndoException cue) {
+                }
+            }
+        });
+        // Map redo action 
+        textArea.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(redoKeyStroke, "redoKeyStroke");
+        textArea.getActionMap().put("redoKeyStroke", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    undoManager.redo();
+                } catch (CannotRedoException cre) {
+                }
+            }
+        });
     }
 
     private void contadorLineas() {
@@ -352,7 +415,9 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         String comando = this.comando.getText();
         try {
             x4.EjecutarUpdate(comando);
-        } catch (SQLException ex) {
+        }catch(com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex){ 
+            JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
+        }catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error en el comando", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }

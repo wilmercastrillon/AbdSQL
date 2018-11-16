@@ -1,22 +1,17 @@
 package vistas;
 
-import clases.ConexionMySql;
 import clases.operaciones;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
-import javax.swing.TransferHandler;
 import javax.swing.table.DefaultTableModel;
 
 public class modificarTabla extends javax.swing.JFrame implements KeyListener {
@@ -245,7 +240,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                                 .addGap(18, 18, 18)
                                 .addComponent(textLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(botonCrearColumna))
-                .addContainerGap(107, Short.MAX_VALUE))
+                .addContainerGap(112, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -319,7 +314,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         .addGap(18, 18, 18)
                         .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(botonCrearForanea))
-                .addContainerGap(209, Short.MAX_VALUE))
+                .addContainerGap(214, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -366,7 +361,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         .addComponent(comboColumnasBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(botonBorrarColumna)))
-                .addContainerGap(454, Short.MAX_VALUE))
+                .addContainerGap(459, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -442,7 +437,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         .addComponent(comboIncrement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jButton2)))
-                .addContainerGap(309, Short.MAX_VALUE))
+                .addContainerGap(314, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -564,7 +559,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                                         .addComponent(jLabel16)
                                         .addGap(18, 18, 18)
                                         .addComponent(TextNuevoLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                        .addContainerGap(107, Short.MAX_VALUE))))
+                        .addContainerGap(112, Short.MAX_VALUE))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

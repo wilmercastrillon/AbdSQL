@@ -56,33 +56,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         JMenuItem menuitem = new JMenuItem("borrar fila(s)");
         menuitem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                inserta = true;
-
-                int filas[] = jTable1.getSelectedRows();
-                for (int i = 0; i < filas.length; i++) {
-                    Vector<String> datos = new Vector<>();
-                    try {
-                        for (int j = 0; j < columnas.size(); j++) {
-                            if (jTable1.getValueAt(filas[i], j) == null) {
-                                datos.add(null);
-                            } else {
-                                datos.add(jTable1.getValueAt(filas[i], j).toString());
-                            }
-                        }
-                        op.getConexion().borrarFila(datos, columnas, tabla);
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
-                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-                    }
-                }
-
-                if (filas.length == 1) {
-                    modelo.removeRow(filas[0]);
-                } else {
-                    recargarResultSet();
-                    llenarTabla();
-                }
-                inserta = false;
+                borrarFilas();
             }
         });
         menu.add(menuitem);
@@ -150,6 +124,36 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 }
             }
         });
+    }
+
+    public void borrarFilas() {
+        inserta = true;
+
+        int filas[] = jTable1.getSelectedRows();
+        for (int i = 0; i < filas.length; i++) {
+            Vector<String> datos = new Vector<>();
+            try {
+                for (int j = 0; j < columnas.size(); j++) {
+                    if (jTable1.getValueAt(filas[i], j) == null) {
+                        datos.add(null);
+                    } else {
+                        datos.add(jTable1.getValueAt(filas[i], j).toString());
+                    }
+                }
+                op.getConexion().borrarFila(datos, columnas, tabla);
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            }
+        }
+
+        if (filas.length == 1) {
+            modelo.removeRow(filas[0]);
+        } else {
+            recargarResultSet();
+            llenarTabla();
+        }
+        inserta = false;
     }
 
     public void recargarResultSet() {
@@ -365,6 +369,15 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 modelo.removeRow(modelo.getRowCount() - 1);
                 inserta = false;
                 nuevaFila = false;
+            }
+        }
+        if (e.getKeyCode() == KeyEvent.VK_DELETE && e.getComponent() == jTable1) {
+            if (jTable1.getSelectedRowCount() == 0) {
+                return;
+            }
+            int q = JOptionPane.showConfirmDialog(null, "Borrar fila(s)");
+            if (q == JOptionPane.OK_OPTION) {
+                borrarFilas();
             }
         }
     }

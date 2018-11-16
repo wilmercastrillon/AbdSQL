@@ -145,6 +145,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     try {
                         op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
                         op.getConexion().renombrarTabla(path.getPathComponent(2).toString(), str);
+                        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
+                        currentNode.setUserObject(str + "");
                         JOptionPane.showMessageDialog(null, "Nombre cambiado", "Exitoso", 1);
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al renombrar tabla", "Error", 0);
