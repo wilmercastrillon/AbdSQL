@@ -1,6 +1,5 @@
 package vistas;
 
-import clases.ConexionMySql;
 import clases.operaciones;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -25,7 +24,7 @@ public class panelTrigger extends javax.swing.JPanel {
         try {
             if (nuevo) {
                 String sql = "CREATE ";
-                if (op.getConexion() instanceof ConexionMySql) {
+                if (op.esConexionMysql()) {
                     sql += "DEFINER=`" + op.getUsuario() + "`@`%`";
                 }else{
                     sql += "OR REPLACE";
@@ -105,11 +104,11 @@ public class panelTrigger extends javax.swing.JPanel {
     private void botonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonGuardarActionPerformed
         try {
             if (nuevo) {
-                op.getConexion().crearTrigger(textTrigger.getText());
+                op.ejecutarUpdate(op.getGeneradorSQL().crearTrigger(textTrigger.getText()));
                 nuevo = false;
             } else {
-                op.getConexion().borrarTrigger(nombre);
-                op.getConexion().crearTrigger(textTrigger.getText());
+                op.ejecutarUpdate(op.getGeneradorSQL().borrarTrigger(nombre));
+                op.ejecutarUpdate(op.getGeneradorSQL().crearTrigger(textTrigger.getText()));
             }
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {

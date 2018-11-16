@@ -1,8 +1,5 @@
 package generador;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Vector;
 
 /**
@@ -11,9 +8,9 @@ import java.util.Vector;
  */
 public class GeneradorMySQL extends GeneradorSQL {
 
-    public GeneradorMySQL(){
+    public GeneradorMySQL() {
     }
-    
+
     @Override
     public String GetDataBases() {
         String z = "SHOW DATABASES;";
@@ -283,7 +280,13 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String borrarProcedimiento(String nombreP) {
-        String z = "DROP  PROCEDURE IF EXISTS " + nombreP + ";";
+        String z = "DROP PROCEDURE IF EXISTS " + nombreP + ";";
+        return z;
+    }
+
+    @Override
+    public String LlamarProcedimiento(String procedimiento, String parametros) {
+        String z = "CALL " + procedimiento + " (" + parametros + ");";
         return z;
     }
 }

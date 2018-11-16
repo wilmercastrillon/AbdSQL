@@ -1,6 +1,6 @@
 package vistas;
 
-import clases.Conexion;
+import clases.operaciones;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Event;
@@ -44,13 +44,13 @@ import javax.swing.undo.UndoManager;
 public class consola extends javax.swing.JFrame implements KeyListener {
 
     private DefaultListModel<String> modelo_lista;
-    private Conexion x4;
+    private operaciones op;
     private JPopupMenu menu, menu2, menu3;
     private JTextArea numeros, comando;
     private JScrollPane scroll;
 
-    public consola(Conexion q) {
-        x4 = q;
+    public consola(operaciones q) {
+        op = q;
         initComponents();
         modelo_lista = new DefaultListModel<>();
         jList1.setModel(modelo_lista);
@@ -381,7 +381,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            ResultSet res = x4.EjecutarConsulta(comando.getText());
+            ResultSet res = op.ejecutarConsulta(comando.getText());
             ResultSetMetaData rsmd = res.getMetaData();
 
             DefaultTableModel modelo = new DefaultTableModel() {
@@ -414,7 +414,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String comando = this.comando.getText();
         try {
-            x4.EjecutarUpdate(comando);
+            op.ejecutarUpdate(comando);
         }catch(com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex){ 
             JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
         }catch (SQLException ex) {

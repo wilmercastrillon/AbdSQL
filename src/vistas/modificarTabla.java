@@ -58,7 +58,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             comboIncrement.addItem("------------");
             comboActualizar.removeAllItems();
             comboActualizar.addItem("------------");
-            ResultSet res = op.getConexion().GetColumnasTabla(tabla);
+            ResultSet res = op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(tabla));
             String h;
             while (res.next()) {
                 h = res.getString(1);
@@ -74,7 +74,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             flag = true;
             comboOtrasTablas.removeAllItems();
             comboOtrasTablas.addItem("------------");
-            ResultSet rs = op.getConexion().GetTables();
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().GetTables());
             while (rs.next()) {
                 comboOtrasTablas.addItem(rs.getString(1));
             }
@@ -86,7 +86,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     return false;
                 }
             };
-            op.llenarTableModel(op.getConexion().GetColumnasTabla(tabla), dft);
+            op.llenarTableModel(op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(tabla)), dft);
             jTable2.setModel(dft);
             addPoppupMenu(jTable2);
 
@@ -672,8 +672,8 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         }
 
         try {
-            op.getConexion().agregarColumnaTabla(tabla, comboTiposDatos.getSelectedItem().toString(),
-                    textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected());
+            op.ejecutarUpdate(op.getGeneradorSQL().agregarColumnaTabla(tabla, comboTiposDatos.getSelectedItem().toString(),
+                    textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected()));
             cargar();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
@@ -689,7 +689,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().borrarColumnaTabla(tabla, comboColumnasBorrar.getSelectedItem().toString());
+            op.ejecutarUpdate(op.getGeneradorSQL().borrarColumnaTabla(tabla, comboColumnasBorrar.getSelectedItem().toString()));
             cargar();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al eliminar", "Error", 0);
@@ -705,7 +705,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().crearLlavePrimaria(tabla, comboColumnaPrimaria.getSelectedItem().toString());
+            op.ejecutarUpdate(op.getGeneradorSQL().crearLlavePrimaria(tabla, comboColumnaPrimaria.getSelectedItem().toString()));
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nllave primaria", "Error", 0);
@@ -722,8 +722,8 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
-                    comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString());
+            op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
+                    comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString()));
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nllave foranea", "Error", 0);
@@ -743,7 +743,8 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         }
 
         try {
-            ResultSet rs = op.getConexion().GetColumnasTabla(comboOtrasTablas.getSelectedItem().toString());
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(
+                    comboOtrasTablas.getSelectedItem().toString()));
             while (rs.next()) {
                 comboAtributosReferencia.addItem(rs.getString(1));
             }
@@ -764,7 +765,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().crearLlaveUnique(tabla, comboLlaveUnica.getSelectedItem().toString());
+            op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveUnique(tabla, comboLlaveUnica.getSelectedItem().toString()));
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nllave unica", "Error", 0);
@@ -788,8 +789,8 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.getConexion().CrearAuto_increment(tabla, comboIncrement.getSelectedItem().toString(),
-                    jTable2.getValueAt(comboIncrement.getSelectedIndex() - 1, 1).toString());
+            op.ejecutarUpdate(op.getGeneradorSQL().CrearAuto_increment(tabla, comboIncrement.getSelectedItem().toString(),
+                    jTable2.getValueAt(comboIncrement.getSelectedIndex() - 1, 1).toString()));
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al crear\nauto_increment", "Error", 0);
@@ -846,9 +847,9 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
                         def, RadioNuevoNull.isSelected(), radioPrimera.isSelected(), despues);
             } else {
-                op.getConexion().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
+                op.ejecutarUpdate(op.getGeneradorSQL().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
                         comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
-                        def, RadioNuevoNull.isSelected());
+                        def, RadioNuevoNull.isSelected()));
             }
             cargar();
         } catch (SQLException ex) {

@@ -6,7 +6,7 @@ import java.util.Vector;
  *
  * @author wilmer
  */
-abstract class GeneradorSQL {
+public abstract class GeneradorSQL {
     
     public GeneradorSQL(){
     }
@@ -69,4 +69,17 @@ abstract class GeneradorSQL {
     abstract public String crearProcedimiento(String sql);
 
     abstract public String borrarProcedimiento(String nombreP);
+    
+    abstract public String LlamarProcedimiento(String procedimiento, String parametros);
+    
+//throws SQLException {
+//        String comando;
+//        if (con instanceof ConexionMySql) {
+//            comando = "CALL " + procedimiento + " (" + parametros + ");";
+//        }else{
+//            comando = "EXEC " + procedimiento + " (" + parametros + ");";
+//        }
+//        sta.executeUpdate(comando);
+//        cons.agregar(comando);
+//    }
 }

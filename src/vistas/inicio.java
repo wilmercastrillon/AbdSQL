@@ -246,24 +246,23 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
             return;
         }
 
-        Conexion con;
         setCursor(Cursor.WAIT_CURSOR);
         String driver;
         if (comboSistemaGestor.getSelectedIndex() == 0) {
+            op.setTipoConexion(conexionBD.Conexion.MySQL);
             driver = "jdbc:mysql://" + puerto.getText();
-            con = new ConexionMySql();
         } else {
+            op.setTipoConexion(conexionBD.Conexion.Oracle);
             driver = "jdbc:oracle:thin:@" + puerto.getText() + ":1521:xe";
-            con = new ConexionOracle();
         }
 
-        if (!con.conectar(user.getText(), password.getText(), driver)) {
+        if (!op.getConexion().conectar(user.getText(), password.getText(), driver)) {
             setCursor(Cursor.DEFAULT_CURSOR);
             JOptionPane.showMessageDialog(null, "Error al conectar con\nla base de datos", "Error", 0);
             return;
         }
+        op.setConexion(puerto.getText(), user.getText());
         setCursor(Cursor.DEFAULT_CURSOR);
-        op.setConexion(con, user.getText(), user.getText());
         p = new principal(op, this);
         p.setVisible(true);
         this.setVisible(false);

@@ -1,5 +1,6 @@
 package clases;
 
+import generador.GeneradorSQL;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -11,19 +12,38 @@ import java.util.Vector;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import vistas.consola;
+import conexionBD.Conexion;
+import generador.GeneradorMySQL;
+import generador.GeneradorOracle;
 
 public class operaciones {
 
     private Conexion con;
+    private consola cons;
     private String puerto;
     private String usuario;
+    public GeneradorSQL gen;
 
-    public operaciones() {
+    public operaciones(){
+    }
+    
+    public operaciones(int tipo) {
+        con = new Conexion(tipo);
+    }
+    
+    public void setTipoConexion(int tipo){
+        con = new Conexion(tipo);
     }
 
-    public void setConexion(Conexion con, String puerto, String user) {
+    public void setConexion(String puerto, String user) {
+        cons = new consola(this);
         this.puerto = puerto;
-        this.con = con;
+        if (con.tipo == Conexion.MySQL) {
+            gen = new GeneradorMySQL();
+        }else{
+            gen = new GeneradorOracle();
+        }
         this.con.BaseDeDatosSeleccionada = puerto;
         usuario = user;
     }
@@ -32,18 +52,32 @@ public class operaciones {
         return con;
     }
     
+    public GeneradorSQL getGeneradorSQL(){
+        return gen;
+    }
+    
     public String getUsuario() {
         return usuario;
     }
 
     public void mostrarConsola() {
-        con.cons.setVisible(true);
+        cons.setVisible(true);
+    }
+    
+    public ResultSet ejecutarConsulta(String sql) throws SQLException{
+        cons.agregar(sql);
+        return con.EjecutarConsulta(sql);
+    }
+    
+    public void ejecutarUpdate(String sql) throws SQLException{
+        cons.agregar(sql);
+        con.EjecutarUpdate(sql);
     }
 
     public Vector<String> getTablesDataBase(String dataBase) throws SQLException {
         Vector<String> aux = new Vector<>();
-        con.SelectDataBase(dataBase);
-        ResultSet res2 = con.GetTables();
+        ejecutarUpdate(gen.SelectDataBase(dataBase));
+        ResultSet res2 =  ejecutarConsulta(gen.GetTables());
         while (res2.next()) {
             String h2 = res2.getString("Tables_in_" + dataBase);
             aux.add(h2);
@@ -52,19 +86,19 @@ public class operaciones {
     }
 
     public boolean esConexionMysql() {
-        return (con instanceof ConexionMySql);
+        return con.tipo == con.MySQL;
     }
 
     public void actualizarAtributoMysql(String tabla, String nombre, String tipo, String Nuevonombre,
             String longitud, String Default, boolean Nonulo, boolean primera, String despuesDe) throws SQLException {
-        ConexionMySql cm = (ConexionMySql) con;
-        cm.actualizarAtributo(tabla, nombre, tipo, Nuevonombre, longitud, Default, Nonulo, primera, despuesDe);
+        GeneradorMySQL cm = (GeneradorMySQL) gen;
+        ejecutarUpdate(cm.actualizarAtributo(tabla, nombre, tipo, Nuevonombre, longitud, Default, Nonulo, primera, despuesDe));
     }
 
     public Vector<String> getBasesDeDatos() throws SQLException {
         Vector<String> aux = new Vector<>();
-        if (con instanceof ConexionMySql) {
-            ResultSet res2 = con.GetDataBases();
+        if (esConexionMysql()) {
+            ResultSet res2 = ejecutarConsulta(gen.GetDataBases());
             while (res2.next()) {
                 String h2 = res2.getString(1);
                 aux.add(h2);
@@ -77,7 +111,7 @@ public class operaciones {
 
     public Vector<DefaultMutableTreeNode> getTriggers() throws SQLException {
         Vector<DefaultMutableTreeNode> triggers = new Vector<>();
-        ResultSet res = con.getTriggers();
+        ResultSet res = ejecutarConsulta(gen.getTriggers());
 
         while (res.next()) {
             triggers.add(new DefaultMutableTreeNode(res.getString(1)));
@@ -88,7 +122,7 @@ public class operaciones {
 
     public Vector<DefaultMutableTreeNode> getProcedimientos(String bd) throws SQLException {
         Vector<DefaultMutableTreeNode> proc = new Vector<>();
-        ResultSet res = con.getProcedimientos(bd);
+        ResultSet res = ejecutarConsulta(gen.getProcedimientos(bd));
         while (res.next()) {
             proc.add(new DefaultMutableTreeNode(res.getString(1)));
         }
@@ -97,15 +131,15 @@ public class operaciones {
     }
 
     public String getSqlTrigger(String bd, String nombreTrigger) throws SQLException {
-        ResultSet res = con.getDatosTrigger(bd, nombreTrigger);
+        ResultSet res = ejecutarConsulta(gen.getDatosTrigger(bd, nombreTrigger));
         res.next();
         return res.getString(3);
     }
 
     public String getSqlProcedimiento(String bd, String nombreP) throws SQLException {
-        ResultSet res = con.getDatosProcedimiento(bd, nombreP);
+        ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
         String sql = "";
-        if (con instanceof ConexionMySql) {
+        if (esConexionMysql()) {
             res.next();
             sql += "CREATE PROCEDURE " + nombreP + "(" + res.getString(2) + ")\n";
             sql += res.getString(3);
@@ -118,8 +152,8 @@ public class operaciones {
     }
 
     public void GuardarProcedimiento(String nombre, String sql, boolean nuevo) throws SQLException {
-        if (con instanceof ConexionMySql && !nuevo) {
-            con.borrarProcedimiento(nombre);
+        if (esConexionMysql() && !nuevo) {
+            ejecutarUpdate(gen.borrarProcedimiento(nombre));
         }
         con.EjecutarUpdate(sql);
     }
@@ -153,7 +187,7 @@ public class operaciones {
         }
         datos.add(modelo.getValueAt(index, 0).toString());
 
-        if (con instanceof ConexionMySql) {
+        if (esConexionMysql()) {
             String tipo = modelo.getValueAt(index, 1).toString().toUpperCase();
             int parentesis = tipo.indexOf("(");
             if (parentesis == -1) {
@@ -227,7 +261,7 @@ public class operaciones {
     }
 
     public boolean generaraMVC(Vector<String> tablas, String ruta) {
-        GeneradorMVC gen = new GeneradorMVC(tablas, getConexion());
+        GeneradorMVC gen = new GeneradorMVC(tablas, this);
         try {
             gen.GenerarModelos(ruta);
         } catch (Exception e) {

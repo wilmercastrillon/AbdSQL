@@ -1,6 +1,5 @@
 package vistas;
 
-import clases.ConexionMySql;
 import clases.operaciones;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -59,8 +58,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
                     try {
                         String h2 = path.getPathComponent(1).toString();
-                        op.getConexion().SelectDataBase(h2);
-                        op.getConexion().CrearTabla(h);
+                        op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(h2));
+                        op.ejecutarUpdate(op.getGeneradorSQL().CrearTabla(h));
                         for (DefaultMutableTreeNode nodo : nodos) {
                             if (nodo.toString().equals(h2)) {
                                 modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h), nodo, 0);
@@ -118,8 +117,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
-                        op.getConexion().BorrarTabla(path.getPathComponent(2).toString());
+                        op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(path.getPathComponent(1).toString()));
+                        op.ejecutarUpdate(op.getGeneradorSQL().BorrarTabla(path.getPathComponent(2).toString()));
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         modelo_arbol.removeNodeFromParent(currentNode);
                     } catch (SQLException ex) {
@@ -143,8 +142,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
-                        op.getConexion().renombrarTabla(path.getPathComponent(2).toString(), str);
+                        op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(path.getPathComponent(1).toString()));
+                        op.ejecutarUpdate(op.getGeneradorSQL().renombrarTabla(path.getPathComponent(2).toString(), str));
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         currentNode.setUserObject(str + "");
                         JOptionPane.showMessageDialog(null, "Nombre cambiado", "Exitoso", 1);
@@ -186,7 +185,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
 
-        if (op.getConexion() instanceof ConexionMySql) {
+        if (op.esConexionMysql()) {
             JMenuItem borrarBD = new JMenuItem("borrar Base de Datos");
             borrarBD.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -198,9 +197,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         int q2 = JOptionPane.showConfirmDialog(null, "Segurisimo que desea borrar\nla base de datos\n" + bd);
                         if (q2 == JOptionPane.YES_OPTION) {
                             System.out.println("se borraria");
-                            ConexionMySql c = (ConexionMySql) op.getConexion();
+                            generador.GeneradorMySQL g = (generador.GeneradorMySQL) op.getGeneradorSQL();
                             try {
-                                c.BorrarDataBase(bd);
+                                op.ejecutarUpdate(g.BorrarDataBase(bd));
                                 cargar();
                             } catch (SQLException ex) {
                                 JOptionPane.showMessageDialog(null, "Error al borrar\nbase de datos", "Error", 0);
@@ -219,7 +218,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        op.getConexion().CrearDataBase(h);
+                        op.ejecutarUpdate(op.getGeneradorSQL().CrearDataBase(h));
                         cargar();
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al crear\nla base de datos", "Error", 0);
@@ -287,11 +286,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 return;
             }
 
-            op.getConexion().SelectDataBase(path.getPathComponent(1).toString());
+            op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(path.getPathComponent(1).toString()));
             if (tipo.equalsIgnoreCase("trigger")) {
-                op.getConexion().borrarTrigger(path.getPathComponent(3).toString());
+                op.ejecutarUpdate(op.getGeneradorSQL().borrarTrigger(path.getPathComponent(3).toString()));
             } else {
-                op.getConexion().borrarProcedimiento(path.getPathComponent(3).toString());
+                op.ejecutarUpdate(op.getGeneradorSQL().borrarProcedimiento(path.getPathComponent(3).toString()));
             }
             DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
             modelo_arbol.removeNodeFromParent(currentNode);
@@ -334,8 +333,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
             for (int i = 0; i < nodos.size(); i++) {
                 try {
-                    op.getConexion().SelectDataBase(nodos.get(i).toString());
-                    ResultSet res2 = op.getConexion().GetTables();
+                    op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(nodos.get(i).toString()));
+                    ResultSet res2 = op.ejecutarConsulta(op.getGeneradorSQL().GetTables());
                     pos2 = 0;
                     System.out.println("tabla " + nodos.get(i).toString());
 
@@ -384,7 +383,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 if (me.getButton() == MouseEvent.BUTTON3) {
                     switch (tp.getPathCount()) {
                         case 1:
-                            if (op.getConexion() instanceof ConexionMySql) {
+                            if (op.esConexionMysql()) {
                                 menu1.show(me.getComponent(), me.getX(), me.getY());
                             }
                             break;
@@ -458,12 +457,12 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         setCursor(Cursor.WAIT_CURSOR);
         try {
             if (!op.getConexion().BaseDeDatosSeleccionada.equals(DB)) {
-                op.getConexion().SelectDataBase(DB);
+                op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(DB));
             }
 
             JPanel pt;
             if (tipo.equals("Tabla")) {
-                pt = new panelTabla(op, DB, nombre, op.getConexion().GetDatosTabla(nombre));
+                pt = new panelTabla(op, DB, nombre, op.ejecutarConsulta(op.getGeneradorSQL().GetDatosTabla(nombre)));
                 pt.setName(nombre);
             } else if (tipo.equals("TriggerNuevo")) {
                 pt = new panelTrigger(op, DB, nombre, true);

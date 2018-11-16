@@ -112,8 +112,8 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         }
                     }
 
-                    op.getConexion().actualizarFila(tabla, col, datos, modelo.getColumnName(columna),
-                            modelo.getValueAt(fila, columna).toString());
+                    op.ejecutarUpdate(op.getGeneradorSQL().actualizarFila(tabla, col, datos, modelo.getColumnName(columna),
+                            modelo.getValueAt(fila, columna).toString()));
                 } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error al modificar los datos", "Error", 0);
                     JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
@@ -140,7 +140,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         datos.add(jTable1.getValueAt(filas[i], j).toString());
                     }
                 }
-                op.getConexion().borrarFila(datos, columnas, tabla);
+                op.ejecutarUpdate(op.getGeneradorSQL().borrarFila(datos, columnas, tabla));
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
                 JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
@@ -158,7 +158,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     public void recargarResultSet() {
         try {
-            res = op.getConexion().GetDatosTabla(tabla);
+            res = op.ejecutarConsulta(op.getGeneradorSQL().GetDatosTabla(tabla));
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cargar tabla", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
@@ -273,7 +273,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
     private void botonAtributosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAtributosActionPerformed
         try {
             if (!BaseDeDatos.equals(op.getConexion().BaseDeDatosSeleccionada)) {
-                op.getConexion().SelectDataBase(BaseDeDatos);
+                op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(BaseDeDatos));
             }
             ma.setVisible(true);
         } catch (SQLException ex) {
@@ -347,10 +347,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 if (nuevaFila) {
                     System.out.println("se inserta la nueva fila");
                     try {
-                        if (!op.getConexion().agregarRegistro(tabla, columnas, datosNuevaFila())) {
-                            System.out.println("falla");
-                            return;
-                        }
+                        op.ejecutarUpdate(op.getGeneradorSQL().agregarRegistro(tabla, columnas, datosNuevaFila()));
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al insertar nuevo registro", "Error", 0);
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);

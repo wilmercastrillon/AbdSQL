@@ -8,15 +8,16 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Vector;
 import javafx.util.Pair;
+import conexionBD.Conexion;
 
 public class GeneradorMVC {
 
     private Vector<String> tablas;
-    private Conexion con;
+    private operaciones op;
 
-    public GeneradorMVC(Vector<String> tablas, Conexion con) {
+    public GeneradorMVC(Vector<String> tablas, operaciones c) {
         this.tablas = tablas;
-        this.con = con;
+        this.op = c;
     }
 
     public void GenerarModelos(String ruta) throws IOException, SQLException {
@@ -62,7 +63,7 @@ public class GeneradorMVC {
                     + "namespace Controllers {" + n + n
                     + "\tpublic class " + nombre + "_controller" + " {" + n + n);
 
-            ResultSet rs = con.GetColumnasTabla(tablas.get(i));
+            ResultSet rs = op.ejecutarConsulta(op.gen.GetColumnasTabla(tablas.get(i)));
             String value;
             while (rs.next()) {
                 value = rs.getString(2).toLowerCase();

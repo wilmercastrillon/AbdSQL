@@ -1,10 +1,7 @@
 package vistas;
 
-import clases.ConexionMySql;
 import clases.operaciones;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class panelProcedimiento extends javax.swing.JPanel {
@@ -131,7 +128,7 @@ public class panelProcedimiento extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            op.getConexion().LlamarProcedimiento(nombre, textParametros.getText());
+            op.ejecutarUpdate(op.getGeneradorSQL().LlamarProcedimiento(nombre, textParametros.getText()));
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al ejecutar procedimiento", "Error", 0);
