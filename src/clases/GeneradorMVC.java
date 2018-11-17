@@ -5,10 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.Vector;
 import javafx.util.Pair;
-import conexionBD.Conexion;
 
 public class GeneradorMVC {
 
@@ -89,7 +87,7 @@ public class GeneradorMVC {
 
             constructorVar.append("\t\tpublic ").append(nombre).append("_model (");
             constructorVarCon.append("\t\tpublic ").append(nombre).append("_controller (");
-            constructorConCon.append("\t\t\t").append(nombre).append(" = new ");
+            constructorConCon.append("\t\t\tthis.").append(nombre).append(" = new ");
             constructorConCon.append(nombre).append("_model(");
             for (Pair<String, String> par : columnas) {
                 variables.append("\t\tpublic ").append(par.getValue()).append(" ");

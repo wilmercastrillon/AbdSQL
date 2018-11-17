@@ -272,8 +272,8 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     private void botonAtributosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAtributosActionPerformed
         try {
-            if (!BaseDeDatos.equals(op.getConexion().BaseDeDatosSeleccionada)) {
-                op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(BaseDeDatos));
+            if (!BaseDeDatos.equals(op.getBDseleccionada())) {
+                op.seleccionarBD(BaseDeDatos);
             }
             ma.setVisible(true);
         } catch (SQLException ex) {

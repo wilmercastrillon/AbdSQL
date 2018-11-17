@@ -11,7 +11,6 @@ public class Conexion {
     protected Connection con;
     protected Statement sta;
     protected String driver;
-    public String BaseDeDatosSeleccionada;
     public static int MySQL = 1;
     public static int Oracle = 2;
     public int tipo;
@@ -23,12 +22,16 @@ public class Conexion {
         }else{
             driver = "oracle.jdbc.OracleDriver";
         }
-        BaseDeDatosSeleccionada = "";
     }
 
-    public boolean conectar(String user, String password, String url) {
+    public boolean conectar(String puerto, String user, String password) {
+        String url = "";
+        if (tipo == MySQL) {
+            url = "jdbc:mysql://" + puerto;
+        } else {
+            url = "jdbc:oracle:thin:@" + puerto + ":1521:xe";
+        }
         con = null;
-        BaseDeDatosSeleccionada = "";
         try {
             Class.forName(driver);
             con = DriverManager.getConnection(url, user, password);

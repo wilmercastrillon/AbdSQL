@@ -58,7 +58,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
                     try {
                         String h2 = path.getPathComponent(1).toString();
-                        op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(h2));
+                        op.seleccionarBD(h2);
                         op.ejecutarUpdate(op.getGeneradorSQL().CrearTabla(h));
                         for (DefaultMutableTreeNode nodo : nodos) {
                             if (nodo.toString().equals(h2)) {
@@ -117,7 +117,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(path.getPathComponent(1).toString()));
+                        op.seleccionarBD(path.getPathComponent(1).toString());
                         op.ejecutarUpdate(op.getGeneradorSQL().BorrarTabla(path.getPathComponent(2).toString()));
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         modelo_arbol.removeNodeFromParent(currentNode);
@@ -142,7 +142,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(path.getPathComponent(1).toString()));
+                        op.seleccionarBD(path.getPathComponent(1).toString());
                         op.ejecutarUpdate(op.getGeneradorSQL().renombrarTabla(path.getPathComponent(2).toString(), str));
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         currentNode.setUserObject(str + "");
@@ -286,7 +286,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 return;
             }
 
-            op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(path.getPathComponent(1).toString()));
+            op.seleccionarBD(path.getPathComponent(1).toString());
             if (tipo.equalsIgnoreCase("trigger")) {
                 op.ejecutarUpdate(op.getGeneradorSQL().borrarTrigger(path.getPathComponent(3).toString()));
             } else {
@@ -331,41 +331,52 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 nodos.add(nuevo);
             }
 
-            for (int i = 0; i < nodos.size(); i++) {
-                try {
-                    op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(nodos.get(i).toString()));
-                    ResultSet res2 = op.ejecutarConsulta(op.getGeneradorSQL().GetTables());
-                    pos2 = 0;
-                    System.out.println("tabla " + nodos.get(i).toString());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }
 
-                    while (res2.next()) {
-                        String h2 = res2.getString(1);
-                        modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h2), nodos.get(i), pos2);
-                        pos2++;
-                    }
+    private void cargarBD(String bd) {
+        setCursor(Cursor.WAIT_CURSOR);
+        try {
+            op.seleccionarBD(bd);
+            ResultSet res2 = op.ejecutarConsulta(op.getGeneradorSQL().GetTables());
+            int pos2 = 0, index;
+            for (index = 0; index < nodos.size(); index++) {
+                if (nodos.get(index).toString().equals(bd)) {
+                    break;
+                }
+            }
+            System.out.println("tabla " + nodos.get(index).toString());
 
-                    Vector<DefaultMutableTreeNode> v = op.getTriggers();
-                    if (v.size() > 0) {
-                        DefaultMutableTreeNode triggers = new DefaultMutableTreeNode("Triggers");
-                        modelo_arbol.insertNodeInto(triggers, nodos.get(i), 0);
-                        for (int j = 0; j < v.size(); j++) {
-                            modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
-                        }
-                    }
+            while (res2.next()) {
+                String h2 = res2.getString(1);
+                modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h2), nodos.get(index), pos2);
+                pos2++;
+            }
 
-                    Vector<DefaultMutableTreeNode> v2 = op.getProcedimientos(nodos.get(i).toString());
-                    if (v2.size() > 0) {
-                        DefaultMutableTreeNode Proc = new DefaultMutableTreeNode("Procedimientos");
-                        modelo_arbol.insertNodeInto(Proc, nodos.get(i), 0);
-                        for (int j = 0; j < v2.size(); j++) {
-                            modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v2.get(j)), Proc, j);
-                        }
-                    }
-                } catch (Exception e) {
+            Vector<DefaultMutableTreeNode> v = op.getTriggers();
+            if (v.size() > 0) {
+                DefaultMutableTreeNode triggers = new DefaultMutableTreeNode("Triggers");
+                modelo_arbol.insertNodeInto(triggers, nodos.get(index), 0);
+                for (int j = 0; j < v.size(); j++) {
+                    modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
                 }
             }
 
-        } catch (SQLException e) {
+            Vector<DefaultMutableTreeNode> v2 = op.getProcedimientos(nodos.get(index).toString());
+            if (v2.size() > 0) {
+                DefaultMutableTreeNode Proc = new DefaultMutableTreeNode("Procedimientos");
+                modelo_arbol.insertNodeInto(Proc, nodos.get(index), 0);
+                for (int j = 0; j < v2.size(); j++) {
+                    modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v2.get(j)), Proc, j);
+                }
+            }
+            
+            jTree1.expandPath(jTree1.getSelectionPath());
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
         }
@@ -404,6 +415,15 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 }
 
                 if (me.getClickCount() == 1 || me.getClickCount() > 2) {
+                    return;
+                }
+
+                if (tp.getPathCount() == 2) {
+                    Object nodo = tp.getLastPathComponent();
+                    if (modelo_arbol.isLeaf(nodo)) {
+//                        System.out.println("debe cargar la tabla " + tp.getPathComponent(1).toString());
+                        cargarBD(tp.getPathComponent(1).toString());
+                    }
                     return;
                 }
 
@@ -456,8 +476,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            if (!op.getConexion().BaseDeDatosSeleccionada.equals(DB)) {
-                op.ejecutarUpdate(op.getGeneradorSQL().SelectDataBase(DB));
+            if (!op.getBDseleccionada().equals(DB)) {
+                op.seleccionarBD(DB);
             }
 
             JPanel pt;
@@ -652,23 +672,23 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         if (inicio == destino || destino == jTabbedPane1.getTabCount()) {
             return;
         }
-        
+
         Component[] panels = new Component[jTabbedPane1.getTabCount()];
         Component[] tabs = new Component[jTabbedPane1.getTabCount()];
         for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
             if (i == destino) {
                 panels[inicio] = jTabbedPane1.getComponentAt(i);
                 tabs[inicio] = jTabbedPane1.getTabComponentAt(i);
-            }else if(i == inicio){
+            } else if (i == inicio) {
                 panels[destino] = jTabbedPane1.getComponentAt(i);
                 tabs[destino] = jTabbedPane1.getTabComponentAt(i);
-            }else{
+            } else {
                 panels[i] = jTabbedPane1.getComponentAt(i);
                 tabs[i] = jTabbedPane1.getTabComponentAt(i);
             }
         }
         jTabbedPane1.removeAll();
-        
+
         for (int i = 0; i < panels.length; i++) {
             jTabbedPane1.addTab(panels[i].getName(), panels[i]);
             jTabbedPane1.setTabComponentAt(i, tabs[i]);

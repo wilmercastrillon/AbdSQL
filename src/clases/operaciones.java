@@ -16,46 +16,60 @@ import vistas.consola;
 import conexionBD.Conexion;
 import generador.GeneradorMySQL;
 import generador.GeneradorOracle;
+import java.util.Arrays;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 
 public class operaciones {
 
     private Conexion con;
     private consola cons;
-    private String puerto;
-    private String usuario;
+    private String puerto, usuario;
+    private String BDseleccionada;
     public GeneradorSQL gen;
 
-    public operaciones(){
+    public operaciones() {
     }
-    
+
     public operaciones(int tipo) {
         con = new Conexion(tipo);
     }
-    
-    public void setTipoConexion(int tipo){
+
+    public void setTipoConexion(int tipo) {
         con = new Conexion(tipo);
     }
 
     public void setConexion(String puerto, String user) {
+        BDseleccionada = puerto;
         cons = new consola(this);
         this.puerto = puerto;
         if (con.tipo == Conexion.MySQL) {
             gen = new GeneradorMySQL();
-        }else{
+        } else {
             gen = new GeneradorOracle();
         }
-        this.con.BaseDeDatosSeleccionada = puerto;
         usuario = user;
+    }
+    
+    public void seleccionarBD(String bd) throws SQLException{
+        if (con.tipo == Conexion.MySQL) {
+            ejecutarUpdate(gen.SelectDataBase(bd));
+            BDseleccionada = bd;
+        }
+    }
+    
+    public String getBDseleccionada(){
+        return BDseleccionada;
     }
 
     public Conexion getConexion() {
         return con;
     }
-    
-    public GeneradorSQL getGeneradorSQL(){
+
+    public GeneradorSQL getGeneradorSQL() {
         return gen;
     }
-    
+
     public String getUsuario() {
         return usuario;
     }
@@ -63,21 +77,60 @@ public class operaciones {
     public void mostrarConsola() {
         cons.setVisible(true);
     }
-    
-    public ResultSet ejecutarConsulta(String sql) throws SQLException{
-        cons.agregar(sql);
-        return con.EjecutarConsulta(sql);
+
+    public String inputContraseña(String mensaje, String titulo) {
+        String password = "";
+        JPasswordField passwordField = new JPasswordField();
+        Object[] obj = {mensaje + "\n\n", passwordField};
+        Object stringArray[] = {"OK", "Cancel"};
+        if (JOptionPane.showOptionDialog(null, obj, titulo,
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                null, stringArray, obj) == JOptionPane.YES_OPTION) {
+            password = passwordField.getText();
+        }
+        return password;
     }
     
-    public void ejecutarUpdate(String sql) throws SQLException{
-        cons.agregar(sql);
-        con.EjecutarUpdate(sql);
+    public ResultSet ejecutarConsulta(String sql) throws SQLException {
+        ResultSet res = null;
+        try {
+            cons.agregar(sql);
+            res = con.EjecutarConsulta(sql);
+        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
+            JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
+            String pass = inputContraseña(puerto + "\nUsuario: " + usuario + "\nIngrese contraseña: ", "Recuperar Conexión");
+            
+            if (con.conectar(puerto, usuario, pass)) {
+                seleccionarBD(BDseleccionada);
+                return ejecutarConsulta(sql);
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al reconectar", "Error", 0);
+            }
+        }
+        return res;
+    }
+
+    public void ejecutarUpdate(String sql) throws SQLException {
+        try {
+            cons.agregar(sql);
+            con.EjecutarUpdate(sql);
+        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
+            JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
+            String pass = inputContraseña(puerto + "\nUsuario: " + usuario + "\nIngrese contraseña: ", "Recuperar Conexión");
+            
+            if (con.conectar(puerto, usuario, pass)) {
+                seleccionarBD(BDseleccionada);
+                ejecutarUpdate(sql);
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al reconectar", "Error", 0);
+            }
+        }
     }
 
     public Vector<String> getTablesDataBase(String dataBase) throws SQLException {
         Vector<String> aux = new Vector<>();
         ejecutarUpdate(gen.SelectDataBase(dataBase));
-        ResultSet res2 =  ejecutarConsulta(gen.GetTables());
+        ResultSet res2 = ejecutarConsulta(gen.GetTables());
         while (res2.next()) {
             String h2 = res2.getString("Tables_in_" + dataBase);
             aux.add(h2);
