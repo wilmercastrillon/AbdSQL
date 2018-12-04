@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Conexion {
 
@@ -42,6 +45,7 @@ public class Conexion {
                 System.out.println("no se ha conectado\n");
                 return false;
             }
+            con.setNetworkTimeout(Executors.newFixedThreadPool(1), 10000);
         } catch (SQLException e) {
             System.out.println("no se ha conectado, error sql\n");
             System.out.println(e.getMessage());
@@ -77,5 +81,13 @@ public class Conexion {
         }
         ResultSet r = sta.executeQuery(comando);
         return r;
+    }
+    
+    public boolean conexionCerrada(){
+        try {
+            return sta.isClosed();
+        } catch (SQLException ex) {
+            return true;
+        }
     }
 }

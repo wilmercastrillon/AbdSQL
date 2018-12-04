@@ -79,6 +79,8 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cargar tabla", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
         }
         inserta = false;
     }

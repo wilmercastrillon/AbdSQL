@@ -262,14 +262,23 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String getProcedimientos(String BD) {
-        String z = "SELECT name FROM mysql.proc WHERE db = '" + BD + "' and type= 'procedure';";
+         String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
+         z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ORDER BY ROUTINE_NAME;";
         return z;
     }
 
+    public String getParametrosProcedimiento(String nombreP){
+        String z = "SELECT DATA_TYPE, PARAMETER_NAME FROM INFORMATION_SCHEMA.PARAMETERS ";
+        z += "WHERE ROUTINE_TYPE='PROCEDURE' AND SPECIFIC_NAME = '" + nombreP + "' ";
+        z += "ORDER BY ORDINAL_POSITION; ";
+        return z;
+    }
+    
     @Override
     public String getDatosProcedimiento(String BD, String nombreP) {
-        String z = "select name, param_list, body from mysql.proc where db = '" + BD + "' ";
-        z += "and type = 'procedure' and name = '" + nombreP + "' ";
+        String z = " SELECT ROUTINE_NAME, ROUTINE_DEFINITION  FROM INFORMATION_SCHEMA.ROUTINES ";
+        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ";
+        z += "AND ROUTINE_NAME = '" + nombreP + "';";
         return z;
     }
 

@@ -17,6 +17,8 @@ import conexionBD.Conexion;
 import generador.GeneradorMySQL;
 import generador.GeneradorOracle;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
@@ -50,15 +52,15 @@ public class operaciones {
         }
         usuario = user;
     }
-    
-    public void seleccionarBD(String bd) throws SQLException{
+
+    public void seleccionarBD(String bd) throws SQLException {
         if (con.tipo == Conexion.MySQL) {
             ejecutarUpdate(gen.SelectDataBase(bd));
             BDseleccionada = bd;
         }
     }
-    
-    public String getBDseleccionada(){
+
+    public String getBDseleccionada() {
         return BDseleccionada;
     }
 
@@ -90,40 +92,49 @@ public class operaciones {
         }
         return password;
     }
-    
+
+    public boolean recuperarConexion() {
+        JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
+        String pass = inputContraseña(puerto + "\nUsuario: " + usuario + "\nIngrese contraseña: ", "Recuperar Conexión");
+
+        try {
+            if (con.conectar(puerto, usuario, pass)) {
+                seleccionarBD(BDseleccionada);
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al reconectar", "Error", 0);
+            }
+        } catch (SQLException ex) {
+            return false;
+        }
+        return false;
+    }
+
     public ResultSet ejecutarConsulta(String sql) throws SQLException {
+        if (con.conexionCerrada()) {
+            recuperarConexion();
+        }
         ResultSet res = null;
         try {
             cons.agregar(sql);
             res = con.EjecutarConsulta(sql);
         } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
-            JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
-            String pass = inputContraseña(puerto + "\nUsuario: " + usuario + "\nIngrese contraseña: ", "Recuperar Conexión");
-            
-            if (con.conectar(puerto, usuario, pass)) {
-                seleccionarBD(BDseleccionada);
-                return ejecutarConsulta(sql);
-            } else {
-                JOptionPane.showMessageDialog(null, "Error al reconectar", "Error", 0);
+            if (recuperarConexion()) {
+                ejecutarConsulta(sql);
             }
         }
         return res;
     }
 
     public void ejecutarUpdate(String sql) throws SQLException {
+        if (con.conexionCerrada()) {
+            recuperarConexion();
+        }
         try {
             cons.agregar(sql);
             con.EjecutarUpdate(sql);
         } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
-            JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
-            String pass = inputContraseña(puerto + "\nUsuario: " + usuario + "\nIngrese contraseña: ", "Recuperar Conexión");
-            
-            if (con.conectar(puerto, usuario, pass)) {
-                seleccionarBD(BDseleccionada);
-                ejecutarUpdate(sql);
-            } else {
-                JOptionPane.showMessageDialog(null, "Error al reconectar", "Error", 0);
-            }
+            recuperarConexion();
         }
     }
 
@@ -190,13 +201,22 @@ public class operaciones {
     }
 
     public String getSqlProcedimiento(String bd, String nombreP) throws SQLException {
-        ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
         String sql = "";
         if (esConexionMysql()) {
+            GeneradorMySQL q = (GeneradorMySQL) gen;
+            ResultSet p = ejecutarConsulta(q.getParametrosProcedimiento(nombreP));
+            String parametros = "";
+            while (p.next()) {            
+                parametros += ", " + p.getString(1);
+                parametros += " " + p.getString(2);
+            }
+            
+            ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
             res.next();
-            sql += "CREATE PROCEDURE " + nombreP + "(" + res.getString(2) + ")\n";
-            sql += res.getString(3);
+            sql += "CREATE PROCEDURE " + nombreP + "(" + parametros.substring(Math.min(1, parametros.length())) + ")\n";
+            sql += res.getString("ROUTINE_DEFINITION");
         } else {
+            ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
             res.next();
             sql += "CREATE OR REPLACE ";
             sql += res.getString(1);

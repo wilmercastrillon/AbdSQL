@@ -584,7 +584,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
 
-        jSplitPane1.setDividerLocation(190);
+        jSplitPane1.setDividerLocation(200);
         jSplitPane1.setDividerSize(15);
 
         jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -612,7 +612,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         .addComponent(botonCerrartab)
                         .addGap(18, 18, 18)
                         .addComponent(botonCerrarVentanas)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 98, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 208, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addGap(104, 104, 104)
                         .addComponent(salir))
@@ -623,7 +623,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salir)
