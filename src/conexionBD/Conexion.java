@@ -28,7 +28,7 @@ public class Conexion {
     }
 
     public boolean conectar(String puerto, String user, String password) {
-        String url = "";
+        String url;
         if (tipo == MySQL) {
             url = "jdbc:mysql://" + puerto;
         } else {
