@@ -18,6 +18,8 @@ public abstract class GeneradorSQL {
     abstract public String CrearDataBase(String nombre);
 
     abstract public String GetTables();
+    
+    abstract public String GetTables(String bd);
 
     abstract public String GetColumnasTabla(String table);
 

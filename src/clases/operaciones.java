@@ -14,8 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import vistas.consola;
 import conexionBD.Conexion;
-import generador.GeneradorMySQL;
-import generador.GeneradorOracle;
+import generador.*;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +25,6 @@ public class operaciones {
 
     private Conexion con;
     private consola cons;
-    private String puerto, usuario;
     private String BDseleccionada;
     public GeneradorSQL gen;
 
@@ -41,23 +39,37 @@ public class operaciones {
         con = new Conexion(tipo);
     }
 
-    public void setConexion(String puerto, String user) {
+    public boolean conectar(String puerto, String user, String password) {
         BDseleccionada = puerto;
         cons = new consola(this);
-        this.puerto = puerto;
         if (con.tipo == Conexion.MySQL) {
             gen = new GeneradorMySQL();
-        } else {
+        } else if (con.tipo == Conexion.Oracle) {
             gen = new GeneradorOracle();
+        } else {
+            gen = new GeneradorPostgreSQL();
         }
-        usuario = user;
+
+        return con.conectar(puerto, user, password);
     }
 
     public void seleccionarBD(String bd) throws SQLException {
-        if (con.tipo == Conexion.MySQL) {
-            ejecutarUpdate(gen.SelectDataBase(bd));
-            BDseleccionada = bd;
+        if (con.tipo == Conexion.Oracle) {
+            return;
         }
+        if (con.tipo == Conexion.PostgreSQL) {
+            Conexion aux = new Conexion(Conexion.PostgreSQL);
+            aux.conectar(con.getPuerto(), con.getUsuario(), con.getPasswordText(), bd);
+            if (aux.conexionCerrada()) {
+                JOptionPane.showMessageDialog(null, "Error en la conexion");
+                return;
+            }
+            con.desconectar();
+            con = aux;
+        } else {
+            ejecutarUpdate(gen.SelectDataBase(bd));
+        }
+        BDseleccionada = bd;
     }
 
     public String getBDseleccionada() {
@@ -73,7 +85,7 @@ public class operaciones {
     }
 
     public String getUsuario() {
-        return usuario;
+        return con.getUsuario();
     }
 
     public void mostrarConsola() {
@@ -95,10 +107,11 @@ public class operaciones {
 
     public boolean recuperarConexion() {
         JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
-        String pass = inputContraseña(puerto + "\nUsuario: " + usuario + "\nIngrese contraseña: ", "Recuperar Conexión");
+        String pass = inputContraseña(con.getPuerto() + "\nUsuario: " + con.getUsuario() + "\nIngrese contraseña: ",
+                "Recuperar Conexión");
 
         try {
-            if (con.conectar(puerto, usuario, pass)) {
+            if (con.conectar(con.getPuerto(), con.getUsuario(), pass)) {
                 seleccionarBD(BDseleccionada);
                 return true;
             } else {
@@ -140,10 +153,16 @@ public class operaciones {
 
     public Vector<String> getTablesDataBase(String dataBase) throws SQLException {
         Vector<String> aux = new Vector<>();
-        ejecutarUpdate(gen.SelectDataBase(dataBase));
-        ResultSet res2 = ejecutarConsulta(gen.GetTables());
+        ResultSet res2;
+        
+        if (con.tipo == Conexion.MySQL) {
+            ejecutarUpdate(gen.SelectDataBase(dataBase));
+            res2 = ejecutarConsulta(gen.GetTables());
+        }else{
+            res2 = ejecutarConsulta(gen.GetTables(dataBase));
+        }
         while (res2.next()) {
-            String h2 = res2.getString("Tables_in_" + dataBase);
+            String h2 = res2.getString(1);
             aux.add(h2);
         }
         return aux;
@@ -161,14 +180,14 @@ public class operaciones {
 
     public Vector<String> getBasesDeDatos() throws SQLException {
         Vector<String> aux = new Vector<>();
-        if (esConexionMysql()) {
+        if (con.tipo == Conexion.Oracle) {
+            aux.add(con.getPuerto());
+        } else {
             ResultSet res2 = ejecutarConsulta(gen.GetDataBases());
             while (res2.next()) {
                 String h2 = res2.getString(1);
                 aux.add(h2);
             }
-        } else {
-            aux.add(puerto);
         }
         return aux;
     }
@@ -206,11 +225,11 @@ public class operaciones {
             GeneradorMySQL q = (GeneradorMySQL) gen;
             ResultSet p = ejecutarConsulta(q.getParametrosProcedimiento(nombreP));
             String parametros = "";
-            while (p.next()) {            
+            while (p.next()) {
                 parametros += ", " + p.getString(1);
                 parametros += " " + p.getString(2);
             }
-            
+
             ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
             res.next();
             sql += "CREATE PROCEDURE " + nombreP + "(" + parametros.substring(Math.min(1, parametros.length())) + ")\n";

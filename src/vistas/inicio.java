@@ -125,7 +125,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
 
         jLabel2.setText("Sistema Gestor");
 
-        comboSistemaGestor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MySql", "Oracle" }));
+        comboSistemaGestor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MySql", "Oracle", "PostgreSQL" }));
 
         listaConexiones.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -244,20 +244,16 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         if (p != null && p.isVisible()) {
             return;
         }
-
+        
         setCursor(Cursor.WAIT_CURSOR);
-        if (comboSistemaGestor.getSelectedIndex() == 0) {
-            op.setTipoConexion(conexionBD.Conexion.MySQL);
-        } else {
-            op.setTipoConexion(conexionBD.Conexion.Oracle);
-        }
+        op.setTipoConexion(comboSistemaGestor.getSelectedIndex() + 1);
 
-        if (!op.getConexion().conectar(puerto.getText(), user.getText(), password.getText())) {
+        if (!op.conectar(puerto.getText(), user.getText(), password.getText())) {
             setCursor(Cursor.DEFAULT_CURSOR);
             JOptionPane.showMessageDialog(null, "Error al conectar con\nla base de datos", "Error", 0);
             return;
         }
-        op.setConexion(puerto.getText(), user.getText());
+        
         setCursor(Cursor.DEFAULT_CURSOR);
         p = new principal(op, this);
         p.setVisible(true);
@@ -270,7 +266,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL");
-        JOptionPane.showMessageDialog(null, "Version 2.79");
+        JOptionPane.showMessageDialog(null, "Version 2.9");
         JOptionPane.showMessageDialog(null, "desarrollado por:\nWilmer Castrillon");
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
@@ -284,10 +280,11 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
                 try {
                     puerto.setText(s[0]);
                     user.setText(s[1]);
-                    if (s[2].equals("MySql")) {
-                        comboSistemaGestor.setSelectedIndex(0);
-                    } else {
-                        comboSistemaGestor.setSelectedIndex(1);
+                    for (int i = 0; i < comboSistemaGestor.getItemCount(); i++) {
+                        if (s[2].equalsIgnoreCase(comboSistemaGestor.getItemAt(i))) {
+                            comboSistemaGestor.setSelectedIndex(i);
+                            break;
+                        }
                     }
                 } catch (Exception e) {
                     puerto.setText("localhost");

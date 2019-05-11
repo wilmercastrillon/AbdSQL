@@ -323,7 +323,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
             nodos = new Vector<>();
             paneles = new Vector<>();
-            int pos2;
             Vector<String> bd = op.getBasesDeDatos();
             for (int i = 0; i < bd.size(); i++) {
                 DefaultMutableTreeNode nuevo = new DefaultMutableTreeNode(bd.get(i));
@@ -356,23 +355,28 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h2), nodos.get(index), pos2);
                 pos2++;
             }
-
-            Vector<DefaultMutableTreeNode> v = op.getTriggers();
-            if (v.size() > 0) {
-                DefaultMutableTreeNode triggers = new DefaultMutableTreeNode("Triggers");
-                modelo_arbol.insertNodeInto(triggers, nodos.get(index), 0);
-                for (int j = 0; j < v.size(); j++) {
-                    modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
+            
+            try{
+                Vector<DefaultMutableTreeNode> v = op.getTriggers();
+                if (v.size() > 0) {
+                    DefaultMutableTreeNode triggers = new DefaultMutableTreeNode("Triggers");
+                    modelo_arbol.insertNodeInto(triggers, nodos.get(index), 0);
+                    for (int j = 0; j < v.size(); j++) {
+                        modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
+                    }
                 }
+            }catch(Exception ex){
             }
-
-            Vector<DefaultMutableTreeNode> v2 = op.getProcedimientos(nodos.get(index).toString());
-            if (v2.size() > 0) {
-                DefaultMutableTreeNode Proc = new DefaultMutableTreeNode("Procedimientos");
-                modelo_arbol.insertNodeInto(Proc, nodos.get(index), 0);
-                for (int j = 0; j < v2.size(); j++) {
-                    modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v2.get(j)), Proc, j);
+            try{
+                Vector<DefaultMutableTreeNode> v2 = op.getProcedimientos(nodos.get(index).toString());
+                if (v2.size() > 0) {
+                    DefaultMutableTreeNode Proc = new DefaultMutableTreeNode("Procedimientos");
+                    modelo_arbol.insertNodeInto(Proc, nodos.get(index), 0);
+                    for (int j = 0; j < v2.size(); j++) {
+                        modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v2.get(j)), Proc, j);
+                    }
                 }
+            }catch(Exception ex){
             }
             
             jTree1.expandPath(jTree1.getSelectionPath());

@@ -41,6 +41,11 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
+    public String GetTables(String bd) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public String GetColumnasTabla(String table) {
         String z = "DESCRIBE " + table + ";";
         return z;

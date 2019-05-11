@@ -29,7 +29,12 @@ public class GeneradorOracle extends GeneradorSQL{
 
     @Override
     public String GetTables() {
-        String z = "SELECT table_name FROM user_tables ORDER BY table_name";
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String GetTables(String bd) {
+        String z = "SELECT " + bd + " FROM user_tables ORDER BY table_name";
         return z;
     }
 
