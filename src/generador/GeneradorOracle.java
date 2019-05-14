@@ -7,11 +7,11 @@ import javax.swing.JOptionPane;
  *
  * @author wilmer
  */
-public class GeneradorOracle extends GeneradorSQL{
+public class GeneradorOracle extends GeneradorSQL {
 
-    public GeneradorOracle(){
+    public GeneradorOracle() {
     }
-    
+
     @Override
     public String GetDataBases() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -24,6 +24,11 @@ public class GeneradorOracle extends GeneradorSQL{
 
     @Override
     public String CrearDataBase(String nombre) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String BorrarDataBase(String nombre) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -171,6 +176,13 @@ public class GeneradorOracle extends GeneradorSQL{
     }
 
     @Override
+    public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, String tabla_ref, String atri_ref) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
+                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+        return z;
+    }
+
+    @Override
     public String getTriggers() {
         String z = "SELECT trigger_name, trigger_type, triggering_event, ";
         z += "table_name, status, trigger_body FROM ALL_TRIGGERS";
@@ -238,7 +250,7 @@ public class GeneradorOracle extends GeneradorSQL{
 
     @Override
     public String getProcedimientos(String BD) {
-        String z = "SELECT Distinct name FROM all_source WHERE UPPER(owner) = UPPER('"+BD+"') AND type = 'PROCEDURE'";
+        String z = "SELECT Distinct name FROM all_source WHERE UPPER(owner) = UPPER('" + BD + "') AND type = 'PROCEDURE'";
         return z;
     }
 
@@ -260,7 +272,7 @@ public class GeneradorOracle extends GeneradorSQL{
         String z = "DROP PROCEDURE " + nombreP;
         return z;
     }
-    
+
     @Override
     public String LlamarProcedimiento(String procedimiento, String parametros) {
         String z = "EXEC " + procedimiento + " (" + parametros + ");";

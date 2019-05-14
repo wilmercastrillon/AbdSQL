@@ -2,7 +2,7 @@ package generador;
 
 import java.util.Vector;
 
-public class GeneradorPostgreSQL extends GeneradorSQL{
+public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String GetDataBases() {
@@ -21,41 +21,47 @@ public class GeneradorPostgreSQL extends GeneradorSQL{
     }
 
     @Override
+    public String BorrarDataBase(String nombre) {
+        String z = "DROP DATABASE IF EXISTS " + nombre + ";";
+        return z;
+    }
+
+    @Override
     public String GetTables() {
         return "select tablename from pg_catalog.pg_tables where schemaname != "
                 + "'information_schema' and schemaname != 'pg_catalog';";
     }
-    
-    public String GetTables(String bd){
+
+    public String GetTables(String bd) {
         return "SELECT * FROM " + bd + ".pg_tables;";
     }
 
     @Override
     public String GetColumnasTabla(String table) {
-        String sql = "SELECT DISTINCT " +
-        "    a.attnum as no, " +
-        "    a.attname as nombre_columna, " +
-        "    format_type(a.atttypid, a.atttypmod) as tipo, " +
-        "    a.attnotnull as notnull, " +
-        "    com.description as descripcion, " +
-        "    coalesce(i.indisprimary,false) as llave_primaria, " +
-        "    def.adsrc as default " +
-        "FROM pg_attribute a " +
-        "JOIN pg_class pgc ON pgc.oid = a.attrelid " +
-        "LEFT JOIN pg_index i ON " +
-        "    (pgc.oid = i.indrelid AND i.indkey[0] = a.attnum) " +
-        "LEFT JOIN pg_description com on " +
-        "    (pgc.oid = com.objoid AND a.attnum = com.objsubid) " +
-        "LEFT JOIN pg_attrdef def ON " +
-        "    (a.attrelid = def.adrelid AND a.attnum = def.adnum) " +
-        "WHERE a.attnum > 0 AND pgc.oid = a.attrelid " +
-        "AND pg_table_is_visible(pgc.oid)" +
-        "AND NOT a.attisdropped " +
-        " AND pgc.relname = '" + table + "' " +
-        "ORDER BY a.attnum; ";
+        String sql = "SELECT DISTINCT "
+                + "    a.attnum as no, "
+                + "    a.attname as nombre_columna, "
+                + "    format_type(a.atttypid, a.atttypmod) as tipo, "
+                + "    a.attnotnull as notnull, "
+                + "    com.description as descripcion, "
+                + "    coalesce(i.indisprimary,false) as llave_primaria, "
+                + "    def.adsrc as default "
+                + "FROM pg_attribute a "
+                + "JOIN pg_class pgc ON pgc.oid = a.attrelid "
+                + "LEFT JOIN pg_index i ON "
+                + "    (pgc.oid = i.indrelid AND i.indkey[0] = a.attnum) "
+                + "LEFT JOIN pg_description com on "
+                + "    (pgc.oid = com.objoid AND a.attnum = com.objsubid) "
+                + "LEFT JOIN pg_attrdef def ON "
+                + "    (a.attrelid = def.adrelid AND a.attnum = def.adnum) "
+                + "WHERE a.attnum > 0 AND pgc.oid = a.attrelid "
+                + "AND pg_table_is_visible(pgc.oid)"
+                + "AND NOT a.attisdropped "
+                + " AND pgc.relname = '" + table + "' "
+                + "ORDER BY a.attnum; ";
         return sql;
     }
-    
+
     @Override
     public String CrearTabla(String nombre) {
         String z = "Create Table " + nombre + " (id" + nombre.replace(" ", "") + " int NOT NULL);";
@@ -180,6 +186,13 @@ public class GeneradorPostgreSQL extends GeneradorSQL{
     @Override
     public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, String tabla_ref, String atri_ref) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
+                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+        return z;
     }
 
     @Override

@@ -262,10 +262,41 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        JMenuItem exportarPostgres = new JMenuItem("Exportar a postgreSQL");
+        exportarPostgres.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int seleccion = chooser.showOpenDialog(null);
+                if (seleccion != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+                setCursor(Cursor.WAIT_CURSOR);
+                TreePath path = jTree1.getSelectionPath();
+                String bd = path.getLastPathComponent().toString();
+                File fichero = chooser.getSelectedFile();
+
+                try {
+                    if (op.convertirPostgreSQL(op.getTablesDataBase(bd), fichero.getPath())) {
+                        JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error al cargar exportar", "Error", 0);
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+                }
+                setCursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
+
         menu2.add(agregar);
         menu2.add(agregarTrigger);
         menu2.add(agregarProcedimiento);
         menu2.add(CrearMVC);
+        if (op.esConexionMysql()) {
+            menu2.add(exportarPostgres);
+        }
         menu3.add(borrar);
         menu3.add(renombrarTabla);
         menu4.add(borrarTrigger);
@@ -355,8 +386,8 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h2), nodos.get(index), pos2);
                 pos2++;
             }
-            
-            try{
+
+            try {
                 Vector<DefaultMutableTreeNode> v = op.getTriggers();
                 if (v.size() > 0) {
                     DefaultMutableTreeNode triggers = new DefaultMutableTreeNode("Triggers");
@@ -365,9 +396,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v.get(j)), triggers, j);
                     }
                 }
-            }catch(Exception ex){
+            } catch (Exception ex) {
             }
-            try{
+            try {
                 Vector<DefaultMutableTreeNode> v2 = op.getProcedimientos(nodos.get(index).toString());
                 if (v2.size() > 0) {
                     DefaultMutableTreeNode Proc = new DefaultMutableTreeNode("Procedimientos");
@@ -376,9 +407,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(v2.get(j)), Proc, j);
                     }
                 }
-            }catch(Exception ex){
+            } catch (Exception ex) {
             }
-            
+
             jTree1.expandPath(jTree1.getSelectionPath());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);

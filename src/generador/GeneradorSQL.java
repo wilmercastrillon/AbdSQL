@@ -16,6 +16,8 @@ public abstract class GeneradorSQL {
     abstract public String SelectDataBase(String bd);
 
     abstract public String CrearDataBase(String nombre);
+    
+    abstract public String BorrarDataBase(String bd);
 
     abstract public String GetTables();
     
@@ -46,6 +48,9 @@ public abstract class GeneradorSQL {
     abstract public String crearLlavePrimaria(String tabla, String columna);
 
     abstract public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref);
+    
+    abstract public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, 
+            String tabla_ref, String atri_ref);
 
     abstract public String getTriggers();
 

@@ -29,8 +29,9 @@ public class GeneradorMySQL extends GeneradorSQL {
         return z;
     }
 
+    @Override
     public String BorrarDataBase(String nombre) {
-        String z = "DROP DATABASE " + nombre + ";";
+        String z = "DROP DATABASE IF EXISTS " + nombre + ";";
         return z;
     }
 
@@ -181,6 +182,13 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
+    public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, String tabla_ref, String atri_ref) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
+                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+        return z;
+    }
+
+    @Override
     public String getTriggers() {
         String z = "SHOW TRIGGERS;";
         return z;
@@ -267,18 +275,18 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String getProcedimientos(String BD) {
-         String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
-         z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ORDER BY ROUTINE_NAME;";
+        String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
+        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ORDER BY ROUTINE_NAME;";
         return z;
     }
 
-    public String getParametrosProcedimiento(String nombreP){
+    public String getParametrosProcedimiento(String nombreP) {
         String z = "SELECT DATA_TYPE, PARAMETER_NAME FROM INFORMATION_SCHEMA.PARAMETERS ";
         z += "WHERE ROUTINE_TYPE='PROCEDURE' AND SPECIFIC_NAME = '" + nombreP + "' ";
         z += "ORDER BY ORDINAL_POSITION; ";
         return z;
     }
-    
+
     @Override
     public String getDatosProcedimiento(String BD, String nombreP) {
         String z = " SELECT ROUTINE_NAME, ROUTINE_DEFINITION  FROM INFORMATION_SCHEMA.ROUTINES ";

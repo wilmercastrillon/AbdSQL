@@ -357,6 +357,19 @@ public class operaciones {
         try {
             gen.GenerarModelos(ruta);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    
+    public boolean convertirPostgreSQL(Vector<String> tablas, String ruta) {
+        Convertidor conv = new Convertidor(tablas, this);
+        try {
+            conv.convertirPostgreSQL(BDseleccionada, ruta, "script");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return false;
         }
         return true;
