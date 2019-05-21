@@ -1,6 +1,6 @@
 package vistas;
 
-import clases.operaciones;
+import clases.Fachada;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Event;
@@ -44,12 +44,12 @@ import javax.swing.undo.UndoManager;
 public class consola extends javax.swing.JFrame implements KeyListener {
 
     private DefaultListModel<String> modelo_lista;
-    private operaciones op;
+    private Fachada op;
     private JPopupMenu menu, menu2, menu3;
     private JTextArea numeros, comando;
     private JScrollPane scroll;
 
-    public consola(operaciones q) {
+    public consola(Fachada q) {
         op = q;
         initComponents();
         modelo_lista = new DefaultListModel<>();

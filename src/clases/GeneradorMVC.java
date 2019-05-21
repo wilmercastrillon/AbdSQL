@@ -11,9 +11,9 @@ import javafx.util.Pair;
 public class GeneradorMVC {
 
     private Vector<String> tablas;
-    private operaciones op;
+    private Fachada op;
 
-    public GeneradorMVC(Vector<String> tablas, operaciones c) {
+    public GeneradorMVC(Vector<String> tablas, Fachada c) {
         this.tablas = tablas;
         this.op = c;
     }

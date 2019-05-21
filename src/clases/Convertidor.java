@@ -7,14 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
 import generador.*;
+import java.io.UnsupportedEncodingException;
+import java.sql.ResultSetMetaData;
 
 public class Convertidor {
 
     private Vector<String> tablas;
-    private operaciones op;
+    private Fachada op;
     private GeneradorPostgreSQL genPosgres;
 
-    public Convertidor(Vector<String> tablas, operaciones c) {
+    public Convertidor(Vector<String> tablas, Fachada c) {
         this.tablas = tablas;
         this.op = c;
         genPosgres = new GeneradorPostgreSQL();
@@ -44,6 +46,35 @@ public class Convertidor {
         sql += "is not null group by constraint_name ;";
         return sql;
     }
+    
+    public String generarInsert(String bd) throws SQLException, UnsupportedEncodingException{
+        String sql = "", tabla;
+        
+        for (int j = 0; j < tablas.size(); j++) {
+            tabla = tablas.get(j);
+            ResultSet res = op.ejecutarConsulta("SELECT * FROM " + tabla);
+            ResultSetMetaData rsmd = res.getMetaData();
+            Vector<String> col = new Vector<>();
+            
+            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                col.add(rsmd.getColumnName(i));
+                
+            }
+
+            Vector<Vector<String>> datos = new Vector<>();
+            while (res.next()) {
+                Vector<String> fila = new Vector<>();
+                for (int i = 1; i <= col.size(); i++) {
+                    fila.add(res.getString(i));
+                }
+                datos.add(fila);
+            }
+            
+            sql += genPosgres.agregarMultiplesRegistros(tabla, col, datos) + System.lineSeparator();
+        }
+        
+        return sql;
+    }
 
     public void convertirPostgreSQL(String bd, String ruta, String script) throws IOException, SQLException {
         ruta += script + ".sql";
@@ -63,8 +94,8 @@ public class Convertidor {
             String tipo, nombreCol, str, def;
             Vector<String> crearColumnas = new Vector<>();
             while (rs.next()) {
-                nombreCol = rs.getString(1);
-                tipo = rs.getString(2).toLowerCase();
+                nombreCol = rs.getString("nombre");
+                tipo = rs.getString("tipo").toLowerCase();
 
                 if (!tipo.startsWith("varchar")) {
                     int parentesis = tipo.indexOf('(');
@@ -86,11 +117,11 @@ public class Convertidor {
                 tipo = nombreCol + " " + tipo;
 
                 str = tipo;
-                if (rs.getString(3).equalsIgnoreCase("NO")) {
+                if (rs.getString("nulo").equalsIgnoreCase("NO")) {
                     str += " NOT NULL";
                 }
                 //System.out.println("....null");
-                def = rs.getString(5);
+                def = rs.getString("default");
                 if (def != null && !def.equalsIgnoreCase("null")) {
                     if (def.equalsIgnoreCase("CURRENT_TIMESTAMP")) {
                         def = "now()";
@@ -109,6 +140,9 @@ public class Convertidor {
         while (res.next()) {
             out.write(op.gen.crearLlavePrimaria(res.getString(2), res.getString(3)) + n);
         }
+        out.write(n);
+        
+        out.write(generarInsert(bd));
         out.write(n);
 
         ResultSet res2 = op.getConexion().EjecutarConsulta(consultarForaneas(bd));

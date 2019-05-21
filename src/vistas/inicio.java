@@ -14,7 +14,7 @@ import javax.swing.JPopupMenu;
 
 public class inicio extends javax.swing.JFrame implements KeyListener {
 
-    operaciones op;
+    Fachada op;
     principal p;
     Vector<String> conexiones;
     DefaultListModel dlm;
@@ -22,8 +22,8 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
     public inicio() {
         initComponents();
         setResizable(false);
-        op = new operaciones();
-        setTitle("Abd SQL v2");
+        op = new Fachada();
+        setTitle("Abd SQL");
         jButton1.addKeyListener(this);
         password.addKeyListener(this);
         comboSistemaGestor.addKeyListener(this);
@@ -266,7 +266,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL");
-        JOptionPane.showMessageDialog(null, "Version 2.91");
+        JOptionPane.showMessageDialog(null, "Version 2.95");
         JOptionPane.showMessageDialog(null, "desarrollado por:\nWilmer Castrillon");
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 

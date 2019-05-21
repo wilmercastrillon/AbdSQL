@@ -1,6 +1,6 @@
 package vistas;
 
-import clases.operaciones;
+import clases.Fachada;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -31,11 +31,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private DefaultMutableTreeNode raiz;
     private Vector<DefaultMutableTreeNode> nodos;
     private Vector<JPanel> paneles;
-    private final operaciones op;
+    private final Fachada op;
     private JPopupMenu menu2, menu1, menu3, menu4;
     public inicio ini;
 
-    public principal(operaciones x, inicio i) {
+    public principal(Fachada x, inicio i) {
         op = x;
         ini = i;
         initComponents();
@@ -230,73 +230,26 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             menu1.add(crearBD);
             menu2.add(borrarBD);
         }
-        JMenuItem CrearMVC = new JMenuItem("Crear plantilla MVC");
-        CrearMVC.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int seleccion = chooser.showOpenDialog(null);
-                if (seleccion != JFileChooser.APPROVE_OPTION) {
-                    return;
-                }
-                setCursor(Cursor.WAIT_CURSOR);
-                TreePath path = jTree1.getSelectionPath();
-                String bd = path.getLastPathComponent().toString();
-                File fichero = chooser.getSelectedFile();
-                File m = new File(fichero.getPath() + "\\Models");
-                m.mkdirs();
-                File c = new File(fichero.getPath() + "\\Controllers");
-                c.mkdirs();
+//        JMenuItem CrearMVC = new JMenuItem("Crear plantilla MVC");
+//        CrearMVC.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(ActionEvent ae) {
+//                
+//            }
+//        });
 
-                try {
-                    if (op.generaraMVC(op.getTablesDataBase(bd), fichero.getPath())) {
-                        JOptionPane.showMessageDialog(null, "Modelos y controladores\nCreados", "Exitoso", 1);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
-                    }
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-                }
-                setCursor(Cursor.DEFAULT_CURSOR);
-            }
-        });
-
-        JMenuItem exportarPostgres = new JMenuItem("Exportar a postgreSQL");
-        exportarPostgres.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int seleccion = chooser.showOpenDialog(null);
-                if (seleccion != JFileChooser.APPROVE_OPTION) {
-                    return;
-                }
-                setCursor(Cursor.WAIT_CURSOR);
-                TreePath path = jTree1.getSelectionPath();
-                String bd = path.getLastPathComponent().toString();
-                File fichero = chooser.getSelectedFile();
-
-                try {
-                    if (op.convertirPostgreSQL(op.getTablesDataBase(bd), fichero.getPath())) {
-                        JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Error al cargar exportar", "Error", 0);
-                    }
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-                }
-                setCursor(Cursor.DEFAULT_CURSOR);
-            }
-        });
-
+//        JMenuItem exportarPostgres = new JMenuItem("Exportar a postgreSQL");
+//        exportarPostgres.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(ActionEvent ae) {
+//               
+//            }
+//        });
         menu2.add(agregar);
         menu2.add(agregarTrigger);
         menu2.add(agregarProcedimiento);
-        menu2.add(CrearMVC);
-        if (op.esConexionMysql()) {
-            menu2.add(exportarPostgres);
-        }
+//        menu2.add(CrearMVC);
+//        if (op.esConexionMysql()) {
+//            menu2.add(exportarPostgres);
+//        }
         menu3.add(borrar);
         menu3.add(renombrarTabla);
         menu4.add(borrarTrigger);
@@ -581,6 +534,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        menuGenerarMVC = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        menuExpotarSQL = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -634,6 +594,48 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
         jSplitPane1.setLeftComponent(jScrollPane1);
 
+        jMenu1.setText("Conexion");
+
+        jMenuItem1.setText("Salir");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Herramientas");
+
+        menuGenerarMVC.setText("Generar MVC");
+        menuGenerarMVC.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuGenerarMVCActionPerformed(evt);
+            }
+        });
+        jMenu2.add(menuGenerarMVC);
+
+        jMenuItem2.setText("Exportar a MySQL");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem2);
+
+        menuExpotarSQL.setText("Exportar a PostgreSQL");
+        menuExpotarSQL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuExpotarSQLActionPerformed(evt);
+            }
+        });
+        jMenu2.add(menuExpotarSQL);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -658,7 +660,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salir)
@@ -731,6 +733,97 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         jTabbedPane1.setSelectedIndex(destino);
     }//GEN-LAST:event_jTabbedPane1MouseReleased
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        salirActionPerformed(null);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void menuGenerarMVCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuGenerarMVCActionPerformed
+        JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int seleccion = chooser.showOpenDialog(null);
+        if (seleccion != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        setCursor(Cursor.WAIT_CURSOR);
+        TreePath path = jTree1.getSelectionPath();
+        String bd = path.getLastPathComponent().toString();
+        File fichero = chooser.getSelectedFile();
+        File m = new File(fichero.getPath() + "\\Models");
+        m.mkdirs();
+        File c = new File(fichero.getPath() + "\\Controllers");
+        c.mkdirs();
+
+        try {
+            if (op.generaraMVC(op.getTablesDataBase(bd), fichero.getPath())) {
+                JOptionPane.showMessageDialog(null, "Modelos y controladores\nCreados", "Exitoso", 1);
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_menuGenerarMVCActionPerformed
+
+    private void menuExpotarSQLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExpotarSQLActionPerformed
+        TreePath path = jTree1.getSelectionPath();
+        if (path == null) {
+            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
+            return;
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
+            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
+            return;
+        }
+        JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int seleccion = chooser.showOpenDialog(null);
+        if (seleccion != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        setCursor(Cursor.WAIT_CURSOR);
+        File fichero = chooser.getSelectedFile();
+        
+        System.out.println(op.getBDseleccionada());
+        if (op.convertirPostgreSQL(fichero.getPath())) {
+            JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
+        } else {
+            JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_menuExpotarSQLActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        TreePath path = jTree1.getSelectionPath();
+        if (path == null) {
+            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
+            return;
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
+            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
+            return;
+        }
+        JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int seleccion = chooser.showOpenDialog(null);
+        if (seleccion != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        setCursor(Cursor.WAIT_CURSOR);
+        File fichero = chooser.getSelectedFile();
+        
+        System.out.println(op.getBDseleccionada());
+        if (op.convertirMySQL(fichero.getPath())) {
+            JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
+        } else {
+            JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -776,10 +869,17 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JButton botonCerrartab;
     private javax.swing.JButton botonRecargar;
     private javax.swing.JButton jButton1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTree jTree1;
+    private javax.swing.JMenuItem menuExpotarSQL;
+    private javax.swing.JMenuItem menuGenerarMVC;
     private javax.swing.JButton salir;
     // End of variables declaration//GEN-END:variables
 

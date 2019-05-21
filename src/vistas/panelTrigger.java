@@ -1,16 +1,16 @@
 package vistas;
 
-import clases.operaciones;
+import clases.Fachada;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class panelTrigger extends javax.swing.JPanel {
 
-    private final operaciones op;
+    private final Fachada op;
     public final String nombre, BaseDeDatos;
     public boolean nuevo;
 
-    public panelTrigger(operaciones op, String BD, String nombre, boolean nuevo) {
+    public panelTrigger(Fachada op, String BD, String nombre, boolean nuevo) {
         this.op = op;
         this.nombre = nombre;
         this.nuevo = nuevo;

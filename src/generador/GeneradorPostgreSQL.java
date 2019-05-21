@@ -11,8 +11,7 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String SelectDataBase(String bd) {
-        System.out.println("NIIIIIIIIIIIIIIIIIIIIIIIIIII");
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "\\c " + bd + ";";
     }
 
     @Override
@@ -28,37 +27,24 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String GetTables() {
-        return "select tablename from pg_catalog.pg_tables where schemaname != "
-                + "'information_schema' and schemaname != 'pg_catalog';";
+        return "select tablename as nombre from pg_catalog.pg_tables where schemaname != "
+                + "'information_schema' and schemaname != 'pg_catalog' order by nombre;";
     }
 
     public String GetTables(String bd) {
-        return "SELECT * FROM " + bd + ".pg_tables;";
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public String GetColumnasTabla(String table) {
-        String sql = "SELECT DISTINCT "
-                + "    a.attnum as no, "
-                + "    a.attname as nombre_columna, "
-                + "    format_type(a.atttypid, a.atttypmod) as tipo, "
-                + "    a.attnotnull as notnull, "
-                + "    com.description as descripcion, "
-                + "    coalesce(i.indisprimary,false) as llave_primaria, "
-                + "    def.adsrc as default "
-                + "FROM pg_attribute a "
-                + "JOIN pg_class pgc ON pgc.oid = a.attrelid "
-                + "LEFT JOIN pg_index i ON "
-                + "    (pgc.oid = i.indrelid AND i.indkey[0] = a.attnum) "
-                + "LEFT JOIN pg_description com on "
-                + "    (pgc.oid = com.objoid AND a.attnum = com.objsubid) "
-                + "LEFT JOIN pg_attrdef def ON "
-                + "    (a.attrelid = def.adrelid AND a.attnum = def.adnum) "
-                + "WHERE a.attnum > 0 AND pgc.oid = a.attrelid "
-                + "AND pg_table_is_visible(pgc.oid)"
-                + "AND NOT a.attisdropped "
-                + " AND pgc.relname = '" + table + "' "
-                + "ORDER BY a.attnum; ";
+        String sql = " SELECT DISTINCT attname as nombre, format_type(atttypid, atttypmod) ";
+        sql += "as tipo, case when not attnotnull then 'si' else 'no' end as nulo, adsrc as default, coalesce(i.indisprimary,false) ";
+        sql += "as llave_primaria, a.attnum as numero FROM pg_attribute a JOIN pg_class pgc ON pgc.oid = ";
+        sql += "a.attrelid LEFT JOIN pg_index i ON (pgc.oid = i.indrelid AND i.indkey[0] = a.attnum) ";
+        sql += "LEFT JOIN pg_description com on (pgc.oid = com.objoid AND a.attnum = com.objsubid) ";
+        sql += "LEFT JOIN pg_attrdef def ON (a.attrelid = def.adrelid AND a.attnum = def.adnum) ";
+        sql += "WHERE a.attnum > 0 AND pgc.oid = a.attrelid AND pg_table_is_visible(pgc.oid)AND NOT ";
+        sql += "a.attisdropped  AND pgc.relname = '" + table + "' ORDER BY a.attnum; ";
         return sql;
     }
 
@@ -106,6 +92,54 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
             z += "INSERT INTO " + table + " ( " + col.substring(0, col.length() - 2);
             z += " ) values(" + dat.substring(0, dat.length() - 3) + ");";
+        } catch (Exception e) {
+            return null;
+        }
+        return z;
+    }
+    
+    @Override
+    public String agregarMultiplesRegistros(String table, Vector<String> columnas, Vector<Vector<String>> datos) {
+        StringBuilder col = new StringBuilder("");
+        StringBuilder dat;
+        String z = "";
+
+        try {
+            for (int i = 0; i < columnas.size(); i++) {
+                col.append(columnas.get(i));
+                col.append(", ");
+            }
+            z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
+            
+            Vector<String> aux;
+            for (int j = 0; j < datos.size(); j++) {
+                if (j > 0) {
+                    z += ",";
+                }
+                aux = datos.get(j);
+                dat = new StringBuilder("(");
+                
+                for (int k = 0; k < aux.size(); k++) {
+                    if (k > 0) {
+                        dat.append(",");
+                    }
+                    if (aux.get(k) == null) {
+                        dat.append("null");
+                    }else{
+                        if (aux.get(k).startsWith("_binary 0x")) {
+                            String s = aux.get(k).replace("_binary 0x", "");
+                            dat.append("decode('").append(s).append("', 'hex')");
+                        }else{
+                            dat.append("'");
+                            dat.append(aux.get(k));
+                            dat.append("'");
+                        }
+                    }
+                }
+                dat.append(")");
+                z += dat.toString();
+            }
+            z += ";";
         } catch (Exception e) {
             return null;
         }
@@ -180,12 +214,20 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String crearLlavePrimaria(String tabla, String columna) {
+        String z = "ALTER TABLE " + tabla + " ADD PRIMARY KEY (" + columna + ");";
+        return z;
+    }
+    
+    @Override
+    public String consultarLlavesPrimarias(String bd) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "ALTER TABLE " + tabla + " ADD FOREIGN KEY(" + atri
+                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+        return z;
     }
     
     @Override
@@ -193,6 +235,11 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
         String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
+    }
+    
+    @Override
+    public String consultarLlavesForaneas(String bd){
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

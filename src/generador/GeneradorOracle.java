@@ -99,6 +99,49 @@ public class GeneradorOracle extends GeneradorSQL {
         }
         return z;
     }
+    
+    @Override
+    public String agregarMultiplesRegistros(String table, Vector<String> columnas, Vector<Vector<String>> datos) {
+        StringBuilder col = new StringBuilder("");
+        StringBuilder dat;
+        String z = "";
+
+        try {
+            for (int i = 0; i < columnas.size(); i++) {
+                col.append(columnas.get(i));
+                col.append(", ");
+            }
+            z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
+            
+            Vector<String> aux;
+            for (int j = 0; j < datos.size(); j++) {
+                if (j > 0) {
+                    z += ",";
+                }
+                aux = datos.get(j);
+                dat = new StringBuilder("(");
+                
+                for (int k = 0; k < aux.size(); k++) {
+                    if (k > 0) {
+                        dat.append(",");
+                    }
+                    if (aux.get(k) == null) {
+                        dat.append("null");
+                    }else{
+                        dat.append("'");
+                        dat.append(aux.get(k));
+                        dat.append("'");
+                    }
+                }
+                dat.append(")");
+                z += dat.toString();
+            }
+            z += ";";
+        } catch (Exception e) {
+            return null;
+        }
+        return z;
+    }
 
     @Override
     public String GetDatosTabla(String table) {
@@ -180,6 +223,16 @@ public class GeneradorOracle extends GeneradorSQL {
         String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
+    }
+    
+    @Override
+    public String consultarLlavesPrimarias(String bd) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public String consultarLlavesForaneas(String bd){
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

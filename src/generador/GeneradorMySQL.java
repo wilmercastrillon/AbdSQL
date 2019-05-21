@@ -37,18 +37,24 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String GetTables() {
-        String z = "SHOW TABLES;";
+        String z = "SELECT table_name as 'nombre' FROM information_schema.tables where ";
+        z += "table_schema = database() order by 'nombre';";
         return z;
     }
 
     @Override
     public String GetTables(String bd) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String z = "SELECT table_name FROM information_schema.tables WHERE table_schema ='";
+        z += bd + "';";
+        return z;
     }
 
     @Override
     public String GetColumnasTabla(String table) {
-        String z = "DESCRIBE " + table + ";";
+        String z = "SELECT column_name as 'nombre', column_type as 'tipo', if(is_nullable='yes', 'si', 'no') ";
+        z += "as 'nulo', column_default as 'default', column_key as 'key', extra FROM INFORMATION_SCHEMA.COLUMNS ";
+        z += "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + table + "' order by ordinal_position;";
+        //String z = "DESCRIBE " + table + ";";
         return z;
     }
 
@@ -96,6 +102,49 @@ public class GeneradorMySQL extends GeneradorSQL {
 
             z += "INSERT INTO " + table + " ( " + col.substring(0, col.length() - 2);
             z += " ) values(" + dat.substring(0, dat.length() - 3) + ");";
+        } catch (Exception e) {
+            return null;
+        }
+        return z;
+    }
+    
+    @Override
+    public String agregarMultiplesRegistros(String table, Vector<String> columnas, Vector<Vector<String>> datos) {
+        StringBuilder col = new StringBuilder("");
+        StringBuilder dat;
+        String z = "";
+
+        try {
+            for (int i = 0; i < columnas.size(); i++) {
+                col.append(columnas.get(i));
+                col.append(", ");
+            }
+            z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
+            
+            Vector<String> aux;
+            for (int j = 0; j < datos.size(); j++) {
+                if (j > 0) {
+                    z += ",";
+                }
+                aux = datos.get(j);
+                dat = new StringBuilder("(");
+                
+                for (int k = 0; k < aux.size(); k++) {
+                    if (k > 0) {
+                        dat.append(",");
+                    }
+                    if (aux.get(k) == null) {
+                        dat.append("null");
+                    }else{
+                        dat.append("'");
+                        dat.append(aux.get(k));
+                        dat.append("'");
+                    }
+                }
+                dat.append(")");
+                z += dat.toString();
+            }
+            z += ";";
         } catch (Exception e) {
             return null;
         }
@@ -186,6 +235,24 @@ public class GeneradorMySQL extends GeneradorSQL {
         String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
+    }
+
+    @Override
+    public String consultarLlavesPrimarias(String bd) {
+        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) ";
+        sql += "as 'columnas' from information_schema.key_column_usage where constraint_schema = '";
+        sql += bd + "' and constraint_name = 'primary' group by table_name ;";
+        return sql;
+    }
+    
+    @Override
+    public String consultarLlavesForaneas(String bd){
+        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) as ";
+        sql += "'columnas', referenced_table_name as 'tabla_referencia', group_concat(referenced_column_name) as";
+        sql += "'columnas_referencia' from information_schema.key_column_usage where ";
+        sql += "constraint_schema = '" + bd + "' and constraint_name != 'primary' and referenced_table_name ";
+        sql += "is not null group by constraint_name ;";
+        return sql;
     }
 
     @Override

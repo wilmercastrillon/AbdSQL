@@ -1,6 +1,6 @@
 package vistas;
 
-import clases.operaciones;
+import clases.Fachada;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -30,13 +28,13 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     private final String tabla, BaseDeDatos;
     private ResultSet res;
-    private final operaciones op;
+    private final Fachada op;
     private final modificarTabla ma;
     private boolean inserta, nuevaFila;
     private Vector<String> columnas;
     private DefaultTableModel modelo;
 
-    public panelTabla(operaciones c, String bd, String t, ResultSet rs) {
+    public panelTabla(Fachada c, String bd, String t, ResultSet rs) {
         op = c;
         BaseDeDatos = bd;
         tabla = t;

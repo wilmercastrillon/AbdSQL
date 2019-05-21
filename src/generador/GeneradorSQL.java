@@ -19,11 +19,11 @@ public abstract class GeneradorSQL {
     
     abstract public String BorrarDataBase(String bd);
 
-    abstract public String GetTables();
+    abstract public String GetTables();//[nombre]
     
     abstract public String GetTables(String bd);
 
-    abstract public String GetColumnasTabla(String table);
+    abstract public String GetColumnasTabla(String table);//[nombre, tipo, nulo, defecto,.........]
 
     abstract public String CrearTabla(String nombre);
 
@@ -32,6 +32,8 @@ public abstract class GeneradorSQL {
     abstract public String agregarRegistro(String table, String datos[]);
 
     abstract public String agregarRegistro(String table, Vector<String> columnas, Vector<String> datos);
+    
+    abstract public String agregarMultiplesRegistros(String table, Vector<String> columnas, Vector<Vector<String>> datos);
 
     abstract public String GetDatosTabla(String table);
 
@@ -48,6 +50,10 @@ public abstract class GeneradorSQL {
     abstract public String crearLlavePrimaria(String tabla, String columna);
 
     abstract public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref);
+    
+    abstract public String consultarLlavesPrimarias(String bd);//[nombre, tabla, columnas]
+    
+    abstract public String consultarLlavesForaneas(String bd);//[nombre, tabla, columnas, tabla_referencia, columnas_referencia]
     
     abstract public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, 
             String tabla_ref, String atri_ref);

@@ -1,6 +1,6 @@
 package vistas;
 
-import clases.operaciones;
+import clases.Fachada;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -16,11 +16,11 @@ import javax.swing.table.DefaultTableModel;
 
 public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
-    private final operaciones op;
+    private final Fachada op;
     private final String tabla;
     private boolean flag = false;
 
-    public modificarTabla(operaciones c, String table) {
+    public modificarTabla(Fachada c, String table) {
         op = c;
         tabla = table;
         initComponents();
@@ -818,8 +818,11 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         if (v.get(2) != null) {
             RadioNuevoDefault.setSelected(true);
             TextNuevoDefault.setText(v.get(2));
+        }else{
+            RadioNuevoDefault.setSelected(false);
+            TextNuevoDefault.setText("");
         }
-        RadioNuevoNull.setSelected(!v.get(3).startsWith("Y"));
+        RadioNuevoNull.setSelected(!v.get(3).equalsIgnoreCase("si"));
         TextNuevoLongitud.setText(v.get(4));
 
         comboDespuesDe.removeAllItems();
