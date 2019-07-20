@@ -541,6 +541,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         menuGenerarMVC = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         menuExpotarSQL = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -631,6 +632,14 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             }
         });
         jMenu2.add(menuExpotarSQL);
+
+        jMenuItem3.setText("Generar Diccionario");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem3);
 
         jMenuBar1.add(jMenu2);
 
@@ -824,6 +833,35 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        TreePath path = jTree1.getSelectionPath();
+        if (path == null) {
+            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
+            return;
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
+            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
+            return;
+        }
+        JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int seleccion = chooser.showOpenDialog(null);
+        if (seleccion != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        setCursor(Cursor.WAIT_CURSOR);
+        File fichero = chooser.getSelectedFile();
+        
+        System.out.println(op.getBDseleccionada());
+        if (op.generaraDiccionario(fichero.getPath())) {
+            JOptionPane.showMessageDialog(null, "Diccionario terminado", "Exitoso", 1);
+        } else {
+            JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -874,6 +912,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;

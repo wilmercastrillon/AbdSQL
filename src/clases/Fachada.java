@@ -393,6 +393,18 @@ public class Fachada {
         }
         return true;
     }
+    
+    public boolean generaraDiccionario(String ruta) {
+        GeneradorDiccionario dd = new GeneradorDiccionario(this, BDseleccionada);
+        try {
+            dd.crearWord(ruta, "diccionario.docx");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause());
+            return false;
+        }
+        return true;
+    }
 
     public boolean convertirPostgreSQL(String ruta) {
         return exportar(ruta, Conexion.PostgreSQL);

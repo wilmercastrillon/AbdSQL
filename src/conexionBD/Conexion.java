@@ -55,7 +55,7 @@ public class Conexion {
                 System.out.println("no se ha conectado\n");
                 return false;
             }
-            con.setNetworkTimeout(Executors.newFixedThreadPool(1), 20000);
+            //con.setNetworkTimeout(Executors.newFixedThreadPool(1), 20000);
             pass = Encriptar(password);
         } catch (SQLException e) {
             System.out.println("no se ha conectado, error sql\n");
