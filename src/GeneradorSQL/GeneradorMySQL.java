@@ -1,22 +1,32 @@
-package generador;
+package GeneradorSQL;
 
 import java.util.Vector;
 
-public class GeneradorPostgreSQL extends GeneradorSQL {
+/**
+ *
+ * @author wilmer
+ */
+public class GeneradorMySQL extends GeneradorSQL {
+
+    public GeneradorMySQL() {
+    }
 
     @Override
     public String GetDataBases() {
-        return "SELECT datname FROM pg_database;"; //" WHERE datistemplate = false;";
+        String z = "SHOW DATABASES;";
+        return z;
     }
 
     @Override
     public String SelectDataBase(String bd) {
-        return "\\c " + bd + ";";
+        String z = "USE " + bd + ";";
+        return z;
     }
 
     @Override
     public String CrearDataBase(String nombre) {
-        return "CREATE DATABASE " + nombre + ";";
+        String z = "CREATE DATABASE " + nombre + ";";
+        return z;
     }
 
     @Override
@@ -27,25 +37,25 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String GetTables() {
-        return "select tablename as nombre from pg_catalog.pg_tables where schemaname != "
-                + "'information_schema' and schemaname != 'pg_catalog' order by nombre;";
+        String z = "SELECT table_name as 'nombre' FROM information_schema.tables where ";
+        z += "table_schema = database() order by 'nombre';";
+        return z;
     }
 
+    @Override
     public String GetTables(String bd) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SELECT table_name FROM information_schema.tables WHERE table_schema ='";
+        z += bd + "';";
+        return z;
     }
 
     @Override
     public String GetColumnasTabla(String table) {
-        String sql = " SELECT DISTINCT attname as nombre, format_type(atttypid, atttypmod) ";
-        sql += "as tipo, case when not attnotnull then 'si' else 'no' end as nulo, adsrc as default, coalesce(i.indisprimary,false) ";
-        sql += "as llave_primaria, a.attnum as numero FROM pg_attribute a JOIN pg_class pgc ON pgc.oid = ";
-        sql += "a.attrelid LEFT JOIN pg_index i ON (pgc.oid = i.indrelid AND i.indkey[0] = a.attnum) ";
-        sql += "LEFT JOIN pg_description com on (pgc.oid = com.objoid AND a.attnum = com.objsubid) ";
-        sql += "LEFT JOIN pg_attrdef def ON (a.attrelid = def.adrelid AND a.attnum = def.adnum) ";
-        sql += "WHERE a.attnum > 0 AND pgc.oid = a.attrelid AND pg_table_is_visible(pgc.oid)AND NOT ";
-        sql += "a.attisdropped  AND pgc.relname = '" + table + "' ORDER BY a.attnum; ";
-        return sql;
+        String z = "SELECT column_name as 'nombre', column_type as 'tipo', if(is_nullable='yes', 'si', 'no') ";
+        z += "as 'nulo', column_default as 'default', column_key as 'key', extra FROM INFORMATION_SCHEMA.COLUMNS ";
+        z += "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + table + "' order by ordinal_position;";
+        //String z = "DESCRIBE " + table + ";";
+        return z;
     }
 
     @Override
@@ -53,7 +63,7 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
         String z = "Create Table " + nombre + " (id" + nombre.replace(" ", "") + " int NOT NULL);";
         return z;
     }
-    
+
     @Override
     public String BorrarTabla(String nombre) {
         String z = "DROP TABLE IF EXISTS " + nombre + ";";
@@ -126,14 +136,9 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
                     if (aux.get(k) == null) {
                         dat.append("null");
                     }else{
-                        if (aux.get(k).startsWith("_binary 0x")) {
-                            String s = aux.get(k).replace("_binary 0x", "");
-                            dat.append("decode('").append(s).append("', 'hex')");
-                        }else{
-                            dat.append("'");
-                            dat.append(aux.get(k));
-                            dat.append("'");
-                        }
+                        dat.append("'");
+                        dat.append(aux.get(k));
+                        dat.append("'");
                     }
                 }
                 dat.append(")");
@@ -217,11 +222,6 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
         String z = "ALTER TABLE " + tabla + " ADD PRIMARY KEY (" + columna + ");";
         return z;
     }
-    
-    @Override
-    public String consultarLlavesPrimarias(String bd) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
@@ -229,67 +229,137 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
     }
-    
+
     @Override
     public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, String tabla_ref, String atri_ref) {
         String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
     }
+
+    @Override
+    public String consultarLlavesPrimarias(String bd) {
+        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) ";
+        sql += "as 'columnas' from information_schema.key_column_usage where constraint_schema = '";
+        sql += bd + "' and constraint_name = 'primary' group by table_name ;";
+        return sql;
+    }
     
     @Override
     public String consultarLlavesForaneas(String bd){
-        throw new UnsupportedOperationException("Not supported yet.");
+        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) as ";
+        sql += "'columnas', referenced_table_name as 'tabla_referencia', group_concat(referenced_column_name) as";
+        sql += "'columnas_referencia' from information_schema.key_column_usage where ";
+        sql += "constraint_schema = '" + bd + "' and constraint_name != 'primary' and referenced_table_name ";
+        sql += "is not null group by constraint_name ;";
+        return sql;
     }
 
     @Override
     public String getTriggers() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SHOW TRIGGERS;";
+        return z;
     }
 
     @Override
     public String getDatosTrigger(String BD, String nombreTrigger) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SHOW CREATE TRIGGER " + BD + "." + nombreTrigger + ";";
+        return z;
     }
 
     @Override
     public String crearTrigger(String sql) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = sql;
+        return z;
     }
 
     @Override
     public String borrarTrigger(String nombreTrigger) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "DROP TRIGGER IF EXISTS " + nombreTrigger + ";";
+        return z;
     }
 
     @Override
     public String crearLlaveUnique(String tabla, String columna) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ");";
+        return z;
     }
 
     @Override
-    public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre, String longitud, String Default, boolean Nonulo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
+            String longitud, String Default, boolean Nonulo) {
+
+        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
+        z += " " + Nuevonombre + " " + tipo;
+        if (longitud != null && longitud.length() > 0) {
+            z += "(" + longitud + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT '" + Default + "'";
+        }
+        if (Nonulo) {
+            z += " NOT NULL";
+        }
+        z += ";";
+        return z;
+    }
+
+    public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
+            String longitud, String Default, boolean Nonulo, boolean primera, String despuesDe) {
+
+        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
+        z += " " + Nuevonombre + " " + tipo;
+        if (longitud != null && longitud.length() > 0) {
+            z += "(" + longitud + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT '" + Default + "'";
+        }
+        if (Nonulo) {
+            z += " NOT NULL";
+        }
+        if (primera) {
+            z += " FIRST";
+        } else if (despuesDe != null) {
+            z += " AFTER " + despuesDe;
+        }
+        z += ";";
+        return z;
     }
 
     @Override
     public String renombrarTabla(String tabla, String nuevoNombre) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "ALTER TABLE " + tabla + " RENAME " + nuevoNombre + ";";
+        return z;
     }
 
     @Override
     public String CrearAuto_increment(String tabla, String columna, String tipo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "ALTER TABLE " + tabla + " CHANGE " + columna;
+        z += " " + columna + " " + tipo + "  AUTO_INCREMENT;";
+        return z;
     }
 
     @Override
     public String getProcedimientos(String BD) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
+        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ORDER BY ROUTINE_NAME;";
+        return z;
+    }
+
+    public String getParametrosProcedimiento(String nombreP) {
+        String z = "SELECT DATA_TYPE, PARAMETER_NAME FROM INFORMATION_SCHEMA.PARAMETERS ";
+        z += "WHERE ROUTINE_TYPE='PROCEDURE' AND SPECIFIC_NAME = '" + nombreP + "' ";
+        z += "ORDER BY ORDINAL_POSITION; ";
+        return z;
     }
 
     @Override
     public String getDatosProcedimiento(String BD, String nombreP) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = " SELECT ROUTINE_NAME, ROUTINE_DEFINITION  FROM INFORMATION_SCHEMA.ROUTINES ";
+        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ";
+        z += "AND ROUTINE_NAME = '" + nombreP + "';";
+        return z;
     }
 
     @Override
@@ -299,11 +369,13 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String borrarProcedimiento(String nombreP) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "DROP PROCEDURE IF EXISTS " + nombreP + ";";
+        return z;
     }
 
     @Override
     public String LlamarProcedimiento(String procedimiento, String parametros) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "CALL " + procedimiento + " (" + parametros + ");";
+        return z;
     }
 }

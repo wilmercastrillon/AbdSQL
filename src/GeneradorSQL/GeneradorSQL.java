@@ -1,4 +1,4 @@
-package generador;
+package GeneradorSQL;
 
 import java.util.Vector;
 

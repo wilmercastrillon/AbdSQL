@@ -1,6 +1,10 @@
 package clases;
 
-import generador.GeneradorSQL;
+import GeneradorMVC.GeneradorMVC;
+import GeneradorSQL.GeneradorPostgreSQL;
+import GeneradorSQL.GeneradorOracle;
+import GeneradorSQL.GeneradorMySQL;
+import GeneradorSQL.GeneradorSQL;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -14,7 +18,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import vistas.consola;
 import conexionBD.Conexion;
-import generador.*;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;

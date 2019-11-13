@@ -1,6 +1,6 @@
 package clases;
 
-import generador.GeneradorSQL;
+import GeneradorSQL.GeneradorSQL;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

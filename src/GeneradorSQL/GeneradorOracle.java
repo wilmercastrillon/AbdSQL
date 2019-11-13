@@ -1,77 +1,70 @@
-package generador;
+package GeneradorSQL;
 
 import java.util.Vector;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author wilmer
  */
-public class GeneradorMySQL extends GeneradorSQL {
+public class GeneradorOracle extends GeneradorSQL {
 
-    public GeneradorMySQL() {
+    public GeneradorOracle() {
     }
 
     @Override
     public String GetDataBases() {
-        String z = "SHOW DATABASES;";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String SelectDataBase(String bd) {
-        String z = "USE " + bd + ";";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String CrearDataBase(String nombre) {
-        String z = "CREATE DATABASE " + nombre + ";";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String BorrarDataBase(String nombre) {
-        String z = "DROP DATABASE IF EXISTS " + nombre + ";";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String GetTables() {
-        String z = "SELECT table_name as 'nombre' FROM information_schema.tables where ";
-        z += "table_schema = database() order by 'nombre';";
+        String z = "SELECT table_name FROM user_tables ORDER BY table_name";
         return z;
     }
 
     @Override
     public String GetTables(String bd) {
-        String z = "SELECT table_name FROM information_schema.tables WHERE table_schema ='";
-        z += bd + "';";
+        String z = "SELECT " + bd + " FROM user_tables ORDER BY table_name";
         return z;
     }
 
     @Override
     public String GetColumnasTabla(String table) {
-        String z = "SELECT column_name as 'nombre', column_type as 'tipo', if(is_nullable='yes', 'si', 'no') ";
-        z += "as 'nulo', column_default as 'default', column_key as 'key', extra FROM INFORMATION_SCHEMA.COLUMNS ";
-        z += "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + table + "' order by ordinal_position;";
-        //String z = "DESCRIBE " + table + ";";
+        String z = "SELECT COLUMN_NAME, DATA_TYPE, DATA_PRECISION, NULLABLE, DATA_DEFAULT, LOW_VALUE, HIGH_VALUE"
+                + " FROM all_tab_columns WHERE table_name = '" + table + "'";
         return z;
     }
 
     @Override
     public String CrearTabla(String nombre) {
-        String z = "Create Table " + nombre + " (id" + nombre.replace(" ", "") + " int NOT NULL);";
+        String z = "CREATE TABLE " + nombre + "( ID NUMBER(10) )";
         return z;
     }
 
     @Override
     public String BorrarTabla(String nombre) {
-        String z = "DROP TABLE IF EXISTS " + nombre + ";";
+        String z = "DROP TABLE " + nombre;
         return z;
     }
 
     @Override
-    public String agregarRegistro(String table, String datos[]) {
+    public String agregarRegistro(String table, String[] datos) {
         StringBuilder str = new StringBuilder("'");
         for (int i = 0; i < datos.length - 1; i++) {
             datos[i] = datos[i].trim();
@@ -80,7 +73,7 @@ public class GeneradorMySQL extends GeneradorSQL {
         datos[datos.length - 1] = datos[datos.length - 1].trim();
         str.append(datos[datos.length - 1]).append("'");
 
-        String z = "INSERT INTO " + table + " values(" + str.toString() + ");";
+        String z = "INSERT INTO " + table + " values(" + str.toString() + ")";
         return z;
     }
 
@@ -101,7 +94,7 @@ public class GeneradorMySQL extends GeneradorSQL {
             }
 
             z += "INSERT INTO " + table + " ( " + col.substring(0, col.length() - 2);
-            z += " ) values(" + dat.substring(0, dat.length() - 3) + ");";
+            z += " ) values(" + dat.substring(0, dat.length() - 3) + ")";
         } catch (Exception e) {
             return null;
         }
@@ -153,7 +146,7 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String GetDatosTabla(String table) {
-        String z = "SELECT * FROM " + table + ";";
+        String z = "SELECT * FROM " + table;
         return z;
     }
 
@@ -163,40 +156,31 @@ public class GeneradorMySQL extends GeneradorSQL {
         for (int i = 0; i < columas.size(); i++) {
             if (datos.get(i) != null) {
                 z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
+            } else {
+                z += " " + columas.get(i) + " IS NULL AND";
             }
         }
-        z = z.substring(0, z.length() - 4) + ";";
-        return z;
-    }
-
-    public String borrarFila(String dato, String columa, String table) {
-        String z = "DELETE FROM " + table + " WHERE " + columa + " = '" + dato + "' ;";
+        z = z.substring(0, z.length() - 4);
         return z;
     }
 
     @Override
-    public String actualizarFila(String tabla, Vector<String> columnas, Vector<String> datos,
-            String columnaCambiar, String datoCambiar) {
+    public String actualizarFila(String tabla, Vector<String> columnas, Vector<String> datos, String columnaCambiar,
+            String datoCambiar) {
 
         String z = "UPDATE " + tabla + " SET " + columnaCambiar + " = '" + datoCambiar + "' WHERE ";
         for (int i = 0; i < columnas.size(); i++) {
             if (!columnaCambiar.equals(columnas.get(i))) {
-                z += columnas.get(i) + " = '" + datos.get(i) + "' AND  ";
+                z += columnas.get(i) + " = '" + datos.get(i) + "' AND ";
             }
         }
-        z = z.substring(0, z.length() - 6) + ";";
-        return z;
-    }
-
-    public String BorrarAllDatosTabla(String tabla) {
-        String z = "DELETE FROM " + tabla + ";";
+        z = z.substring(0, z.length() - 5);
         return z;
     }
 
     @Override
     public String agregarColumnaTabla(String tabla, String tipo, String nombre, String longitud,
             String Default, boolean Nonulo) {
-
         String z = "ALTER TABLE " + tabla + " ADD(" + nombre + " " + tipo;
         if (longitud != null) {
             z += "(" + longitud + ")";
@@ -207,26 +191,31 @@ public class GeneradorMySQL extends GeneradorSQL {
         if (Nonulo) {
             z += " NOT NULL";
         }
-        z += ");";
+        z += ")";
         return z;
     }
 
     @Override
     public String borrarColumnaTabla(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " DROP " + columna + ";";
+        String z = "ALTER TABLE " + tabla + " DROP COLUMN " + columna;
         return z;
     }
 
     @Override
     public String crearLlavePrimaria(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " ADD PRIMARY KEY (" + columna + ");";
+        String z = "ALTER TABLE " + tabla + " ADD PRIMARY KEY (" + columna + ")";
         return z;
     }
 
     @Override
     public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
-        String z = "ALTER TABLE " + tabla + " ADD FOREIGN KEY(" + atri
-                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+        String constraint = JOptionPane.showInputDialog(null, "ingrese nombre constraint:");
+        if (constraint == null) {
+            return null;
+        }
+
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + constraint
+                + " FOREIGN KEY(" + atri + ") REFERENCES " + tabla_ref + "(" + atri_ref + ")";
         return z;
     }
 
@@ -236,34 +225,29 @@ public class GeneradorMySQL extends GeneradorSQL {
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
     }
-
+    
     @Override
     public String consultarLlavesPrimarias(String bd) {
-        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) ";
-        sql += "as 'columnas' from information_schema.key_column_usage where constraint_schema = '";
-        sql += bd + "' and constraint_name = 'primary' group by table_name ;";
-        return sql;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     @Override
     public String consultarLlavesForaneas(String bd){
-        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) as ";
-        sql += "'columnas', referenced_table_name as 'tabla_referencia', group_concat(referenced_column_name) as";
-        sql += "'columnas_referencia' from information_schema.key_column_usage where ";
-        sql += "constraint_schema = '" + bd + "' and constraint_name != 'primary' and referenced_table_name ";
-        sql += "is not null group by constraint_name ;";
-        return sql;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getTriggers() {
-        String z = "SHOW TRIGGERS;";
+        String z = "SELECT trigger_name, trigger_type, triggering_event, ";
+        z += "table_name, status, trigger_body FROM ALL_TRIGGERS";
         return z;
     }
 
     @Override
     public String getDatosTrigger(String BD, String nombreTrigger) {
-        String z = "SHOW CREATE TRIGGER " + BD + "." + nombreTrigger + ";";
+        String z = "SELECT trigger_name, trigger_type, trigger_body, ";
+        z += "table_name, triggering_event, status FROM ALL_TRIGGERS ";
+        z += "where trigger_name = '" + nombreTrigger + "'";
         return z;
     }
 
@@ -275,22 +259,26 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String borrarTrigger(String nombreTrigger) {
-        String z = "DROP TRIGGER IF EXISTS " + nombreTrigger + ";";
+        String z = "DROP TRIGGER " + nombreTrigger;
         return z;
     }
 
     @Override
     public String crearLlaveUnique(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ");";
+        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ")";
         return z;
     }
 
     @Override
     public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
             String longitud, String Default, boolean Nonulo) {
-
-        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
-        z += " " + Nuevonombre + " " + tipo;
+        String z0 = "";
+        if (!Nuevonombre.equals(nombre)) {
+            z0 += "ALTER TABLE " + tabla + " rename column " + nombre;
+            z0 += " to " + Nuevonombre + "; ";
+        }
+        String z = z0 + "ALTER TABLE " + tabla + " MODIFY " + Nuevonombre;
+        z += " " + tipo;
         if (longitud != null && longitud.length() > 0) {
             z += "(" + longitud + ")";
         }
@@ -300,65 +288,31 @@ public class GeneradorMySQL extends GeneradorSQL {
         if (Nonulo) {
             z += " NOT NULL";
         }
-        z += ";";
-        return z;
-    }
-
-    public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
-            String longitud, String Default, boolean Nonulo, boolean primera, String despuesDe) {
-
-        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
-        z += " " + Nuevonombre + " " + tipo;
-        if (longitud != null && longitud.length() > 0) {
-            z += "(" + longitud + ")";
-        }
-        if (Default != null) {
-            z += " DEFAULT '" + Default + "'";
-        }
-        if (Nonulo) {
-            z += " NOT NULL";
-        }
-        if (primera) {
-            z += " FIRST";
-        } else if (despuesDe != null) {
-            z += " AFTER " + despuesDe;
-        }
-        z += ";";
         return z;
     }
 
     @Override
     public String renombrarTabla(String tabla, String nuevoNombre) {
-        String z = "ALTER TABLE " + tabla + " RENAME " + nuevoNombre + ";";
+        String z = "RENAME " + tabla + " TO " + nuevoNombre;
         return z;
     }
 
     @Override
     public String CrearAuto_increment(String tabla, String columna, String tipo) {
-        String z = "ALTER TABLE " + tabla + " CHANGE " + columna;
-        z += " " + columna + " " + tipo + "  AUTO_INCREMENT;";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public String getProcedimientos(String BD) {
-        String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
-        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ORDER BY ROUTINE_NAME;";
-        return z;
-    }
-
-    public String getParametrosProcedimiento(String nombreP) {
-        String z = "SELECT DATA_TYPE, PARAMETER_NAME FROM INFORMATION_SCHEMA.PARAMETERS ";
-        z += "WHERE ROUTINE_TYPE='PROCEDURE' AND SPECIFIC_NAME = '" + nombreP + "' ";
-        z += "ORDER BY ORDINAL_POSITION; ";
+        String z = "SELECT Distinct name FROM all_source WHERE UPPER(owner) = UPPER('" + BD + "') AND type = 'PROCEDURE'";
         return z;
     }
 
     @Override
     public String getDatosProcedimiento(String BD, String nombreP) {
-        String z = " SELECT ROUTINE_NAME, ROUTINE_DEFINITION  FROM INFORMATION_SCHEMA.ROUTINES ";
-        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ";
-        z += "AND ROUTINE_NAME = '" + nombreP + "';";
+        String z = "SELECT LISTAGG(TEXT, CHR(13)) WITHIN GROUP (ORDER BY LINE) \"texto\" ";
+        z += "FROM  all_source WHERE NAME = '" + nombreP + "' AND type = 'PROCEDURE' ";
+        z += "AND UPPER(owner) = UPPER('" + BD + "') ORDER BY LINE";
         return z;
     }
 
@@ -369,13 +323,13 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String borrarProcedimiento(String nombreP) {
-        String z = "DROP PROCEDURE IF EXISTS " + nombreP + ";";
+        String z = "DROP PROCEDURE " + nombreP;
         return z;
     }
 
     @Override
     public String LlamarProcedimiento(String procedimiento, String parametros) {
-        String z = "CALL " + procedimiento + " (" + parametros + ");";
+        String z = "EXEC " + procedimiento + " (" + parametros + ");";
         return z;
     }
 }

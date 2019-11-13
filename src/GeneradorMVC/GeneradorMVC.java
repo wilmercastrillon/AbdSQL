@@ -1,5 +1,6 @@
-package clases;
+package GeneradorMVC;
 
+import clases.Fachada;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -66,15 +67,15 @@ public class GeneradorMVC {
             while (rs.next()) {
                 value = rs.getString(2).toLowerCase();
                 if (value.startsWith("int")) {
-                    value = "int ";
+                    value = "int";
                 } else if (value.startsWith("double") || value.startsWith("float")) {
-                    value = "double ";
+                    value = "double";
                 } else if (value.startsWith("char")) {
-                    value = "char ";
+                    value = "char";
                 } else if (value.startsWith("binary")) {
-                    value = "bool ";
+                    value = "bool";
                 } else {
-                    value = "string ";
+                    value = "string";
                 }
                 columnas.add(new Pair<>(rs.getString(1), value));
             }

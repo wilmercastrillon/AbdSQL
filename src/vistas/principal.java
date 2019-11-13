@@ -31,8 +31,10 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private DefaultMutableTreeNode raiz;
     private Vector<DefaultMutableTreeNode> nodos;
     private Vector<JPanel> paneles;
+    private Vector<String> bases_de_datos;
     private final Fachada op;
     private JPopupMenu menu2, menu1, menu3, menu4;
+    private ventanaMVC vm;
     public inicio ini;
 
     public principal(Fachada x, inicio i) {
@@ -197,7 +199,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         int q2 = JOptionPane.showConfirmDialog(null, "Segurisimo que desea borrar\nla base de datos\n" + bd);
                         if (q2 == JOptionPane.YES_OPTION) {
                             System.out.println("se borraria");
-                            generador.GeneradorMySQL g = (generador.GeneradorMySQL) op.getGeneradorSQL();
+                            GeneradorSQL.GeneradorMySQL g = (GeneradorSQL.GeneradorMySQL) op.getGeneradorSQL();
                             try {
                                 op.ejecutarUpdate(g.BorrarDataBase(bd));
                                 cargar();
@@ -230,12 +232,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             menu1.add(crearBD);
             menu2.add(borrarBD);
         }
-//        JMenuItem CrearMVC = new JMenuItem("Crear plantilla MVC");
-//        CrearMVC.addActionListener(new java.awt.event.ActionListener() {
-//            public void actionPerformed(ActionEvent ae) {
-//                
-//            }
-//        });
 
 //        JMenuItem exportarPostgres = new JMenuItem("Exportar a postgreSQL");
 //        exportarPostgres.addActionListener(new java.awt.event.ActionListener() {
@@ -307,9 +303,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
             nodos = new Vector<>();
             paneles = new Vector<>();
-            Vector<String> bd = op.getBasesDeDatos();
-            for (int i = 0; i < bd.size(); i++) {
-                DefaultMutableTreeNode nuevo = new DefaultMutableTreeNode(bd.get(i));
+            bases_de_datos = op.getBasesDeDatos();
+            for (int i = 0; i < bases_de_datos.size(); i++) {
+                DefaultMutableTreeNode nuevo = new DefaultMutableTreeNode(bases_de_datos.get(i));
                 modelo_arbol.insertNodeInto(nuevo, raiz, i);
                 nodos.add(nuevo);
             }
@@ -747,32 +743,14 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void menuGenerarMVCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuGenerarMVCActionPerformed
-        JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int seleccion = chooser.showOpenDialog(null);
-        if (seleccion != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        setCursor(Cursor.WAIT_CURSOR);
-        TreePath path = jTree1.getSelectionPath();
-        String bd = path.getLastPathComponent().toString();
-        File fichero = chooser.getSelectedFile();
-        File m = new File(fichero.getPath() + "\\Models");
-        m.mkdirs();
-        File c = new File(fichero.getPath() + "\\Controllers");
-        c.mkdirs();
-
-        try {
-            if (op.generaraMVC(op.getTablesDataBase(bd), fichero.getPath())) {
-                JOptionPane.showMessageDialog(null, "Modelos y controladores\nCreados", "Exitoso", 1);
-            } else {
-                JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+        if (vm != null) {
+            if (vm.isVisible()) {
+                return;
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            vm.dispose();
         }
-        setCursor(Cursor.DEFAULT_CURSOR);
+        vm = new ventanaMVC(op, bases_de_datos);
+        vm.setVisible(true);
     }//GEN-LAST:event_menuGenerarMVCActionPerformed
 
     private void menuExpotarSQLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExpotarSQLActionPerformed
@@ -781,7 +759,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
             return;
         }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
         if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
             JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
             return;
@@ -794,7 +772,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.WAIT_CURSOR);
         File fichero = chooser.getSelectedFile();
-        
+
         System.out.println(op.getBDseleccionada());
         if (op.convertirPostgreSQL(fichero.getPath())) {
             JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
@@ -810,7 +788,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
             return;
         }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
         if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
             JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
             return;
@@ -823,7 +801,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.WAIT_CURSOR);
         File fichero = chooser.getSelectedFile();
-        
+
         System.out.println(op.getBDseleccionada());
         if (op.convertirMySQL(fichero.getPath())) {
             JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
@@ -839,7 +817,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
             return;
         }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
         if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
             JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
             return;
@@ -852,7 +830,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         }
         setCursor(Cursor.WAIT_CURSOR);
         File fichero = chooser.getSelectedFile();
-        
+
         System.out.println(op.getBDseleccionada());
         if (op.generaraDiccionario(fichero.getPath())) {
             JOptionPane.showMessageDialog(null, "Diccionario terminado", "Exitoso", 1);

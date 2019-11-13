@@ -1,12 +1,12 @@
 package clases;
 
+import GeneradorSQL.GeneradorPostgreSQL;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
-import generador.*;
 import java.io.UnsupportedEncodingException;
 import java.sql.ResultSetMetaData;
 
