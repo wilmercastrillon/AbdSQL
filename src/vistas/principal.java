@@ -35,6 +35,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     private final Fachada op;
     private JPopupMenu menu2, menu1, menu3, menu4;
     private ventanaMVC vm;
+    private ventanaDD vd;
     public inicio ini;
 
     public principal(Fachada x, inicio i) {
@@ -812,32 +813,14 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        TreePath path = jTree1.getSelectionPath();
-        if (path == null) {
-            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
-            return;
+        if (vd != null) {
+            if (vd.isVisible()) {
+                return;
+            }
+            vd.dispose();
         }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-        if (path.getPathCount() < 2 || (path.getPathCount() == 2 && node.isLeaf())) {
-            JOptionPane.showMessageDialog(null, "Conectese a una base de datos", "Error", 0);
-            return;
-        }
-        JFileChooser chooser = new JFileChooser("Seleccione carpeta destino");
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int seleccion = chooser.showOpenDialog(null);
-        if (seleccion != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        setCursor(Cursor.WAIT_CURSOR);
-        File fichero = chooser.getSelectedFile();
-
-        System.out.println(op.getBDseleccionada());
-        if (op.generaraDiccionario(fichero.getPath())) {
-            JOptionPane.showMessageDialog(null, "Diccionario terminado", "Exitoso", 1);
-        } else {
-            JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
-        }
-        setCursor(Cursor.DEFAULT_CURSOR);
+        vd = new ventanaDD(op, bases_de_datos);
+        vd.setVisible(true);        
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     public static void main(String args[]) {

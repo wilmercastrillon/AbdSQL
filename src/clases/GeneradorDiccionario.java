@@ -1,6 +1,5 @@
 package clases;
 
-import GeneradorSQL.GeneradorSQL;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;

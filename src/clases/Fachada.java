@@ -397,8 +397,8 @@ public class Fachada {
         return true;
     }
     
-    public boolean generaraDiccionario(String ruta) {
-        GeneradorDiccionario dd = new GeneradorDiccionario(this, BDseleccionada);
+    public boolean generaraDiccionario(String ruta, String BD) {
+        GeneradorDiccionario dd = new GeneradorDiccionario(this, BD);
         try {
             dd.crearWord(ruta, "diccionario.docx");
         } catch (Exception e) {
