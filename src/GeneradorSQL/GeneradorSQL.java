@@ -85,14 +85,16 @@ public abstract class GeneradorSQL {
     
     abstract public String LlamarProcedimiento(String procedimiento, String parametros);
     
-//throws SQLException {
-//        String comando;
-//        if (con instanceof ConexionMySql) {
-//            comando = "CALL " + procedimiento + " (" + parametros + ");";
-//        }else{
-//            comando = "EXEC " + procedimiento + " (" + parametros + ");";
-//        }
-//        sta.executeUpdate(comando);
-//        cons.agregar(comando);
-//    }
+    //[constraint][tabla][columna][tabla_referencia][columna_referencia]
+    abstract public String getForaneasTabla(String BD, String tabla);
+    
+    //[constraint][tabla][columna][tabla_referencia][columna_referencia]
+    abstract public String getForanea(String BD, String tabla, String constraint);
+    
+    abstract public String borrarForanea(String tabla, String constraint);
+    
+    //[tabla][indice]
+    abstract public String getIndicesTabla(String BD, String tabla);
+    
+    abstract public String borrarIndex(String tabla, String constraint);
 }

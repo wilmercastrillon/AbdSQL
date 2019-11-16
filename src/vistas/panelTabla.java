@@ -44,7 +44,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 //        jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         llenarTabla();
         inserta = nuevaFila = false;
-        ma = new modificarTabla(op, tabla);
+        ma = new modificarTabla(op, op.getBDseleccionada(), tabla);
         botonAgregarRegistro.addKeyListener(this);
         botonAtributos.addKeyListener(this);
         botonRecargar.addKeyListener(this);

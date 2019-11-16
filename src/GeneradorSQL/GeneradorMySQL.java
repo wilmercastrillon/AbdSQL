@@ -8,6 +8,8 @@ import java.util.Vector;
  */
 public class GeneradorMySQL extends GeneradorSQL {
 
+    //SHOW CREATE TABLE "nobre de la tabla";
+    
     public GeneradorMySQL() {
     }
 
@@ -376,6 +378,44 @@ public class GeneradorMySQL extends GeneradorSQL {
     @Override
     public String LlamarProcedimiento(String procedimiento, String parametros) {
         String z = "CALL " + procedimiento + " (" + parametros + ");";
+        return z;
+    }
+
+    @Override
+    public String getForaneasTabla(String BD, String tabla) {
+        String z = "SELECT CONSTRAINT_NAME as 'constraint', TABLE_NAME as 'tabla', ";
+        z += "COLUMN_NAME as 'columna', REFERENCED_TABLE_NAME as 'tabla_referencia', ";
+        z += "REFERENCED_COLUMN_NAME as 'columna_referencia' FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ";
+        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + BD + "' AND TABLE_NAME='" + tabla + "';";
+        return z;
+    }
+    
+    @Override
+    public String getForanea(String BD, String tabla, String constraint) {
+        String z = "SELECT CONSTRAINT_NAME as 'constraint', TABLE_NAME as 'tabla', ";
+        z += "COLUMN_NAME as 'columna', REFERENCED_TABLE_NAME as 'tabla_referencia', ";
+        z += "REFERENCED_COLUMN_NAME as 'columna_referencia' FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ";
+        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + BD + "' AND TABLE_NAME='" + tabla + "' ";
+        z += "AND CONSTRAINT_NAME = '" + constraint + "';";
+        return z;
+    }
+
+    @Override
+    public String borrarForanea(String tabla, String constraint) {
+        String z = "ALTER TABLE " + tabla + " DROP FOREIGN KEY " + constraint + "; ";
+        return z;
+    }
+    
+    @Override
+    public String borrarIndex(String tabla, String constraint) {
+        String z = "ALTER TABLE " + tabla + " DROP INDEX " + constraint + ";";
+        return z;
+    }
+
+    @Override
+    public String getIndicesTabla(String BD, String tabla) {
+        String z = "SELECT TABLE_NAME AS 'tabla', INDEX_NAME AS 'indice' FROM INFORMATION_SCHEMA.STATISTICS ";
+        z += "WHERE TABLE_SCHEMA = '" + BD + "' AND TABLE_NAME = '" + tabla + "';";
         return z;
     }
 }

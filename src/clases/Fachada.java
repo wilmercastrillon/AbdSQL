@@ -133,30 +133,40 @@ public class Fachada {
 
     public ResultSet ejecutarConsulta(String sql) throws SQLException {
         if (con.conexionCerrada()) {
-            recuperarConexion();
-        }
-        ResultSet res = null;
-        try {
-            cons.agregar(sql);
-            res = con.EjecutarConsulta(sql);
-        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
-            if (recuperarConexion()) {
-                ejecutarConsulta(sql);
+            if (!recuperarConexion()) {
+                JOptionPane.showMessageDialog(null, "No se pudo recuperar la conexión", "Error", 0);
+                return null;
             }
         }
+        cons.agregar(sql);
+        ResultSet res = con.EjecutarConsulta(sql);
+
+//        try {
+//            cons.agregar(sql);
+//            res = con.EjecutarConsulta(sql);
+//        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
+//            if (recuperarConexion()) {
+//                ejecutarConsulta(sql);
+//            }
+//        }
         return res;
     }
 
     public void ejecutarUpdate(String sql) throws SQLException {
         if (con.conexionCerrada()) {
-            recuperarConexion();
+            if (!recuperarConexion()) {
+                JOptionPane.showMessageDialog(null, "No se pudo recuperar la conexión", "Error", 0);
+                return;
+            }
         }
-        try {
-            cons.agregar(sql);
-            con.EjecutarUpdate(sql);
-        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
-            recuperarConexion();
-        }
+        cons.agregar(sql);
+        con.EjecutarUpdate(sql);
+//        try {
+//            cons.agregar(sql);
+//            con.EjecutarUpdate(sql);
+//        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
+//            recuperarConexion();
+//        }
     }
 
     public Vector<String> getTablesDataBase(String dataBase) throws SQLException {
@@ -284,7 +294,7 @@ public class Fachada {
         if (index == -1) {
             return null;
         }
-        
+
         datos.add(modelo.getValueAt(index, 0).toString());//nombre
         String tipo = modelo.getValueAt(index, 1).toString().toUpperCase();//tipo
         int parentesis = tipo.indexOf("(");
@@ -293,16 +303,16 @@ public class Fachada {
         } else {
             datos.add(tipo.substring(0, parentesis));
         }
-        
+
         Object obj = modelo.getValueAt(index, 3);//default
         if (obj == null) {
             datos.add(null);
         } else {
             datos.add(obj.toString());
         }
-        
+
         datos.add(modelo.getValueAt(index, 2).toString());//nulo
-        
+
         if (parentesis == -1) {//longitud
             datos.add("");
         } else {
@@ -311,14 +321,14 @@ public class Fachada {
 
         return datos;
     }
-    
-    public Vector<Vector<String>> cargarTipos(){
+
+    public Vector<Vector<String>> cargarTipos() {
         Vector<Vector<String>> vvs = new Vector<>();
-        
+
         String nombre = "";
         if (con.tipo == Conexion.MySQL) {
             nombre = "tiposMySQL";
-        }else if(con.tipo == Conexion.PostgreSQL){
+        } else if (con.tipo == Conexion.PostgreSQL) {
             nombre = "tiposPostgreSQL";
         }
         try {
@@ -327,7 +337,7 @@ public class Fachada {
             while (tec.ready()) {
                 String s = tec.readLine();
                 String in[] = s.split("/");
-                
+
                 Vector<String> vs = new Vector<>();
                 for (String in1 : in) {
                     vs.add(in1);
@@ -385,8 +395,8 @@ public class Fachada {
         }
         return true;
     }
-    
-    public boolean exportar(String ruta, int tipo){
+
+    public boolean exportar(String ruta, int tipo) {
         ExportadorSQL exp = new ExportadorSQL(this, tipo);
         try {
             exp.exportar(BDseleccionada, ruta, "script");
@@ -396,7 +406,7 @@ public class Fachada {
         }
         return true;
     }
-    
+
     public boolean generaraDiccionario(String ruta, String BD) {
         GeneradorDiccionario dd = new GeneradorDiccionario(this, BD);
         try {

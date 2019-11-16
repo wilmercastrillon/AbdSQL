@@ -306,4 +306,50 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     public String LlamarProcedimiento(String procedimiento, String parametros) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public String getForaneasTabla(String BD, String tabla) {
+        String z = "SELECT tc.constraint_name as constraint, tc.table_name as tabla, ";
+        z += "kcu.column_name as columna, ccu.table_name AS tabla_referencia, ccu.column_name ";
+        z += "AS columna_referencia FROM information_schema.table_constraints AS tc ";
+        z += "JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name ";
+        z += "= kcu.constraint_name AND tc.table_schema = kcu.table_schema JOIN ";
+        z += "information_schema.constraint_column_usage AS ccu ON ccu.constraint_name ";
+        z += "= tc.constraint_name AND ccu.table_schema = tc.table_schema WHERE tc.constraint_type ";
+        z += "= 'FOREIGN KEY' AND tc.table_name='" + tabla + "';";
+        return z;
+    }
+    
+    @Override
+    public String getForanea(String BD, String tabla, String constraint) {
+        String z = "SELECT tc.constraint_name as constraint, tc.table_name as tabla, ";
+        z += "kcu.column_name as columna, ccu.table_name AS tabla_referencia, ccu.column_name ";
+        z += "AS columna_referencia FROM information_schema.table_constraints AS tc ";
+        z += "JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name ";
+        z += "= kcu.constraint_name AND tc.table_schema = kcu.table_schema JOIN ";
+        z += "information_schema.constraint_column_usage AS ccu ON ccu.constraint_name ";
+        z += "= tc.constraint_name AND ccu.table_schema = tc.table_schema WHERE tc.constraint_type ";
+        z += "= 'FOREIGN KEY' AND tc.table_name='" + tabla + "' AND tc.constraint_name ";
+        z += "= '" + constraint + "'; ";
+        return z;
+    }
+    
+    @Override
+    public String borrarForanea(String tabla, String constraint) {
+        String z = "ALTER TABLE " + tabla + " DROP FOREIGN KEY " + constraint + ";";
+        return z;
+    }
+
+    @Override
+    public String getIndicesTabla(String BD, String tabla) {
+        String z = "select tablename as tabla, indexname as indice from pg_indexes ";
+        z += "where tablename = '" + tabla + "';";
+        return z;
+    }
+    
+    @Override
+    public String borrarIndex(String tabla, String constraint) {
+        String z = "DROP INDEX  " + constraint + ";";
+        return z;
+    }
 }

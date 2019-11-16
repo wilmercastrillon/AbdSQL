@@ -100,7 +100,7 @@ public class GeneradorOracle extends GeneradorSQL {
         }
         return z;
     }
-    
+
     @Override
     public String agregarMultiplesRegistros(String table, Vector<String> columnas, Vector<Vector<String>> datos) {
         StringBuilder col = new StringBuilder("");
@@ -113,7 +113,7 @@ public class GeneradorOracle extends GeneradorSQL {
                 col.append(", ");
             }
             z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
-            
+
             Vector<String> aux;
             for (int j = 0; j < datos.size(); j++) {
                 if (j > 0) {
@@ -121,14 +121,14 @@ public class GeneradorOracle extends GeneradorSQL {
                 }
                 aux = datos.get(j);
                 dat = new StringBuilder("(");
-                
+
                 for (int k = 0; k < aux.size(); k++) {
                     if (k > 0) {
                         dat.append(",");
                     }
                     if (aux.get(k) == null) {
                         dat.append("null");
-                    }else{
+                    } else {
                         dat.append("'");
                         dat.append(aux.get(k));
                         dat.append("'");
@@ -225,14 +225,14 @@ public class GeneradorOracle extends GeneradorSQL {
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
     }
-    
+
     @Override
     public String consultarLlavesPrimarias(String bd) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
-    public String consultarLlavesForaneas(String bd){
+    public String consultarLlavesForaneas(String bd) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -331,5 +331,31 @@ public class GeneradorOracle extends GeneradorSQL {
     public String LlamarProcedimiento(String procedimiento, String parametros) {
         String z = "EXEC " + procedimiento + " (" + parametros + ");";
         return z;
+    }
+
+    @Override
+    public String getForaneasTabla(String BD, String tabla) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getForanea(String BD, String tabla, String constraint) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String borrarForanea(String tabla, String constraint) {
+        String z = "ALTER TABLE " + tabla + " DROP FOREIGN KEY " + constraint + ";";
+        return z;
+    }
+
+    @Override
+    public String getIndicesTabla(String BD, String tabla) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String borrarIndex(String tabla, String constraint) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

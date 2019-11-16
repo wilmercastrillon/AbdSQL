@@ -8,6 +8,8 @@ import java.awt.event.KeyListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -17,11 +19,12 @@ import javax.swing.table.DefaultTableModel;
 public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
     private final Fachada op;
-    private final String tabla;
+    private final String BD, tabla;
     private boolean flag = false;
 
-    public modificarTabla(Fachada c, String table) {
+    public modificarTabla(Fachada c, String base_de_datos, String table) {
         op = c;
+        BD = base_de_datos;
         tabla = table;
         initComponents();
         cargar();
@@ -89,14 +92,29 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             op.llenarTableModel(op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(tabla)), dft);
             jTable2.setModel(dft);
             addPoppupMenu(jTable2);
-
+            
+            jComboForaneas.removeAllItems();
+            jComboForaneas.addItem("------------");
+            ResultSet rs3 = op.ejecutarConsulta(op.getGeneradorSQL().getForaneasTabla(BD, tabla));
+            while (rs3.next()) {                
+                jComboForaneas.addItem(rs3.getString("constraint"));
+            }
+            
+            jComboIndices.removeAllItems();
+            jComboIndices.addItem("------------");
+            ResultSet rs4 = op.ejecutarConsulta(op.getGeneradorSQL().getIndicesTabla(BD, tabla));
+            while (rs4.next()) {                
+                jComboIndices.addItem(rs4.getString("indice"));
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
+            System.err.println("Error: modificarTabla, cargar, SQLException");
+            System.err.println("Mensaje: " + e.getMessage() + "\n");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
-            System.out.println("\nError: modificarTabla: cargar");
-            System.out.println(ex.getMessage() + "\n");
+            System.err.println("Error: modificarTabla, cargar, Exception");
+            System.err.println("Mensaje: " + ex.getMessage() + "\n");
         }
         flag = false;
     }
@@ -124,7 +142,11 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         jMenuItem1 = new javax.swing.JMenuItem();
         jProgressBar1 = new javax.swing.JProgressBar();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel6 = new javax.swing.JPanel();
+        PanelTabColumnas = new javax.swing.JTabbedPane();
+        jPanel7 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         radioDefault = new javax.swing.JRadioButton();
         textDefault = new javax.swing.JTextField();
@@ -137,6 +159,10 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         comboTiposDatos = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
         textLongitud = new javax.swing.JTextField();
+        jSeparator1 = new javax.swing.JSeparator();
+        comboColumnasBorrar = new javax.swing.JComboBox<>();
+        jLabel17 = new javax.swing.JLabel();
+        botonBorrarColumna = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -148,8 +174,16 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         botonCrearForanea = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        comboColumnasBorrar = new javax.swing.JComboBox<>();
-        botonBorrarColumna = new javax.swing.JButton();
+        jComboForaneas = new javax.swing.JComboBox<>();
+        jLabel18 = new javax.swing.JLabel();
+        jTextNombreConstraint = new javax.swing.JTextField();
+        jTextAtributollave = new javax.swing.JTextField();
+        jLabel19 = new javax.swing.JLabel();
+        jTextTablaReferencia = new javax.swing.JTextField();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jTextAtributoReferencia = new javax.swing.JTextField();
+        jButton4 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         comboColumnaPrimaria = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
@@ -160,6 +194,9 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         jLabel11 = new javax.swing.JLabel();
         comboIncrement = new javax.swing.JComboBox<>();
         jButton2 = new javax.swing.JButton();
+        jLabel22 = new javax.swing.JLabel();
+        jComboIndices = new javax.swing.JComboBox<>();
+        jButton5 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
         comboActualizar = new javax.swing.JComboBox<>();
@@ -179,14 +216,55 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         comboDespuesDe = new javax.swing.JComboBox<>();
         jButton3 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
 
         jMenuItem1.setText("jMenuItem1");
 
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jTabbedPane1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        PanelTabColumnas.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane2.setViewportView(jTable2);
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        PanelTabColumnas.addTab("Columnas", jPanel7);
 
         radioDefault.setText("Default");
 
@@ -209,6 +287,17 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         jLabel4.setText("Longitud");
 
+        comboColumnasBorrar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+
+        jLabel17.setText("Borrar atributo");
+
+        botonBorrarColumna.setText("Borrar");
+        botonBorrarColumna.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonBorrarColumnaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -216,31 +305,40 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(textNombreColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(radioDefault)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(textDefault, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(18, 18, 18)
-                                .addComponent(textNombreColumna, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(comboTiposDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(radioNoNulo)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel4)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(textLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(botonCrearColumna)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(radioDefault)
+                                .addComponent(comboColumnasBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(textDefault, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addGap(18, 18, 18)
-                                .addComponent(comboTiposDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(radioNoNulo)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel4)
-                                .addGap(18, 18, 18)
-                                .addComponent(textLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(botonCrearColumna))
-                .addContainerGap(112, Short.MAX_VALUE))
+                                .addComponent(botonBorrarColumna))
+                            .addComponent(jLabel17))
+                        .addGap(0, 102, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -262,10 +360,18 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     .addComponent(textLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(botonCrearColumna)
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel17)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(comboColumnasBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(botonBorrarColumna))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Columnas", jPanel1);
+        PanelTabColumnas.addTab("Editar Columnas", jPanel1);
 
         jLabel8.setText("Crear llave foranea");
 
@@ -333,19 +439,40 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(botonCrearForanea)
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addContainerGap(115, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Foraneas", jPanel3);
+        PanelTabColumnas.addTab("Crear foraneas", jPanel3);
 
-        jLabel5.setText("Borrar atributo");
+        jLabel5.setText("Seleccionar llave foranea");
 
-        comboColumnasBorrar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
-
-        botonBorrarColumna.setText("Borrar");
-        botonBorrarColumna.addActionListener(new java.awt.event.ActionListener() {
+        jComboForaneas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+        jComboForaneas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonBorrarColumnaActionPerformed(evt);
+                jComboForaneasActionPerformed(evt);
+            }
+        });
+
+        jLabel18.setText("Nombre constraint");
+
+        jTextNombreConstraint.setEnabled(false);
+
+        jTextAtributollave.setEnabled(false);
+
+        jLabel19.setText("Atributo llave");
+
+        jTextTablaReferencia.setEnabled(false);
+
+        jLabel20.setText("Tabla de referencia");
+
+        jLabel21.setText("Atributo de referencia");
+
+        jTextAtributoReferencia.setEnabled(false);
+
+        jButton4.setText("Borrar llave foranea");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
             }
         });
 
@@ -357,11 +484,26 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(comboColumnasBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(botonBorrarColumna)))
-                .addContainerGap(459, Short.MAX_VALUE))
+                    .addComponent(jComboForaneas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel18)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                            .addComponent(jTextNombreConstraint, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton4))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel19)
+                                .addComponent(jTextAtributollave, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jTextTablaReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel20))
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel21)
+                                .addComponent(jTextAtributoReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(127, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -369,13 +511,27 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addContainerGap()
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
+                .addComponent(jComboForaneas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(comboColumnasBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(botonBorrarColumna))
-                .addContainerGap(118, Short.MAX_VALUE))
+                    .addComponent(jLabel19)
+                    .addComponent(jLabel20)
+                    .addComponent(jLabel21))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextAtributollave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextTablaReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextAtributoReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel18)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextNombreConstraint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton4))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Borrar", jPanel4);
+        PanelTabColumnas.addTab("Borrar foraneas", jPanel4);
 
         comboColumnaPrimaria.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
 
@@ -410,6 +566,17 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        jLabel22.setText("Borrar indice");
+
+        jComboIndices.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+
+        jButton5.setText("Borrar indice");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -436,7 +603,13 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         .addGap(18, 18, 18)
                         .addComponent(comboIncrement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2)))
+                        .addComponent(jButton2))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel22)
+                        .addGap(18, 18, 18)
+                        .addComponent(jComboIndices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton5)))
                 .addContainerGap(314, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -458,10 +631,15 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     .addComponent(jButton2)
                     .addComponent(comboIncrement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel22)
+                    .addComponent(jComboIndices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton5))
+                .addContainerGap(92, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Indices", jPanel2);
+        PanelTabColumnas.addTab("Indices", jPanel2);
 
         jLabel13.setText("Columna a actualizar:");
 
@@ -587,14 +765,14 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     .addComponent(radioPrimera)
                     .addComponent(radioDespues)
                     .addComponent(comboDespuesDe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(106, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(BotonActualizar)
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Actualizar", jPanel5);
+        PanelTabColumnas.addTab("Actualizar", jPanel5);
 
         jButton3.setText("Salir");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -610,42 +788,27 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             }
         });
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String [] {
-
-            }
-        ));
-        jScrollPane2.setViewportView(jTable2);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addContainerGap()
+                        .addComponent(PanelTabColumnas))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton1)
-                        .addGap(249, 249, 249)
-                        .addComponent(jButton3))
-                    .addComponent(jTabbedPane1)
-                    .addComponent(jScrollPane2))
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton3)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(PanelTabColumnas)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton3)
@@ -656,124 +819,6 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void botonCrearColumnaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearColumnaActionPerformed
-        if (comboTiposDatos.getSelectedIndex() == 0 || textNombreColumna.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
-            return;
-        }
-
-        setCursor(Cursor.WAIT_CURSOR);
-        String lon = null, Def = null;
-        if (!textLongitud.getText().isEmpty()) {
-            lon = textLongitud.getText();
-        }
-        if (radioDefault.isSelected()) {
-            Def = textDefault.getText();
-        }
-
-        try {
-            op.ejecutarUpdate(op.getGeneradorSQL().agregarColumnaTabla(tabla, comboTiposDatos.getSelectedItem().toString(),
-                    textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected()));
-            cargar();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
-        }
-        setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_botonCrearColumnaActionPerformed
-
-    private void botonBorrarColumnaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBorrarColumnaActionPerformed
-        if (comboColumnasBorrar.getSelectedIndex() == 0) {
-            return;
-        }
-
-        setCursor(Cursor.WAIT_CURSOR);
-        try {
-            op.ejecutarUpdate(op.getGeneradorSQL().borrarColumnaTabla(tabla, comboColumnasBorrar.getSelectedItem().toString()));
-            cargar();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar", "Error", 0);
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
-        }
-        setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_botonBorrarColumnaActionPerformed
-
-    private void botonCrearPrimariaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearPrimariaActionPerformed
-        if (comboColumnaPrimaria.getSelectedIndex() == 0) {
-            return;
-        }
-
-        setCursor(Cursor.WAIT_CURSOR);
-        try {
-            op.ejecutarUpdate(op.getGeneradorSQL().crearLlavePrimaria(tabla, comboColumnaPrimaria.getSelectedItem().toString()));
-            cargar();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al crear\nllave primaria", "Error", 0);
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-        }
-        setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_botonCrearPrimariaActionPerformed
-
-    private void botonCrearForaneaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearForaneaActionPerformed
-        if (comboOtrasTablas.getSelectedIndex() == 0 || comboAtributosReferencia.getSelectedIndex() == 0
-                || ComboColumnaForanea.getSelectedIndex() == 0) {
-            return;
-        }
-
-        setCursor(Cursor.WAIT_CURSOR);
-        try {
-            op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
-                    comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString()));
-            cargar();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al crear\nllave foranea", "Error", 0);
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-        }
-        setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_botonCrearForaneaActionPerformed
-
-    private void comboOtrasTablasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboOtrasTablasActionPerformed
-        if (flag) {
-            return;
-        }
-        comboAtributosReferencia.removeAllItems();
-        comboAtributosReferencia.addItem("------------");
-        if (comboOtrasTablas.getSelectedIndex() == 0) {
-            return;
-        }
-
-        try {
-            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(
-                    comboOtrasTablas.getSelectedItem().toString()));
-            while (rs.next()) {
-                comboAtributosReferencia.addItem(rs.getString(1));
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
-            System.out.println("\nError: modificarIndices: comboOtrasTablasActionPerformed");
-            System.out.println(e.getMessage() + "\n");
-        }
-    }//GEN-LAST:event_comboOtrasTablasActionPerformed
-
-    private void botonCrearLlaveUnicaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearLlaveUnicaActionPerformed
-        if (comboLlaveUnica.getSelectedIndex() == 0) {
-            return;
-        }
-
-        setCursor(Cursor.WAIT_CURSOR);
-        try {
-            op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveUnique(tabla, comboLlaveUnica.getSelectedItem().toString()));
-            cargar();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al crear\nllave unica", "Error", 0);
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-        }
-        setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_botonCrearLlaveUnicaActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         op.mostrarConsola();
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -782,25 +827,49 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         this.dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        if (comboIncrement.getSelectedIndex() == 0) {
+    private void radioDespuesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDespuesActionPerformed
+        if (radioDespues.isSelected()) {
+            radioPrimera.setSelected(false);
+        }
+    }//GEN-LAST:event_radioDespuesActionPerformed
+
+    private void radioPrimeraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioPrimeraActionPerformed
+        if (radioPrimera.isSelected()) {
+            radioDespues.setSelected(false);
+        }
+    }//GEN-LAST:event_radioPrimeraActionPerformed
+
+    private void BotonActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonActualizarActionPerformed
+        if (comboActualizar.getSelectedIndex() < 1) {
             return;
         }
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.ejecutarUpdate(op.getGeneradorSQL().CrearAuto_increment(tabla, comboIncrement.getSelectedItem().toString(),
-                    jTable2.getValueAt(comboIncrement.getSelectedIndex() - 1, 1).toString()));
-            cargar();
+            String def = null;
+            if (RadioNuevoDefault.isSelected()) {
+                def = TextNuevoDefault.getText();
+            }
+            if (op.esConexionMysql()) {
+                String despues = (radioDespues.isSelected())? comboDespuesDe.getSelectedItem().toString() : null;
+                op.actualizarAtributoMysql(tabla, comboActualizar.getSelectedItem().toString(),
+                    comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
+                    def, RadioNuevoNull.isSelected(), radioPrimera.isSelected(), despues);
+            } else {
+                op.ejecutarUpdate(op.getGeneradorSQL().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
+                    comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
+                    def, RadioNuevoNull.isSelected()));
+        }
+        cargar();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al crear\nauto_increment", "Error", 0);
+            JOptionPane.showMessageDialog(null, "Error al crear\nactualizar", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error inesperado", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
         setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_BotonActualizarActionPerformed
 
     private void comboActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboActualizarActionPerformed
         //nombre, tipo, default y nulo.
@@ -833,86 +902,202 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         }
     }//GEN-LAST:event_comboActualizarActionPerformed
 
-    private void BotonActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonActualizarActionPerformed
-        if (comboActualizar.getSelectedIndex() < 1) {
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        if (comboIncrement.getSelectedIndex() == 0) {
             return;
         }
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            String def = null;
-            if (RadioNuevoDefault.isSelected()) {
-                def = TextNuevoDefault.getText();
-            }
-            if (op.esConexionMysql()) {
-                String despues = (radioDespues.isSelected())? comboDespuesDe.getSelectedItem().toString() : null;
-                op.actualizarAtributoMysql(tabla, comboActualizar.getSelectedItem().toString(),
-                        comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
-                        def, RadioNuevoNull.isSelected(), radioPrimera.isSelected(), despues);
-            } else {
-                op.ejecutarUpdate(op.getGeneradorSQL().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
-                        comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
-                        def, RadioNuevoNull.isSelected()));
-            }
-            cargar();
+            op.ejecutarUpdate(op.getGeneradorSQL().CrearAuto_increment(tabla, comboIncrement.getSelectedItem().toString(),
+                jTable2.getValueAt(comboIncrement.getSelectedIndex() - 1, 1).toString()));
+        cargar();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al crear\nactualizar", "Error", 0);
+            JOptionPane.showMessageDialog(null, "Error al crear\nauto_increment", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error inesperado", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
         setCursor(Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_BotonActualizarActionPerformed
+    }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void radioPrimeraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioPrimeraActionPerformed
-        if (radioPrimera.isSelected()) {
-            radioDespues.setSelected(false);
+    private void botonCrearLlaveUnicaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearLlaveUnicaActionPerformed
+        if (comboLlaveUnica.getSelectedIndex() == 0) {
+            return;
         }
-    }//GEN-LAST:event_radioPrimeraActionPerformed
 
-    private void radioDespuesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDespuesActionPerformed
-        if (radioDespues.isSelected()) {
-            radioPrimera.setSelected(false);
-        }
-    }//GEN-LAST:event_radioDespuesActionPerformed
-
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+        setCursor(Cursor.WAIT_CURSOR);
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(modificarTabla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(modificarTabla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(modificarTabla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(modificarTabla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveUnique(tabla, comboLlaveUnica.getSelectedItem().toString()));
+            cargar();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al crear\nllave unica", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
-        //</editor-fold>
-        //</editor-fold>
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_botonCrearLlaveUnicaActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-//                new modificarAtributos().setVisible(true);
+    private void botonCrearPrimariaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearPrimariaActionPerformed
+        if (comboColumnaPrimaria.getSelectedIndex() == 0) {
+            return;
+        }
+
+        setCursor(Cursor.WAIT_CURSOR);
+        try {
+            op.ejecutarUpdate(op.getGeneradorSQL().crearLlavePrimaria(tabla, comboColumnaPrimaria.getSelectedItem().toString()));
+            cargar();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al crear\nllave primaria", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_botonCrearPrimariaActionPerformed
+
+    private void botonCrearForaneaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearForaneaActionPerformed
+        if (comboOtrasTablas.getSelectedIndex() == 0 || comboAtributosReferencia.getSelectedIndex() == 0
+            || ComboColumnaForanea.getSelectedIndex() == 0) {
+            return;
+        }
+
+        setCursor(Cursor.WAIT_CURSOR);
+        try {
+            op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
+                comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString()));
+        cargar();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al crear\nllave foranea", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_botonCrearForaneaActionPerformed
+
+    private void comboOtrasTablasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboOtrasTablasActionPerformed
+        if (flag) {
+            return;
+        }
+        comboAtributosReferencia.removeAllItems();
+        comboAtributosReferencia.addItem("------------");
+        if (comboOtrasTablas.getSelectedIndex() == 0) {
+            return;
+        }
+
+        try {
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(
+                comboOtrasTablas.getSelectedItem().toString()));
+        while (rs.next()) {
+            comboAtributosReferencia.addItem(rs.getString(1));
+        }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
+            System.err.println("Error: modificarTabla: comboOtrasTablasActionPerformed, Exception");
+            System.err.println(e.getMessage() + "\n");
+        }
+    }//GEN-LAST:event_comboOtrasTablasActionPerformed
+
+    private void botonBorrarColumnaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBorrarColumnaActionPerformed
+        if (comboColumnasBorrar.getSelectedIndex() == 0) {
+            return;
+        }
+
+        setCursor(Cursor.WAIT_CURSOR);
+        try {
+            op.ejecutarUpdate(op.getGeneradorSQL().borrarColumnaTabla(tabla, comboColumnasBorrar.getSelectedItem().toString()));
+            cargar();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al eliminar", "Error", 0);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_botonBorrarColumnaActionPerformed
+
+    private void botonCrearColumnaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCrearColumnaActionPerformed
+        if (comboTiposDatos.getSelectedIndex() == 0 || textNombreColumna.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
+            return;
+        }
+
+        setCursor(Cursor.WAIT_CURSOR);
+        String lon = null, Def = null;
+        if (!textLongitud.getText().isEmpty()) {
+            lon = textLongitud.getText();
+        }
+        if (radioDefault.isSelected()) {
+            Def = textDefault.getText();
+        }
+
+        try {
+            op.ejecutarUpdate(op.getGeneradorSQL().agregarColumnaTabla(tabla, comboTiposDatos.getSelectedItem().toString(),
+                textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected()));
+        cargar();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error verifique los datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
+        }
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_botonCrearColumnaActionPerformed
+
+    private void jComboForaneasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboForaneasActionPerformed
+        try {
+            if (jComboForaneas.getSelectedIndex() < 1) {
+                return;
             }
-        });
-    }
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().getForanea(BD, tabla,
+                    jComboForaneas.getSelectedItem().toString()));
+            
+            rs.next();
+            jTextNombreConstraint.setText(rs.getString("constraint"));
+            jTextAtributollave.setText(rs.getString("columna"));
+            jTextTablaReferencia.setText(rs.getString("tabla_referencia"));
+            jTextAtributoReferencia.setText(rs.getString("columna_referencia"));
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        }
+    }//GEN-LAST:event_jComboForaneasActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        if (jComboForaneas.getSelectedIndex() < 1) {
+            JOptionPane.showMessageDialog(null, "Seleccione el constraint", "Error", 1);
+            return;
+        }
+        
+        try {
+            op.ejecutarUpdate(op.getGeneradorSQL().borrarIndex(tabla, jComboForaneas.getSelectedItem().toString()));
+            cargar();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al actualizar base de datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            System.err.println("Error: modificarTabla, jButton4ActionPerformed, SQLException");
+            System.err.println(ex.getMessage() + "\n");
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        if (jComboIndices.getSelectedIndex() < 1) {
+            JOptionPane.showMessageDialog(null, "Seleccione el constraint", "Error", 1);
+            return;
+        }
+        
+        try {
+            op.ejecutarUpdate(op.getGeneradorSQL().borrarIndex(tabla, jComboIndices.getSelectedItem().toString()));
+            cargar();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al actualizar base de datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            System.err.println("Error: modificarTabla, jButton5ActionPerformed, SQLException");
+            System.err.println(ex.getMessage() + "\n");
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BotonActualizar;
     private javax.swing.JComboBox<String> ComboColumnaForanea;
+    private javax.swing.JTabbedPane PanelTabColumnas;
     private javax.swing.JRadioButton RadioNuevoDefault;
     private javax.swing.JRadioButton RadioNuevoNull;
     private javax.swing.JTextField TextNuevoDefault;
@@ -935,6 +1120,10 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JComboBox<String> jComboForaneas;
+    private javax.swing.JComboBox<String> jComboIndices;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -943,7 +1132,13 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -957,10 +1152,16 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JTextField jTextAtributoReferencia;
+    private javax.swing.JTextField jTextAtributollave;
+    private javax.swing.JTextField jTextNombreConstraint;
+    private javax.swing.JTextField jTextTablaReferencia;
     private javax.swing.JLabel labelMover;
     private javax.swing.JRadioButton radioDefault;
     private javax.swing.JRadioButton radioDespues;

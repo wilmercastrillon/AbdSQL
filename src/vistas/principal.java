@@ -501,9 +501,11 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cargar datos", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            System.out.println("Error: principal: Agregar panel, SQLException");
+            System.out.println(ex.getMessage() + "\n");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error inseperado", "Error", 0);
-            System.out.println("\nError: principal: Agregar panel");
+            System.out.println("Error: principal: Agregar panel, Exception");
             System.out.println(ex.getMessage() + "\n");
         }
         setCursor(Cursor.DEFAULT_CURSOR);
