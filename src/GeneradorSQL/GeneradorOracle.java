@@ -206,22 +206,21 @@ public class GeneradorOracle extends GeneradorSQL {
         String z = "ALTER TABLE " + tabla + " ADD PRIMARY KEY (" + columna + ")";
         return z;
     }
-
+    
     @Override
-    public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
-        String constraint = JOptionPane.showInputDialog(null, "ingrese nombre constraint:");
-        if (constraint == null) {
-            return null;
-        }
-
-        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + constraint
-                + " FOREIGN KEY(" + atri + ") REFERENCES " + tabla_ref + "(" + atri_ref + ")";
+    public String crearLlavePrimaria(String tabla, String columna, String nombre) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " PRIMARY KEY (" + columna + ");";
         return z;
     }
 
     @Override
-    public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, String tabla_ref, String atri_ref) {
-        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
+    public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
+        throw new UnsupportedOperationException("Oracle requiere de un nombre para el constraint");
+    }
+
+    @Override
+    public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref, String nombre) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
     }
@@ -265,7 +264,13 @@ public class GeneradorOracle extends GeneradorSQL {
 
     @Override
     public String crearLlaveUnique(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ")";
+        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ");";
+        return z;
+    }
+    
+    @Override
+    public String crearLlaveUnique(String tabla, String columna, String nombre) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " UNIQUE (" + columna + ");";
         return z;
     }
 

@@ -158,6 +158,8 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
         for (int i = 0; i < columas.size(); i++) {
             if (datos.get(i) != null) {
                 z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
+            }else{
+                z += " " + columas.get(i) + " IS NULL AND";
             }
         }
         z = z.substring(0, z.length() - 4) + ";";
@@ -219,6 +221,12 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     }
     
     @Override
+    public String crearLlavePrimaria(String tabla, String columna, String nombre) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " PRIMARY KEY (" + columna + ");";
+        return z;
+    }
+    
+    @Override
     public String consultarLlavesPrimarias(String bd) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -231,8 +239,8 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     }
     
     @Override
-    public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, String tabla_ref, String atri_ref) {
-        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombreConstraint + " FOREIGN KEY(" + atri
+    public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref, String nombre) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " FOREIGN KEY(" + atri
                 + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
         return z;
     }
@@ -264,7 +272,14 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String crearLlaveUnique(String tabla, String columna) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ");";
+        return z;
+    }
+    
+    @Override
+    public String crearLlaveUnique(String tabla, String columna, String nombre) {
+        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " UNIQUE (" + columna + ");";
+        return z;
     }
 
     @Override

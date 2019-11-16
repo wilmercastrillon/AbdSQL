@@ -48,6 +48,8 @@ public abstract class GeneradorSQL {
     abstract public String borrarColumnaTabla(String tabla, String columna);
 
     abstract public String crearLlavePrimaria(String tabla, String columna);
+    
+    abstract public String crearLlavePrimaria(String tabla, String columna, String nombre);
 
     abstract public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref);
     
@@ -55,8 +57,7 @@ public abstract class GeneradorSQL {
     
     abstract public String consultarLlavesForaneas(String bd);//[nombre, tabla, columnas, tabla_referencia, columnas_referencia]
     
-    abstract public String crearLlaveForanea(String nombreConstraint, String tabla, String atri, 
-            String tabla_ref, String atri_ref);
+    abstract public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref, String nombre);
 
     abstract public String getTriggers();
 
@@ -67,6 +68,8 @@ public abstract class GeneradorSQL {
     abstract public String borrarTrigger(String nombreTrigger);
 
     abstract public String crearLlaveUnique(String tabla, String columna);
+    
+    abstract public String crearLlaveUnique(String tabla, String columna, String nombre);
 
     abstract public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
             String longitud, String Default, boolean Nonulo);
