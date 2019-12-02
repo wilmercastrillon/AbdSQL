@@ -1,14 +1,25 @@
 package vistas;
 
 import clases.Fachada;
+import java.awt.LayoutManager;
 import java.sql.SQLException;
+import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class panelTrigger extends javax.swing.JPanel {
 
     private final Fachada op;
     public final String nombre, BaseDeDatos;
     public boolean nuevo;
+    private RSyntaxTextArea textTrigger;
 
     public panelTrigger(Fachada op, String BD, String nombre, boolean nuevo) {
         this.op = op;
@@ -16,8 +27,46 @@ public class panelTrigger extends javax.swing.JPanel {
         this.nuevo = nuevo;
         BaseDeDatos = BD;
         initComponents();
+        cargarTextArea();
         cargar();
         setName(nombre);
+    }
+
+    private void cargarTextArea() {
+        textTrigger = new RSyntaxTextArea();
+        textTrigger.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        textTrigger.setCodeFoldingEnabled(true);
+        RTextScrollPane sp = new RTextScrollPane(textTrigger);
+        panelTrigger.add(sp);
+        panelTrigger.setLayout((LayoutManager) new BoxLayout(panelTrigger, BoxLayout.Y_AXIS));
+        panelTrigger.add(sp);
+
+        CompletionProvider provider = createCompletionProvider();
+        AutoCompletion ac = new AutoCompletion(provider);
+        ac.install(textTrigger);
+    }
+
+    private CompletionProvider createCompletionProvider() {
+        DefaultCompletionProvider provider = new DefaultCompletionProvider();
+
+        provider.addCompletion(new BasicCompletion(provider, "select"));
+        provider.addCompletion(new BasicCompletion(provider, "assert"));
+        provider.addCompletion(new BasicCompletion(provider, "break"));
+        provider.addCompletion(new BasicCompletion(provider, "case"));
+        // ... etc ...
+        provider.addCompletion(new BasicCompletion(provider, "transient"));
+        provider.addCompletion(new BasicCompletion(provider, "try"));
+        provider.addCompletion(new BasicCompletion(provider, "void"));
+        provider.addCompletion(new BasicCompletion(provider, "volatile"));
+        provider.addCompletion(new BasicCompletion(provider, "while"));
+
+        // Add a couple of "shorthand" completions. These completions don't
+        // require the input text to be the same thing as the replacement text.
+        provider.addCompletion(new ShorthandCompletion(provider, "sysout",
+                "System.out.println(", "System.out.println("));
+        provider.addCompletion(new ShorthandCompletion(provider, "syserr",
+                "System.err.println(", "System.err.println("));
+        return provider;
     }
 
     private void cargar() {
@@ -26,7 +75,7 @@ public class panelTrigger extends javax.swing.JPanel {
                 String sql = "CREATE ";
                 if (op.esConexionMysql()) {
                     sql += "DEFINER=`" + op.getUsuario() + "`@`%`";
-                }else{
+                } else {
                     sql += "OR REPLACE";
                 }
                 sql += " TRIGGER " + nombre + "\n"
@@ -48,15 +97,10 @@ public class panelTrigger extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        textTrigger = new javax.swing.JTextArea();
         botonGuardar = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-
-        textTrigger.setColumns(20);
-        textTrigger.setRows(5);
-        jScrollPane1.setViewportView(textTrigger);
+        panelTrigger = new javax.swing.JPanel();
 
         botonGuardar.setText("Guardar");
         botonGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -69,6 +113,17 @@ public class panelTrigger extends javax.swing.JPanel {
 
         jLabel1.setText("En desarrollo...");
 
+        javax.swing.GroupLayout panelTriggerLayout = new javax.swing.GroupLayout(panelTrigger);
+        panelTrigger.setLayout(panelTriggerLayout);
+        panelTriggerLayout.setHorizontalGroup(
+            panelTriggerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        panelTriggerLayout.setVerticalGroup(
+            panelTriggerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 280, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -76,13 +131,13 @@ public class panelTrigger extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addComponent(panelTrigger, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(botonGuardar))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 338, Short.MAX_VALUE)
                         .addComponent(jLabel1)))
                 .addContainerGap())
         );
@@ -94,7 +149,7 @@ public class panelTrigger extends javax.swing.JPanel {
                     .addComponent(jLabel4)
                     .addComponent(jLabel1))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                .addComponent(panelTrigger, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(botonGuardar)
                 .addContainerGap())
@@ -121,7 +176,6 @@ public class panelTrigger extends javax.swing.JPanel {
     private javax.swing.JButton botonGuardar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea textTrigger;
+    private javax.swing.JPanel panelTrigger;
     // End of variables declaration//GEN-END:variables
 }

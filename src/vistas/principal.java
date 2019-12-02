@@ -822,7 +822,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             vd.dispose();
         }
         vd = new ventanaDD(op, bases_de_datos);
-        vd.setVisible(true);        
+        vd.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     public static void main(String args[]) {

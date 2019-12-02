@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.Fachada;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Event;
@@ -24,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -40,14 +42,20 @@ import javax.swing.text.Element;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
+import org.fife.ui.rtextarea.*;
+import org.fife.ui.rsyntaxtextarea.*;
 
 public class consola extends javax.swing.JFrame implements KeyListener {
 
     private DefaultListModel<String> modelo_lista;
     private Fachada op;
     private JPopupMenu menu, menu2, menu3;
-    private JTextArea numeros, comando;
-    private JScrollPane scroll;
+    private RSyntaxTextArea comando;
 
     public consola(Fachada q) {
         op = q;
@@ -55,7 +63,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         modelo_lista = new DefaultListModel<>();
         jList1.setModel(modelo_lista);
         contadorLineas();
-        deshacerRehacer(comando);
+        //deshacerRehacer(comando);
 
         menu = new JPopupMenu();
         menu2 = new JPopupMenu();
@@ -149,51 +157,40 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     }
 
     private void contadorLineas() {
-        comando = new JTextArea();
-        numeros = new JTextArea("1");
-        numeros.setBackground(Color.LIGHT_GRAY);
-        numeros.setEditable(false);
-        scroll = new JScrollPane(comando);
-        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scroll.setRowHeaderView(numeros);
+        comando = new RSyntaxTextArea();
+        comando.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+        comando.setCodeFoldingEnabled(true);
+        RTextScrollPane sp = new RTextScrollPane(comando);
+        panelComandos.add(sp);
         panelComandos.setLayout((LayoutManager) new BoxLayout(panelComandos, BoxLayout.Y_AXIS));
-        panelComandos.add(scroll);
-        comando.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent documentEvent) {
-                updateLineNumbers();
-            }
+        panelComandos.add(sp);
 
-            @Override
-            public void removeUpdate(DocumentEvent documentEvent) {
-                updateLineNumbers();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent documentEvent) {
-                updateLineNumbers();
-            }
-        });
+        CompletionProvider provider = createCompletionProvider();
+        AutoCompletion ac = new AutoCompletion(provider);
+        ac.install(comando);
     }
 
-    public void updateLineNumbers() {
-        String lineNumbersText = getLineNumbersText();
-        numeros.setText(lineNumbersText);
-    }
+    private CompletionProvider createCompletionProvider() {
+        DefaultCompletionProvider provider = new DefaultCompletionProvider();
 
-    private String getLineNumbersText() {
-        int caretPosition = comando.getDocument().getLength();
-        Element root = comando.getDocument().getDefaultRootElement();
-        StringBuilder lineNumbersTextBuilder = new StringBuilder();
-        lineNumbersTextBuilder.append("1").append(System.lineSeparator());
-        int max = root.getElementIndex(caretPosition) + 2;
+        provider.addCompletion(new BasicCompletion(provider, "select"));
+        provider.addCompletion(new BasicCompletion(provider, "assert"));
+        provider.addCompletion(new BasicCompletion(provider, "break"));
+        provider.addCompletion(new BasicCompletion(provider, "case"));
+        // ... etc ...
+        provider.addCompletion(new BasicCompletion(provider, "transient"));
+        provider.addCompletion(new BasicCompletion(provider, "try"));
+        provider.addCompletion(new BasicCompletion(provider, "void"));
+        provider.addCompletion(new BasicCompletion(provider, "volatile"));
+        provider.addCompletion(new BasicCompletion(provider, "while"));
 
-        for (int elementIndex = 2; elementIndex < max; elementIndex++) {
-            lineNumbersTextBuilder.append(elementIndex).append(System.lineSeparator());
-        }
-
-        return lineNumbersTextBuilder.toString();
+        // Add a couple of "shorthand" completions. These completions don't
+        // require the input text to be the same thing as the replacement text.
+        provider.addCompletion(new ShorthandCompletion(provider, "sysout",
+                "System.out.println(", "System.out.println("));
+        provider.addCompletion(new ShorthandCompletion(provider, "syserr",
+                "System.err.println(", "System.err.println("));
+        return provider;
     }
 
     private void pegar(JTextArea jtex) {
@@ -415,9 +412,9 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         String comando = this.comando.getText();
         try {
             op.ejecutarUpdate(comando);
-        }catch(com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex){ 
+        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
             JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
-        }catch (SQLException ex) {
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error en el comando", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
