@@ -21,6 +21,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -234,24 +235,15 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             menu2.add(borrarBD);
         }
 
-//        JMenuItem exportarPostgres = new JMenuItem("Exportar a postgreSQL");
-//        exportarPostgres.addActionListener(new java.awt.event.ActionListener() {
-//            public void actionPerformed(ActionEvent ae) {
-//               
-//            }
-//        });
         menu2.add(agregar);
         menu2.add(agregarTrigger);
         menu2.add(agregarProcedimiento);
-//        menu2.add(CrearMVC);
-//        if (op.esConexionMysql()) {
-//            menu2.add(exportarPostgres);
-//        }
         menu3.add(borrar);
         menu3.add(renombrarTabla);
         menu4.add(borrarTrigger);
         menu4.add(borrarProcedimiento);
 
+        jTabbedPane1.addKeyListener(this);
         eventojtree();
         jTree1.addKeyListener(this);
         TreePath p = jTree1.getPathForRow(0);
@@ -284,14 +276,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un\nerror inesperado", "Error", 0);
             System.out.println(ex.getMessage() + "\n");
-        }
-    }
-
-    public void cerrarTab(String titulo) {
-        for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
-            if (jTabbedPane1.getTitleAt(i).equals(titulo)) {
-                jTabbedPane1.remove(i);
-            }
         }
     }
 
@@ -444,50 +428,76 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         });
     }
 
-    public int containsTabla(String tab) {
+    public void cerrarTab(Component comp) {
+        jTabbedPane1.remove(comp);
+//        for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
+//            if (jTabbedPane1.getTitleAt(i).equals(titulo)) {
+//                jTabbedPane1.remove(i);
+//            }
+//        }
+    }
+
+    public int containsTabla(String bd, String tab) {
+        JPanel jp;
         for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
-            if (jTabbedPane1.getTitleAt(i).equals(tab)) {
-                return i;
+            jp = (JPanel) jTabbedPane1.getComponentAt(i);
+            if (!jp.getName().equals(tab)) {
+                continue;
+            }
+            if (jp instanceof panelTabla) {
+                if (((panelTabla) jp).BaseDeDatos.equals(bd)) {
+                    return i;
+                }
+            }
+            if (jp instanceof panelTrigger) {
+                if (((panelTrigger) jp).BaseDeDatos.equals(bd)) {
+                    return i;
+                }
+            }
+            if (jp instanceof panelProcedimiento) {
+                if (((panelProcedimiento) jp).BaseDeDatos.equals(bd)) {
+                    return i;
+                }
             }
         }
         return -1;
     }
 
-    public void agregarPanel(String DB, String nombre, String tipo) {
-        int l = containsTabla(nombre);
+    public void agregarPanel(String bd, String nombre, String tipo) {
+        int l = containsTabla(bd, nombre);
         if (l != -1) {
             jTabbedPane1.setSelectedIndex(l);
             return;
         }
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            if (!op.getBDseleccionada().equals(DB)) {
-                op.seleccionarBD(DB);
+            if (!op.getBDseleccionada().equals(bd)) {
+                op.seleccionarBD(bd);
             }
 
             JPanel pt;
             if (tipo.equals("Tabla")) {
-                pt = new panelTabla(op, DB, nombre, op.ejecutarConsulta(op.getGeneradorSQL().GetDatosTabla(nombre)));
-                pt.setName(nombre);
+                pt = new panelTabla(op, bd, nombre, op.ejecutarConsulta(op.getGeneradorSQL().GetDatosTabla(nombre)));
             } else if (tipo.equals("TriggerNuevo")) {
-                pt = new panelTrigger(op, DB, nombre, true);
+                pt = new panelTrigger(op, bd, nombre, true);
             } else if (tipo.equals("Trigger")) {
-                pt = new panelTrigger(op, DB, nombre, false);
+                pt = new panelTrigger(op, bd, nombre, false);
             } else if (tipo.equals("ProcedimientoNuevo")) {
-                pt = new panelProcedimiento(op, DB, nombre, true);
+                pt = new panelProcedimiento(op, bd, nombre, true);
             } else {
-                pt = new panelProcedimiento(op, DB, nombre, false);
+                pt = new panelProcedimiento(op, bd, nombre, false);
             }
-            JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
+            pt.setName(nombre);
             jTabbedPane1.addTab(nombre, pt);
             paneles.add(pt);
 
+            JButton tabButton = new JButton(new ImageIcon(getClass().getResource("/imagenes/cerrar.png")));
             tabButton.setPreferredSize(new Dimension(15, 15));
             tabButton.setContentAreaFilled(false);
             tabButton.setToolTipText("Cerrar");
             tabButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    cerrarTab(nombre);
+                    cerrarTab(pt);
                 }
             });
 
@@ -891,7 +901,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getComponent() == jTree1) {
             if (e.getComponent() == jTree1) {
                 TreePath p = jTree1.getSelectionPath();
 
@@ -917,6 +927,13 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 } else {
                     jTree1.expandPath(p);
                 }
+            }
+        }
+
+        if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_W) {
+            if (e.getComponent() instanceof JTabbedPane) {
+                cerrarTab(jTabbedPane1.getSelectedComponent());
+                //cerrarTab(jTabbedPane1.getTitleAt(jTabbedPane1.getSelectedIndex()));
             }
         }
     }

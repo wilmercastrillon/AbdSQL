@@ -1,8 +1,6 @@
 package vistas;
 
 import clases.Fachada;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Event;
 import java.awt.LayoutManager;
@@ -25,20 +23,15 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
@@ -409,6 +402,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        setCursor(Cursor.WAIT_CURSOR);
         String comando = this.comando.getText();
         try {
             op.ejecutarUpdate(comando);
@@ -418,6 +412,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             JOptionPane.showMessageDialog(null, "Error en el comando", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
+        setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void RadioAjustarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RadioAjustarActionPerformed

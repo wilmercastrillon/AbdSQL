@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.Fachada;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -23,7 +24,7 @@ import javax.swing.table.TableColumnModel;
  */
 public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
-    private final String tabla, BaseDeDatos;
+    public final String tabla, BaseDeDatos;
     private ResultSet res;
     private final Fachada op;
     private final modificarTabla ma;
@@ -74,8 +75,10 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cargar tabla", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
-        }catch (Exception e){
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error inesperado", "Error", 0);
+            System.err.println("Error: PanelTabla: llenarTabla");
+            System.err.println(e.getMessage() + "\n");
         }
         inserta = false;
     }
@@ -127,9 +130,9 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         inserta = true;
 
         int filas[] = jTable1.getSelectedRows();
-        for (int i = 0; i < filas.length; i++) {
-            Vector<String> datos = new Vector<>();
-            try {
+        try {
+            for (int i = 0; i < filas.length; i++) {
+                Vector<String> datos = new Vector<>();
                 for (int j = 0; j < columnas.size(); j++) {
                     if (jTable1.getValueAt(filas[i], j) == null) {
                         datos.add(null);
@@ -138,10 +141,10 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                     }
                 }
                 op.ejecutarUpdate(op.getGeneradorSQL().borrarFila(datos, columnas, tabla));
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
             }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
 
         if (filas.length == 1) {
@@ -280,18 +283,27 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
     }//GEN-LAST:event_botonAtributosActionPerformed
 
     private void botonRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRecargarActionPerformed
-        recargarResultSet();
-        int tam[] = new int[jTable1.getColumnCount()];
-        TableColumnModel tcm = jTable1.getColumnModel();
-        for (int i = 0; i < tcm.getColumnCount(); i++) {
-            tam[i] = tcm.getColumn(i).getWidth();
+        try {
+            if (!BaseDeDatos.equals(op.getBDseleccionada())) {
+                op.seleccionarBD(BaseDeDatos);
+            }
+            recargarResultSet();
+            //System.out.println("bd " + BaseDeDatos + " | " + tabla);
+            int tam[] = new int[jTable1.getColumnCount()];
+            TableColumnModel tcm = jTable1.getColumnModel();
+            for (int i = 0; i < tcm.getColumnCount(); i++) {
+                tam[i] = tcm.getColumn(i).getWidth();
+            }
+            llenarTabla();
+            for (int i = 0; i < tcm.getColumnCount(); i++) {
+                tcm.getColumn(i).setPreferredWidth(tam[i]);
+            }
+            ma.cargar();
+            nuevaFila = false;
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al seleccionar base de datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
-        llenarTabla();
-        for (int i = 0; i < tcm.getColumnCount(); i++) {
-            tcm.getColumn(i).setPreferredWidth(tam[i]);
-        }
-        ma.cargar();
-        nuevaFila = false;
     }//GEN-LAST:event_botonRecargarActionPerformed
 
     private void botonAgregarRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAgregarRegistroActionPerformed
@@ -343,16 +355,22 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
             if (e.getComponent() == jTable1) {
                 if (nuevaFila) {
                     System.out.println("se inserta la nueva fila");
+                    setCursor(new Cursor(Cursor.WAIT_CURSOR));
                     try {
+                        if (!BaseDeDatos.equals(op.getBDseleccionada())) {
+                            op.seleccionarBD(BaseDeDatos);
+                        }
                         op.ejecutarUpdate(op.getGeneradorSQL().agregarRegistro(tabla, columnas, datosNuevaFila()));
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al insertar nuevo registro", "Error", 0);
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
                         System.out.println("falla");
+                        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                         return;
                     }
                     nuevaFila = false;
                     System.out.println("inserta con exito");
+                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 }
                 return;
             }

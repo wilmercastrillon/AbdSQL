@@ -260,13 +260,6 @@ public class Fachada {
         return sql;
     }
 
-    public void GuardarProcedimiento(String nombre, String sql, boolean nuevo) throws SQLException {
-        if (esConexionMysql() && !nuevo) {
-            ejecutarUpdate(gen.borrarProcedimiento(nombre));
-        }
-        con.EjecutarUpdate(sql);
-    }
-
     public void llenarTableModel(ResultSet res, DefaultTableModel modeloJtable) throws SQLException {
         ResultSetMetaData rsmd = res.getMetaData();
         for (int i = 1; i <= rsmd.getColumnCount(); i++) {

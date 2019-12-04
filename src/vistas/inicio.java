@@ -2,13 +2,11 @@ package vistas;
 
 import clases.*;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
 import javax.swing.JMenuItem;
@@ -26,10 +24,11 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         initComponents();
         setResizable(false);
         op = new Fachada();
-        setTitle("Abd SQL");
+        setTitle("AbdSQL");
         jButton1.addKeyListener(this);
         password.addKeyListener(this);
         comboSistemaGestor.addKeyListener(this);
+        jButton2.addKeyListener(this);
         cargar();
         setLocationRelativeTo(null);
 
@@ -38,7 +37,6 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         borrar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("index selecionado " + listaConexiones.getSelectedIndex());
                 if (listaConexiones.getSelectedIndex() < 0) {
                     return;
                 }
@@ -264,12 +262,12 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL");
-        JOptionPane.showMessageDialog(null, "Version 3.1");
+        JOptionPane.showMessageDialog(null, "Version 3.22");
         JOptionPane.showMessageDialog(null, "desarrollado por:\nWilmer Castrillon");
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void listaConexionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listaConexionesMouseClicked
-        if (evt.getButton() == evt.BUTTON1) {
+        if (evt.getButton() == MouseEvent.BUTTON1) {
             if (evt.getClickCount() == 2) {
                 if (listaConexiones.getSelectedIndex() < 0) {
                     return;
@@ -371,7 +369,9 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
     }
 
     public void keyPressed(KeyEvent ke) {
-        if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (ke.getKeyCode() == KeyEvent.VK_ENTER && ke.getComponent() == jButton2) {
+            jButton2ActionPerformed(null);
+        }else if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
             jButton1ActionPerformed(null);
         }
     }

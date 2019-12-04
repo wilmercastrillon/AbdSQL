@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Base64;
 import java.util.concurrent.Executors;
+import javax.swing.JOptionPane;
 
 public class Conexion {
 
@@ -56,12 +57,13 @@ public class Conexion {
             //con.setNetworkTimeout(Executors.newFixedThreadPool(1), 20000);
             pass = Encriptar(password);
         } catch (SQLException e) {
-            System.out.println("no se ha conectado, error sql\n");
-            System.out.println(e.getMessage());
+            System.err.println("no se ha conectado, error sql\n");
+            System.err.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
             return false;
         } catch (Exception e) {
-            System.out.println("no se ha conectado, error clase\n");
-            System.out.println(e.getMessage());
+            System.err.println("no se ha conectado, error clase\n");
+            System.err.println(e.getMessage());
             return false;
         }
         return true;

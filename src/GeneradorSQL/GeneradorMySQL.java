@@ -1,7 +1,7 @@
 package GeneradorSQL;
 
 import java.util.Vector;
-
+ 
 /**
  *
  * @author wilmer
@@ -380,7 +380,8 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String crearProcedimiento(String sql) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = sql;
+        return z;
     }
 
     @Override

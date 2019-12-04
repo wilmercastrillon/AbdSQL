@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.Fachada;
+import java.awt.Cursor;
 import java.awt.LayoutManager;
 import java.sql.SQLException;
 import javax.swing.BoxLayout;
@@ -31,7 +32,7 @@ public class panelProcedimiento extends javax.swing.JPanel {
         cargar();
         setName(nombre);
     }
-    
+
     private void cargarTextArea() {
         textProcedimiento = new RSyntaxTextArea();
         textProcedimiento.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
@@ -72,8 +73,8 @@ public class panelProcedimiento extends javax.swing.JPanel {
     private void cargar() {
         try {
             if (nuevo) {
-                String sql = "CREATE OR REPLACE PROCEDURE " + nombre + " ( )\n";
-                sql += "IS\nBegin\n\nEnd;\n";
+                String sql = "CREATE PROCEDURE " + nombre + " ( )\n";
+                sql += "Begin\n\nEnd;\n";
                 textProcedimiento.setText(sql);
             } else {
                 textProcedimiento.setText(op.getSqlProcedimiento(BaseDeDatos, nombre));
@@ -169,8 +170,13 @@ public class panelProcedimiento extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void botonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonGuardarActionPerformed
+        setCursor(new Cursor(Cursor.WAIT_CURSOR));
         try {
-            op.GuardarProcedimiento(nombre, textProcedimiento.getText(), nuevo);
+            if (!BaseDeDatos.equals(op.getBDseleccionada())) {
+                op.seleccionarBD(BaseDeDatos);
+            }
+            op.ejecutarUpdate(op.getGeneradorSQL().borrarProcedimiento(nombre));
+            op.ejecutarUpdate(op.getGeneradorSQL().crearProcedimiento(textProcedimiento.getText()));
             nuevo = false;
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {
@@ -179,10 +185,15 @@ public class panelProcedimiento extends javax.swing.JPanel {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error inesperado", "Error", 0);
         }
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_botonGuardarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        setCursor(new Cursor(Cursor.WAIT_CURSOR));
         try {
+            if (!BaseDeDatos.equals(op.getBDseleccionada())) {
+                op.seleccionarBD(BaseDeDatos);
+            }
             op.ejecutarUpdate(op.getGeneradorSQL().LlamarProcedimiento(nombre, textParametros.getText()));
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {
@@ -191,6 +202,7 @@ public class panelProcedimiento extends javax.swing.JPanel {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error inesperado", "Error", 0);
         }
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

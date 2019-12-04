@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.Fachada;
+import java.awt.Cursor;
 import java.awt.LayoutManager;
 import java.sql.SQLException;
 import javax.swing.BoxLayout;
@@ -157,7 +158,11 @@ public class panelTrigger extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void botonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonGuardarActionPerformed
+        setCursor(new Cursor(Cursor.WAIT_CURSOR));
         try {
+            if (!BaseDeDatos.equals(op.getBDseleccionada())) {
+                op.seleccionarBD(BaseDeDatos);
+            }
             if (nuevo) {
                 op.ejecutarUpdate(op.getGeneradorSQL().crearTrigger(textTrigger.getText()));
                 nuevo = false;
@@ -170,6 +175,7 @@ public class panelTrigger extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Error al crear trigger", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_botonGuardarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
