@@ -70,7 +70,7 @@ public class Convertidor {
                 datos.add(fila);
             }
             
-            sql += genPosgres.agregarMultiplesRegistros(tabla, col, datos) + System.lineSeparator();
+            sql += genPosgres.addMultipleRows(tabla, col, datos) + System.lineSeparator();
         }
         
         return sql;
@@ -82,15 +82,15 @@ public class Convertidor {
         String nombre, n = System.lineSeparator();
         Vector<String> columnas = new Vector<>();
 
-        out.write(genPosgres.BorrarDataBase(bd) + n);
-        out.write(genPosgres.CrearDataBase(bd) + n);
+        out.write(genPosgres.dropDataBase(bd) + n);
+        out.write(genPosgres.createDataBase(bd) + n);
         out.write("\\c " + bd + ";" + n + n);//usar base de datos
 
         for (int i = 0; i < tablas.size(); i++) {
             nombre = tablas.get(i);
             System.out.println("\t tabla: " + nombre);
 
-            ResultSet rs = op.ejecutarConsulta(op.gen.GetColumnasTabla(nombre));
+            ResultSet rs = op.ejecutarConsulta(op.gen.getColumnsTable(nombre));
             String tipo, nombreCol, str, def;
             Vector<String> crearColumnas = new Vector<>();
             while (rs.next()) {
@@ -138,7 +138,7 @@ public class Convertidor {
 
         ResultSet res = op.getConexion().EjecutarConsulta(consultarPrimarias(bd));
         while (res.next()) {
-            out.write(op.gen.crearLlavePrimaria(res.getString(2), res.getString(3)) + n);
+            out.write(op.gen.addPrimaryKey(res.getString(2), res.getString(3)) + n);
         }
         out.write(n);
         
@@ -147,8 +147,8 @@ public class Convertidor {
 
         ResultSet res2 = op.getConexion().EjecutarConsulta(consultarForaneas(bd));
         while (res2.next()) {
-            out.write(genPosgres.crearLlaveForanea(res2.getString(1), res2.getString(2), res2.getString(3),
-                    res2.getString(4), res2.getString(5)) + n);
+            out.write(genPosgres.addForeignKey(res2.getString(2), res2.getString(3), res2.getString(4),
+                    res2.getString(5), res2.getString(1)) + n);
         }
         out.write(n);
         out.close();

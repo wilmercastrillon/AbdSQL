@@ -2,6 +2,7 @@ package vistas;
 
 import clases.Fachada;
 import java.awt.Cursor;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -57,7 +58,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         });
         menu.add(menuitem);
         jTable1.setComponentPopupMenu(menu);
-//        resizeColumnWidth(jTable1);
+        //jTable1.scrollRectToVisible(aRect);
     }
 
     private void llenarTabla() {
@@ -112,7 +113,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         }
                     }
 
-                    op.ejecutarUpdate(op.getGeneradorSQL().actualizarFila(tabla, col, datos, modelo.getColumnName(columna),
+                    op.ejecutarUpdate(op.getGeneradorSQL().updateRow(tabla, col, datos, modelo.getColumnName(columna),
                             modelo.getValueAt(fila, columna).toString()));
                 } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error al modificar los datos", "Error", 0);
@@ -140,7 +141,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         datos.add(jTable1.getValueAt(filas[i], j).toString());
                     }
                 }
-                op.ejecutarUpdate(op.getGeneradorSQL().borrarFila(datos, columnas, tabla));
+                op.ejecutarUpdate(op.getGeneradorSQL().deleteRow(tabla, columnas, datos));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
@@ -158,7 +159,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     public void recargarResultSet() {
         try {
-            res = op.ejecutarConsulta(op.getGeneradorSQL().GetDatosTabla(tabla));
+            res = op.ejecutarConsulta(op.getGeneradorSQL().selectRowsTable(tabla));
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cargar tabla", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
@@ -360,7 +361,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                         if (!BaseDeDatos.equals(op.getBDseleccionada())) {
                             op.seleccionarBD(BaseDeDatos);
                         }
-                        op.ejecutarUpdate(op.getGeneradorSQL().agregarRegistro(tabla, columnas, datosNuevaFila()));
+                        op.ejecutarUpdate(op.getGeneradorSQL().addRow(tabla, columnas, datosNuevaFila()));
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al insertar nuevo registro", "Error", 0);
                         JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
@@ -382,6 +383,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 inserta = false;
                 nuevaFila = false;
             }
+            return;
         }
         if (e.getKeyCode() == KeyEvent.VK_DELETE && e.getComponent() == jTable1) {
             if (jTable1.getSelectedRowCount() == 0) {
@@ -391,6 +393,22 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
             if (q == JOptionPane.OK_OPTION) {
                 borrarFilas();
             }
+            return;
+        }
+        if (e.getComponent() == jTable1 && e.getKeyCode() == KeyEvent.VK_DOWN) {
+            if (jTable1.getSelectedRow() == jTable1.getRowCount()-1) {
+                return;
+            }
+            Rectangle cellRect = jTable1.getCellRect(jTable1.getSelectedRow()+1, 0, true);
+            jTable1.scrollRectToVisible(cellRect);
+            return;
+        }
+        if (e.getComponent() == jTable1 && e.getKeyCode() == KeyEvent.VK_UP) {
+            if (jTable1.getSelectedRow() < 1) {
+                return;
+            }
+            Rectangle cellRect = jTable1.getCellRect(jTable1.getSelectedRow()-1, 0, true);
+            jTable1.scrollRectToVisible(cellRect);
         }
     }
 

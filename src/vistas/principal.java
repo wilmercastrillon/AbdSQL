@@ -63,7 +63,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     try {
                         String h2 = path.getPathComponent(1).toString();
                         op.seleccionarBD(h2);
-                        op.ejecutarUpdate(op.getGeneradorSQL().CrearTabla(h));
+                        op.ejecutarUpdate(op.getGeneradorSQL().createTable(h));
                         for (DefaultMutableTreeNode nodo : nodos) {
                             if (nodo.toString().equals(h2)) {
                                 modelo_arbol.insertNodeInto(new DefaultMutableTreeNode(h), nodo, 0);
@@ -122,7 +122,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     }
                     try {
                         op.seleccionarBD(path.getPathComponent(1).toString());
-                        op.ejecutarUpdate(op.getGeneradorSQL().BorrarTabla(path.getPathComponent(2).toString()));
+                        op.ejecutarUpdate(op.getGeneradorSQL().dropTable(path.getPathComponent(2).toString()));
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         modelo_arbol.removeNodeFromParent(currentNode);
                     } catch (SQLException ex) {
@@ -147,7 +147,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                     }
                     try {
                         op.seleccionarBD(path.getPathComponent(1).toString());
-                        op.ejecutarUpdate(op.getGeneradorSQL().renombrarTabla(path.getPathComponent(2).toString(), str));
+                        op.ejecutarUpdate(op.getGeneradorSQL().renameTable(path.getPathComponent(2).toString(), str));
                         DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
                         currentNode.setUserObject(str + "");
                         JOptionPane.showMessageDialog(null, "Nombre cambiado", "Exitoso", 1);
@@ -203,7 +203,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                             System.out.println("se borraria");
                             GeneradorSQL.GeneradorMySQL g = (GeneradorSQL.GeneradorMySQL) op.getGeneradorSQL();
                             try {
-                                op.ejecutarUpdate(g.BorrarDataBase(bd));
+                                op.ejecutarUpdate(g.dropDataBase(bd));
                                 cargar();
                             } catch (SQLException ex) {
                                 JOptionPane.showMessageDialog(null, "Error al borrar\nbase de datos", "Error", 0);
@@ -222,7 +222,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                     try {
-                        op.ejecutarUpdate(op.getGeneradorSQL().CrearDataBase(h));
+                        op.ejecutarUpdate(op.getGeneradorSQL().createDataBase(h));
                         cargar();
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Error al crear\nla base de datos", "Error", 0);
@@ -261,9 +261,9 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
             op.seleccionarBD(path.getPathComponent(1).toString());
             if (tipo.equalsIgnoreCase("trigger")) {
-                op.ejecutarUpdate(op.getGeneradorSQL().borrarTrigger(path.getPathComponent(3).toString()));
+                op.ejecutarUpdate(op.getGeneradorSQL().dropTrigger(path.getPathComponent(3).toString()));
             } else {
-                op.ejecutarUpdate(op.getGeneradorSQL().borrarProcedimiento(path.getPathComponent(3).toString()));
+                op.ejecutarUpdate(op.getGeneradorSQL().dropProcedure(path.getPathComponent(3).toString()));
             }
             DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (path.getLastPathComponent());
             modelo_arbol.removeNodeFromParent(currentNode);
@@ -306,7 +306,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         setCursor(Cursor.WAIT_CURSOR);
         try {
             op.seleccionarBD(bd);
-            ResultSet res2 = op.ejecutarConsulta(op.getGeneradorSQL().GetTables());
+            ResultSet res2 = op.ejecutarConsulta(op.getGeneradorSQL().getTables());
             int pos2 = 0, index;
             for (index = 0; index < nodos.size(); index++) {
                 if (nodos.get(index).toString().equals(bd)) {
@@ -477,7 +477,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
             JPanel pt;
             if (tipo.equals("Tabla")) {
-                pt = new panelTabla(op, bd, nombre, op.ejecutarConsulta(op.getGeneradorSQL().GetDatosTabla(nombre)));
+                pt = new panelTabla(op, bd, nombre, op.ejecutarConsulta(op.getGeneradorSQL().selectRowsTable(nombre)));
             } else if (tipo.equals("TriggerNuevo")) {
                 pt = new panelTrigger(op, bd, nombre, true);
             } else if (tipo.equals("Trigger")) {

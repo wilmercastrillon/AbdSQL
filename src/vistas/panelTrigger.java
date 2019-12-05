@@ -3,14 +3,12 @@ package vistas;
 import clases.Fachada;
 import java.awt.Cursor;
 import java.awt.LayoutManager;
+import java.io.IOException;
 import java.sql.SQLException;
 import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
 import org.fife.ui.autocomplete.AutoCompletion;
-import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
-import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -41,33 +39,14 @@ public class panelTrigger extends javax.swing.JPanel {
         panelTrigger.add(sp);
         panelTrigger.setLayout((LayoutManager) new BoxLayout(panelTrigger, BoxLayout.Y_AXIS));
         panelTrigger.add(sp);
-
-        CompletionProvider provider = createCompletionProvider();
-        AutoCompletion ac = new AutoCompletion(provider);
-        ac.install(textTrigger);
-    }
-
-    private CompletionProvider createCompletionProvider() {
-        DefaultCompletionProvider provider = new DefaultCompletionProvider();
-
-        provider.addCompletion(new BasicCompletion(provider, "select"));
-        provider.addCompletion(new BasicCompletion(provider, "assert"));
-        provider.addCompletion(new BasicCompletion(provider, "break"));
-        provider.addCompletion(new BasicCompletion(provider, "case"));
-        // ... etc ...
-        provider.addCompletion(new BasicCompletion(provider, "transient"));
-        provider.addCompletion(new BasicCompletion(provider, "try"));
-        provider.addCompletion(new BasicCompletion(provider, "void"));
-        provider.addCompletion(new BasicCompletion(provider, "volatile"));
-        provider.addCompletion(new BasicCompletion(provider, "while"));
-
-        // Add a couple of "shorthand" completions. These completions don't
-        // require the input text to be the same thing as the replacement text.
-        provider.addCompletion(new ShorthandCompletion(provider, "sysout",
-                "System.out.println(", "System.out.println("));
-        provider.addCompletion(new ShorthandCompletion(provider, "syserr",
-                "System.err.println(", "System.err.println("));
-        return provider;
+        
+        try {
+            CompletionProvider provider = op.getProvider();
+            AutoCompletion ac = new AutoCompletion(provider);
+            ac.install(textTrigger);
+        } catch (IOException e) {
+            System.err.println("Error al cargar palabra del autocompletar.");
+        }
     }
 
     private void cargar() {
@@ -164,11 +143,11 @@ public class panelTrigger extends javax.swing.JPanel {
                 op.seleccionarBD(BaseDeDatos);
             }
             if (nuevo) {
-                op.ejecutarUpdate(op.getGeneradorSQL().crearTrigger(textTrigger.getText()));
+                op.ejecutarUpdate(op.getGeneradorSQL().createTrigger(textTrigger.getText()));
                 nuevo = false;
             } else {
-                op.ejecutarUpdate(op.getGeneradorSQL().borrarTrigger(nombre));
-                op.ejecutarUpdate(op.getGeneradorSQL().crearTrigger(textTrigger.getText()));
+                op.ejecutarUpdate(op.getGeneradorSQL().dropTrigger(nombre));
+                op.ejecutarUpdate(op.getGeneradorSQL().createTrigger(textTrigger.getText()));
             }
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {

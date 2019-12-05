@@ -4,6 +4,7 @@ import clases.Fachada;
 import java.awt.Cursor;
 import java.awt.Event;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -12,6 +13,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -36,10 +38,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 import org.fife.ui.autocomplete.AutoCompletion;
-import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
-import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rtextarea.*;
 import org.fife.ui.rsyntaxtextarea.*;
 
@@ -53,6 +52,8 @@ public class consola extends javax.swing.JFrame implements KeyListener {
     public consola(Fachada q) {
         op = q;
         initComponents();
+        jButton1.addKeyListener(this);
+        jButton2.addKeyListener(this);
         modelo_lista = new DefaultListModel<>();
         jList1.setModel(modelo_lista);
         contadorLineas();
@@ -90,7 +91,8 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         jList1.setComponentPopupMenu(menu);
         menu2.add(item3);
         comando.setComponentPopupMenu(menu2);
-
+        jTable1.addKeyListener(this);
+        
         setTitle("consola");
     }
 
@@ -158,32 +160,13 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         panelComandos.setLayout((LayoutManager) new BoxLayout(panelComandos, BoxLayout.Y_AXIS));
         panelComandos.add(sp);
 
-        CompletionProvider provider = createCompletionProvider();
-        AutoCompletion ac = new AutoCompletion(provider);
-        ac.install(comando);
-    }
-
-    private CompletionProvider createCompletionProvider() {
-        DefaultCompletionProvider provider = new DefaultCompletionProvider();
-
-        provider.addCompletion(new BasicCompletion(provider, "select"));
-        provider.addCompletion(new BasicCompletion(provider, "assert"));
-        provider.addCompletion(new BasicCompletion(provider, "break"));
-        provider.addCompletion(new BasicCompletion(provider, "case"));
-        // ... etc ...
-        provider.addCompletion(new BasicCompletion(provider, "transient"));
-        provider.addCompletion(new BasicCompletion(provider, "try"));
-        provider.addCompletion(new BasicCompletion(provider, "void"));
-        provider.addCompletion(new BasicCompletion(provider, "volatile"));
-        provider.addCompletion(new BasicCompletion(provider, "while"));
-
-        // Add a couple of "shorthand" completions. These completions don't
-        // require the input text to be the same thing as the replacement text.
-        provider.addCompletion(new ShorthandCompletion(provider, "sysout",
-                "System.out.println(", "System.out.println("));
-        provider.addCompletion(new ShorthandCompletion(provider, "syserr",
-                "System.err.println(", "System.err.println("));
-        return provider;
+        try {
+            CompletionProvider provider = op.getProvider();
+            AutoCompletion ac = new AutoCompletion(provider);
+            ac.install(comando);
+        } catch (IOException e) {
+            System.err.println("Error al cargar palabra del autocompletar.");
+        }
     }
 
     private void pegar(JTextArea jtex) {
@@ -484,6 +467,21 @@ public class consola extends javax.swing.JFrame implements KeyListener {
             if (e.getComponent() == jButton2) {
                 jButton2ActionPerformed(null);
             }
+        }
+                if (e.getComponent() == jTable1 && e.getKeyCode() == KeyEvent.VK_DOWN) {
+            if (jTable1.getSelectedRow() == jTable1.getRowCount()-1) {
+                return;
+            }
+            Rectangle cellRect = jTable1.getCellRect(jTable1.getSelectedRow()+1, 0, true);
+            jTable1.scrollRectToVisible(cellRect);
+            return;
+        }
+        if (e.getComponent() == jTable1 && e.getKeyCode() == KeyEvent.VK_UP) {
+            if (jTable1.getSelectedRow() < 1) {
+                return;
+            }
+            Rectangle cellRect = jTable1.getCellRect(jTable1.getSelectedRow()-1, 0, true);
+            jTable1.scrollRectToVisible(cellRect);
         }
     }
 

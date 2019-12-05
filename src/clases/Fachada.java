@@ -1,10 +1,6 @@
 package clases;
 
-import GeneradorMVC.GeneradorMVC;
-import GeneradorSQL.GeneradorPostgreSQL;
-import GeneradorSQL.GeneradorOracle;
-import GeneradorSQL.GeneradorMySQL;
-import GeneradorSQL.GeneradorSQL;
+import GeneradorSQL.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -18,11 +14,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import vistas.consola;
 import conexionBD.Conexion;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
 
 public class Fachada {
 
@@ -31,6 +30,7 @@ public class Fachada {
     private String BDseleccionada;
     public GeneradorSQL gen;
     public static String sistemasGestores[] = {"MySQL", "Oracle", "PostgreSQL"};
+    private DefaultCompletionProvider provider;
 
     public Fachada() {
     }
@@ -65,7 +65,7 @@ public class Fachada {
             con.desconectar();
             con = aux;
         } else {
-            ejecutarUpdate(gen.SelectDataBase(bd));
+            ejecutarUpdate(gen.selectDataBase(bd));
         }
         BDseleccionada = bd;
     }
@@ -174,10 +174,10 @@ public class Fachada {
         ResultSet res2;
 
         if (con.tipo == Conexion.MySQL) {
-            ejecutarUpdate(gen.SelectDataBase(dataBase));
+            ejecutarUpdate(gen.selectDataBase(dataBase));
             BDseleccionada = dataBase;
         }
-        res2 = ejecutarConsulta(gen.GetTables());
+        res2 = ejecutarConsulta(gen.getTables());
         while (res2.next()) {
             String h2 = res2.getString(1);
             aux.add(h2);
@@ -200,7 +200,7 @@ public class Fachada {
         if (con.tipo == Conexion.Oracle) {
             aux.add(con.getPuerto());
         } else {
-            ResultSet res2 = ejecutarConsulta(gen.GetDataBases());
+            ResultSet res2 = ejecutarConsulta(gen.getDataBases());
             while (res2.next()) {
                 String h2 = res2.getString(1);
                 aux.add(h2);
@@ -222,7 +222,7 @@ public class Fachada {
 
     public Vector<DefaultMutableTreeNode> getProcedimientos(String bd) throws SQLException {
         Vector<DefaultMutableTreeNode> proc = new Vector<>();
-        ResultSet res = ejecutarConsulta(gen.getProcedimientos(bd));
+        ResultSet res = ejecutarConsulta(gen.getProcedures(bd));
         while (res.next()) {
             proc.add(new DefaultMutableTreeNode(res.getString(1)));
         }
@@ -231,7 +231,7 @@ public class Fachada {
     }
 
     public String getSqlTrigger(String bd, String nombreTrigger) throws SQLException {
-        ResultSet res = ejecutarConsulta(gen.getDatosTrigger(bd, nombreTrigger));
+        ResultSet res = ejecutarConsulta(gen.getTriggerData(bd, nombreTrigger));
         res.next();
         return res.getString(3);
     }
@@ -247,12 +247,12 @@ public class Fachada {
                 parametros += " " + p.getString(2);
             }
 
-            ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
+            ResultSet res = ejecutarConsulta(gen.getProcedureData(bd, nombreP));
             res.next();
             sql += "CREATE PROCEDURE " + nombreP + "(" + parametros.substring(Math.min(1, parametros.length())) + ")\n";
             sql += res.getString("ROUTINE_DEFINITION");
         } else {
-            ResultSet res = ejecutarConsulta(gen.getDatosProcedimiento(bd, nombreP));
+            ResultSet res = ejecutarConsulta(gen.getProcedureData(bd, nombreP));
             res.next();
             sql += "CREATE OR REPLACE ";
             sql += res.getString(1);
@@ -418,5 +418,22 @@ public class Fachada {
 
     public boolean convertirMySQL(String ruta) {
         return exportar(ruta, Conexion.MySQL);
+    }
+    
+    private CompletionProvider cargarProvider() throws IOException{
+        BufferedReader tec = new BufferedReader(new FileReader(System.getProperty("user.dir") + 
+                "\\data\\autocompleteWords"));
+        provider = new DefaultCompletionProvider();
+        while (tec.ready()) {            
+            provider.addCompletion(new BasicCompletion(provider, tec.readLine()));
+        }
+        return provider;
+    }
+    
+    public CompletionProvider getProvider() throws IOException{
+        if (provider == null) {
+            cargarProvider(); 
+        }
+        return provider;
     }
 }

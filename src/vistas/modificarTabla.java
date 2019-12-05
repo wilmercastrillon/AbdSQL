@@ -56,7 +56,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             jComboColumnaIndice.addItem("------------");
             comboActualizar.removeAllItems();
             comboActualizar.addItem("------------");
-            ResultSet res = op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(tabla));
+            ResultSet res = op.ejecutarConsulta(op.getGeneradorSQL().getColumnsTable(tabla));
             String h;
             while (res.next()) {
                 h = res.getString(1);
@@ -70,7 +70,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             flag = true;
             comboOtrasTablas.removeAllItems();
             comboOtrasTablas.addItem("------------");
-            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().GetTables());
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().getTables());
             while (rs.next()) {
                 comboOtrasTablas.addItem(rs.getString(1));
             }
@@ -82,20 +82,20 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     return false;
                 }
             };
-            op.llenarTableModel(op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(tabla)), dft);
+            op.llenarTableModel(op.ejecutarConsulta(op.getGeneradorSQL().getColumnsTable(tabla)), dft);
             jTable2.setModel(dft);
             addPoppupMenu(jTable2);
 
             jComboForaneas.removeAllItems();
             jComboForaneas.addItem("------------");
-            ResultSet rs3 = op.ejecutarConsulta(op.getGeneradorSQL().getForaneasTabla(BD, tabla));
+            ResultSet rs3 = op.ejecutarConsulta(op.getGeneradorSQL().getForeignKeys(BD, tabla));
             while (rs3.next()) {
                 jComboForaneas.addItem(rs3.getString("constraint"));
             }
 
             jComboIndices.removeAllItems();
             jComboIndices.addItem("------------");
-            ResultSet rs4 = op.ejecutarConsulta(op.getGeneradorSQL().getIndicesTabla(BD, tabla));
+            ResultSet rs4 = op.ejecutarConsulta(op.getGeneradorSQL().getIndexs(BD, tabla));
             while (rs4.next()) {
                 jComboIndices.addItem(rs4.getString("indice"));
             }
@@ -857,7 +857,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
                         def, RadioNuevoNull.isSelected(), radioPrimera.isSelected(), despues);
             } else {
-                op.ejecutarUpdate(op.getGeneradorSQL().actualizarAtributo(tabla, comboActualizar.getSelectedItem().toString(),
+                op.ejecutarUpdate(op.getGeneradorSQL().updateColumn(tabla, comboActualizar.getSelectedItem().toString(),
                         comboNuevoTipoDato.getSelectedItem().toString(), textNuevoNombre.getText(), TextNuevoLongitud.getText(),
                         def, RadioNuevoNull.isSelected()));
             }
@@ -912,11 +912,11 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         setCursor(Cursor.WAIT_CURSOR);
         try {
             if (jCheckNombreForanea.isSelected()) {
-                op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveForanea(tabla, 
+                op.ejecutarUpdate(op.getGeneradorSQL().addForeignKey(tabla, 
                         ComboColumnaForanea.getSelectedItem().toString(), comboOtrasTablas.getSelectedItem().toString(),
                         comboAtributosReferencia.getSelectedItem().toString(), jTextNombreForanea.getText()));
             } else {
-                op.ejecutarUpdate(op.getGeneradorSQL().crearLlaveForanea(tabla, ComboColumnaForanea.getSelectedItem().toString(),
+                op.ejecutarUpdate(op.getGeneradorSQL().addForeignKey(tabla, ComboColumnaForanea.getSelectedItem().toString(),
                         comboOtrasTablas.getSelectedItem().toString(), comboAtributosReferencia.getSelectedItem().toString()));
             }
             cargar();
@@ -938,7 +938,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         }
 
         try {
-            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().GetColumnasTabla(
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().getColumnsTable(
                     comboOtrasTablas.getSelectedItem().toString()));
             while (rs.next()) {
                 comboAtributosReferencia.addItem(rs.getString(1));
@@ -960,7 +960,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.ejecutarUpdate(op.getGeneradorSQL().borrarColumnaTabla(tabla, comboColumnasBorrar.getSelectedItem().toString()));
+            op.ejecutarUpdate(op.getGeneradorSQL().dropColumnTable(tabla, comboColumnasBorrar.getSelectedItem().toString()));
             cargar();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al eliminar", "Error", 0);
@@ -985,7 +985,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         }
 
         try {
-            op.ejecutarUpdate(op.getGeneradorSQL().agregarColumnaTabla(tabla, comboTiposDatos.getSelectedItem().toString(),
+            op.ejecutarUpdate(op.getGeneradorSQL().addColumnTable(tabla, comboTiposDatos.getSelectedItem().toString(),
                     textNombreColumna.getText(), lon, Def, radioNoNulo.isSelected()));
             cargar();
         } catch (SQLException e) {
@@ -1000,7 +1000,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             if (jComboForaneas.getSelectedIndex() < 1) {
                 return;
             }
-            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().getForanea(BD, tabla,
+            ResultSet rs = op.ejecutarConsulta(op.getGeneradorSQL().getForeignKey(BD, tabla,
                     jComboForaneas.getSelectedItem().toString()));
 
             rs.next();
@@ -1022,7 +1022,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.ejecutarUpdate(op.getGeneradorSQL().borrarForanea(tabla, jComboForaneas.getSelectedItem().toString()));
+            op.ejecutarUpdate(op.getGeneradorSQL().dropForeignKey(tabla, jComboForaneas.getSelectedItem().toString()));
             cargar();
             
             jTextAtributollave.setText("");
@@ -1046,7 +1046,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         setCursor(Cursor.WAIT_CURSOR);
         try {
-            op.ejecutarUpdate(op.getGeneradorSQL().borrarIndex(tabla, jComboIndices.getSelectedItem().toString()));
+            op.ejecutarUpdate(op.getGeneradorSQL().dropIndex(tabla, jComboIndices.getSelectedItem().toString()));
             cargar();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al actualizar base de datos", "Error", 0);
@@ -1068,15 +1068,15 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             if (!jCheckNombre.isSelected()) {
                 switch (jComboTipoIndice.getSelectedIndex()) {
                     case 0:
-                        comando = op.getGeneradorSQL().crearLlavePrimaria(tabla,
+                        comando = op.getGeneradorSQL().addPrimaryKey(tabla,
                                 jComboColumnaIndice.getSelectedItem().toString());
                         break;
                     case 1:
-                        comando = op.getGeneradorSQL().crearLlaveUnique(tabla,
+                        comando = op.getGeneradorSQL().addUniqueKey(tabla,
                                 jComboColumnaIndice.getSelectedItem().toString());
                         break;
                     default:
-                        comando = op.getGeneradorSQL().CrearAuto_increment(tabla,
+                        comando = op.getGeneradorSQL().addAuto_increment(tabla,
                                 jComboColumnaIndice.getSelectedItem().toString(),
                                 jTable2.getValueAt(jComboColumnaIndice.getSelectedIndex() - 1, 1).toString());
                         break;
@@ -1084,15 +1084,15 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             } else {
                 switch (jComboTipoIndice.getSelectedIndex()) {
                     case 0:
-                        comando = op.getGeneradorSQL().crearLlavePrimaria(tabla,
+                        comando = op.getGeneradorSQL().addPrimaryKey(tabla,
                                 jComboColumnaIndice.getSelectedItem().toString(), jTextNombreIndice.getText());
                         break;
                     case 1:
-                        comando = op.getGeneradorSQL().crearLlaveUnique(tabla,
+                        comando = op.getGeneradorSQL().addUniqueKey(tabla,
                                 jComboColumnaIndice.getSelectedItem().toString());
                         break;
                     default:
-                        comando = op.getGeneradorSQL().CrearAuto_increment(tabla,
+                        comando = op.getGeneradorSQL().addAuto_increment(tabla,
                                 jComboColumnaIndice.getSelectedItem().toString(),
                                 jTable2.getValueAt(jComboColumnaIndice.getSelectedIndex() - 1, 1).toString());
                         break;

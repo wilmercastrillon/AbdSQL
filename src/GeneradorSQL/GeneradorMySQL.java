@@ -1,7 +1,7 @@
 package GeneradorSQL;
 
 import java.util.Vector;
- 
+
 /**
  *
  * @author wilmer
@@ -9,50 +9,49 @@ import java.util.Vector;
 public class GeneradorMySQL extends GeneradorSQL {
 
     //SHOW CREATE TABLE "nobre de la tabla";
-    
     public GeneradorMySQL() {
     }
 
     @Override
-    public String GetDataBases() {
+    public String getDataBases() {
         String z = "SHOW DATABASES;";
         return z;
     }
 
     @Override
-    public String SelectDataBase(String bd) {
-        String z = "USE " + bd + ";";
+    public String selectDataBase(String db) {
+        String z = "USE " + db + ";";
         return z;
     }
 
     @Override
-    public String CrearDataBase(String nombre) {
-        String z = "CREATE DATABASE " + nombre + ";";
+    public String createDataBase(String name) {
+        String z = "CREATE DATABASE " + name + ";";
         return z;
     }
 
     @Override
-    public String BorrarDataBase(String nombre) {
-        String z = "DROP DATABASE IF EXISTS " + nombre + ";";
+    public String dropDataBase(String db) {
+        String z = "DROP DATABASE IF EXISTS " + db + ";";
         return z;
     }
 
     @Override
-    public String GetTables() {
-        String z = "SELECT table_name as 'nombre' FROM information_schema.tables where ";
+    public String getTables() {
+        String z = "SELECT table_name as 'name' FROM information_schema.tables where ";
         z += "table_schema = database() order by 'nombre';";
         return z;
     }
 
     @Override
-    public String GetTables(String bd) {
+    public String getTables(String db) {
         String z = "SELECT table_name FROM information_schema.tables WHERE table_schema ='";
-        z += bd + "';";
+        z += db + "';";
         return z;
     }
 
     @Override
-    public String GetColumnasTabla(String table) {
+    public String getColumnsTable(String table) {
         String z = "SELECT column_name as 'nombre', column_type as 'tipo', if(is_nullable='yes', 'si', 'no') ";
         z += "as 'nulo', column_default as 'default', column_key as 'key', extra FROM INFORMATION_SCHEMA.COLUMNS ";
         z += "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + table + "' order by ordinal_position;";
@@ -61,43 +60,43 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String CrearTabla(String nombre) {
-        String z = "Create Table " + nombre + " (id" + nombre.replace(" ", "") + " int NOT NULL);";
+    public String createTable(String name) {
+        String z = "Create Table " + name + " (id" + name.replace(" ", "") + " int NOT NULL);";
         return z;
     }
 
     @Override
-    public String BorrarTabla(String nombre) {
-        String z = "DROP TABLE IF EXISTS " + nombre + ";";
+    public String dropTable(String name) {
+        String z = "DROP TABLE IF EXISTS " + name + ";";
         return z;
     }
 
     @Override
-    public String agregarRegistro(String table, String datos[]) {
+    public String addRow(String table, String data[]) {
         StringBuilder str = new StringBuilder("'");
-        for (int i = 0; i < datos.length - 1; i++) {
-            datos[i] = datos[i].trim();
-            str.append(datos[i]).append("','");
+        for (int i = 0; i < data.length - 1; i++) {
+            data[i] = data[i].trim();
+            str.append(data[i]).append("','");
         }
-        datos[datos.length - 1] = datos[datos.length - 1].trim();
-        str.append(datos[datos.length - 1]).append("'");
+        data[data.length - 1] = data[data.length - 1].trim();
+        str.append(data[data.length - 1]).append("'");
 
         String z = "INSERT INTO " + table + " values(" + str.toString() + ");";
         return z;
     }
 
     @Override
-    public String agregarRegistro(String table, Vector<String> columnas, Vector<String> datos) {
+    public String addRow(String table, Vector<String> columns, Vector<String> data) {
         StringBuilder col = new StringBuilder("");
         StringBuilder dat = new StringBuilder("'");
         String z = "";
 
         try {
-            for (int i = 0; i < columnas.size(); i++) {
-                if (datos.get(i) != null) {
-                    col.append(columnas.get(i));
+            for (int i = 0; i < columns.size(); i++) {
+                if (data.get(i) != null) {
+                    col.append(columns.get(i));
                     col.append(", ");
-                    dat.append(datos.get(i));
+                    dat.append(data.get(i));
                     dat.append("', '");
                 }
             }
@@ -109,35 +108,35 @@ public class GeneradorMySQL extends GeneradorSQL {
         }
         return z;
     }
-    
+
     @Override
-    public String agregarMultiplesRegistros(String table, Vector<String> columnas, Vector<Vector<String>> datos) {
+    public String addMultipleRows(String table, Vector<String> columns, Vector<Vector<String>> data) {
         StringBuilder col = new StringBuilder("");
         StringBuilder dat;
         String z = "";
 
         try {
-            for (int i = 0; i < columnas.size(); i++) {
-                col.append(columnas.get(i));
+            for (int i = 0; i < columns.size(); i++) {
+                col.append(columns.get(i));
                 col.append(", ");
             }
             z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
-            
+
             Vector<String> aux;
-            for (int j = 0; j < datos.size(); j++) {
+            for (int j = 0; j < data.size(); j++) {
                 if (j > 0) {
                     z += ",";
                 }
-                aux = datos.get(j);
+                aux = data.get(j);
                 dat = new StringBuilder("(");
-                
+
                 for (int k = 0; k < aux.size(); k++) {
                     if (k > 0) {
                         dat.append(",");
                     }
                     if (aux.get(k) == null) {
                         dat.append("null");
-                    }else{
+                    } else {
                         dat.append("'");
                         dat.append(aux.get(k));
                         dat.append("'");
@@ -154,19 +153,19 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String GetDatosTabla(String table) {
+    public String selectRowsTable(String table) {
         String z = "SELECT * FROM " + table + ";";
         return z;
     }
 
     @Override
-    public String borrarFila(Vector<String> datos, Vector<String> columas, String table) {
+    public String deleteRow(String table, Vector<String> columns, Vector<String> data) {
         String z = "DELETE FROM " + table + " WHERE";
-        for (int i = 0; i < columas.size(); i++) {
-            if (datos.get(i) != null) {
-                z += " " + columas.get(i) + " = '" + datos.get(i) + "' AND";
-            }else{
-                z += " " + columas.get(i) + " IS NULL AND";
+        for (int i = 0; i < columns.size(); i++) {
+            if (data.get(i) != null) {
+                z += " " + columns.get(i) + " = '" + data.get(i) + "' AND";
+            } else {
+                z += " " + columns.get(i) + " IS NULL AND";
             }
         }
         z = z.substring(0, z.length() - 4) + ";";
@@ -179,36 +178,35 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String actualizarFila(String tabla, Vector<String> columnas, Vector<String> datos,
-            String columnaCambiar, String datoCambiar) {
+    public String updateRow(String table, Vector<String> columns, Vector<String> data,
+            String updateColumn, String newValue) {
 
-        String z = "UPDATE " + tabla + " SET " + columnaCambiar + " = '" + datoCambiar + "' WHERE ";
-        for (int i = 0; i < columnas.size(); i++) {
-            if (!columnaCambiar.equals(columnas.get(i))) {
-                z += columnas.get(i) + " = '" + datos.get(i) + "' AND  ";
+        String z = "UPDATE " + table + " SET " + updateColumn + " = '" + newValue + "' WHERE ";
+        for (int i = 0; i < columns.size(); i++) {
+            if (!updateColumn.equals(columns.get(i))) {
+                z += columns.get(i) + " = '" + data.get(i) + "' AND  ";
             }
         }
         z = z.substring(0, z.length() - 6) + ";";
         return z;
     }
 
-    public String BorrarAllDatosTabla(String tabla) {
-        String z = "DELETE FROM " + tabla + ";";
-        return z;
-    }
-
+//    public String BorrarAllDatosTabla(String tabla) {
+//        String z = "DELETE FROM " + tabla + ";";
+//        return z;
+//    }
     @Override
-    public String agregarColumnaTabla(String tabla, String tipo, String nombre, String longitud,
-            String Default, boolean Nonulo) {
+    public String addColumnTable(String table, String type, String name, String length,
+            String Default, boolean noNull) {
 
-        String z = "ALTER TABLE " + tabla + " ADD(" + nombre + " " + tipo;
-        if (longitud != null) {
-            z += "(" + longitud + ")";
+        String z = "ALTER TABLE " + table + " ADD(" + name + " " + type;
+        if (length != null) {
+            z += "(" + length + ")";
         }
         if (Default != null) {
             z += " DEFAULT '" + Default + "'";
         }
-        if (Nonulo) {
+        if (noNull) {
             z += " NOT NULL";
         }
         z += ");";
@@ -216,53 +214,53 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String borrarColumnaTabla(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " DROP " + columna + ";";
+    public String dropColumnTable(String table, String column) {
+        String z = "ALTER TABLE " + table + " DROP " + column + ";";
         return z;
     }
 
     @Override
-    public String crearLlavePrimaria(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " ADD PRIMARY KEY (" + columna + ");";
-        return z;
-    }
-    
-    @Override
-    public String crearLlavePrimaria(String tabla, String columna, String nombre) {
-        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " PRIMARY KEY (" + columna + ");";
+    public String addPrimaryKey(String table, String column) {
+        String z = "ALTER TABLE " + table + " ADD PRIMARY KEY (" + column + ");";
         return z;
     }
 
     @Override
-    public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref) {
-        String z = "ALTER TABLE " + tabla + " ADD FOREIGN KEY(" + atri
-                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+    public String addPrimaryKey(String table, String column, String name) {
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (" + column + ");";
         return z;
     }
 
     @Override
-    public String crearLlaveForanea(String tabla, String atri, String tabla_ref, String atri_ref, String nombre) {
-        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " FOREIGN KEY(" + atri
-                + ") REFERENCES " + tabla_ref + "(" + atri_ref + ");";
+    public String addForeignKey(String table, String column, String table_ref, String col_ref) {
+        String z = "ALTER TABLE " + table + " ADD FOREIGN KEY(" + column
+                + ") REFERENCES " + table_ref + "(" + col_ref + ");";
         return z;
     }
 
     @Override
-    public String consultarLlavesPrimarias(String bd) {
+    public String getPrimaryKeys(String db) {
         String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) ";
         sql += "as 'columnas' from information_schema.key_column_usage where constraint_schema = '";
-        sql += bd + "' and constraint_name = 'primary' group by table_name ;";
+        sql += db + "' and constraint_name = 'primary' group by table_name ;";
         return sql;
     }
-    
+
     @Override
-    public String consultarLlavesForaneas(String bd){
+    public String getForeignKeys(String db) {
         String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) as ";
         sql += "'columnas', referenced_table_name as 'tabla_referencia', group_concat(referenced_column_name) as";
         sql += "'columnas_referencia' from information_schema.key_column_usage where ";
-        sql += "constraint_schema = '" + bd + "' and constraint_name != 'primary' and referenced_table_name ";
+        sql += "constraint_schema = '" + db + "' and constraint_name != 'primary' and referenced_table_name ";
         sql += "is not null group by constraint_name ;";
         return sql;
+    }
+
+    @Override
+    public String addForeignKey(String table, String column, String table_ref, String col_ref, String name) {
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " FOREIGN KEY(" + column
+                + ") REFERENCES " + table_ref + "(" + col_ref + ");";
+        return z;
     }
 
     @Override
@@ -272,48 +270,48 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String getDatosTrigger(String BD, String nombreTrigger) {
-        String z = "SHOW CREATE TRIGGER " + BD + "." + nombreTrigger + ";";
+    public String getTriggerData(String db, String triggerName) {
+        String z = "SHOW CREATE TRIGGER " + db + "." + triggerName + ";";
         return z;
     }
 
     @Override
-    public String crearTrigger(String sql) {
+    public String createTrigger(String sql) {
         String z = sql;
         return z;
     }
 
     @Override
-    public String borrarTrigger(String nombreTrigger) {
-        String z = "DROP TRIGGER IF EXISTS " + nombreTrigger + ";";
+    public String dropTrigger(String triggerName) {
+        String z = "DROP TRIGGER IF EXISTS " + triggerName + ";";
         return z;
     }
 
     @Override
-    public String crearLlaveUnique(String tabla, String columna) {
-        String z = "ALTER TABLE " + tabla + " ADD UNIQUE (" + columna + ");";
-        return z;
-    }
-    
-    @Override
-    public String crearLlaveUnique(String tabla, String columna, String nombre) {
-        String z = "ALTER TABLE " + tabla + " ADD CONSTRAINT " + nombre + " UNIQUE (" + columna + ");";
+    public String addUniqueKey(String table, String column) {
+        String z = "ALTER TABLE " + table + " ADD UNIQUE (" + column + ");";
         return z;
     }
 
     @Override
-    public String actualizarAtributo(String tabla, String nombre, String tipo, String Nuevonombre,
-            String longitud, String Default, boolean Nonulo) {
+    public String addUniqueKey(String table, String column, String name) {
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (" + column + ");";
+        return z;
+    }
 
-        String z = "ALTER TABLE " + tabla + " CHANGE " + nombre;
-        z += " " + Nuevonombre + " " + tipo;
-        if (longitud != null && longitud.length() > 0) {
-            z += "(" + longitud + ")";
+    @Override
+    public String updateColumn(String table, String name, String type, String newName,
+            String length, String defaultValue, boolean notNull) {
+
+        String z = "ALTER TABLE " + table + " CHANGE " + name;
+        z += " " + newName + " " + type;
+        if (length != null && length.length() > 0) {
+            z += "(" + length + ")";
         }
-        if (Default != null) {
-            z += " DEFAULT '" + Default + "'";
+        if (defaultValue != null) {
+            z += " DEFAULT '" + defaultValue + "'";
         }
-        if (Nonulo) {
+        if (notNull) {
             z += " NOT NULL";
         }
         z += ";";
@@ -344,22 +342,22 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String renombrarTabla(String tabla, String nuevoNombre) {
-        String z = "ALTER TABLE " + tabla + " RENAME " + nuevoNombre + ";";
+    public String renameTable(String table, String newName) {
+        String z = "ALTER TABLE " + table + " RENAME " + newName + ";";
         return z;
     }
 
     @Override
-    public String CrearAuto_increment(String tabla, String columna, String tipo) {
-        String z = "ALTER TABLE " + tabla + " CHANGE " + columna;
-        z += " " + columna + " " + tipo + "  AUTO_INCREMENT;";
+    public String addAuto_increment(String table, String column, String type) {
+        String z = "ALTER TABLE " + table + " CHANGE " + column;
+        z += " " + column + " " + type + "  AUTO_INCREMENT;";
         return z;
     }
 
     @Override
-    public String getProcedimientos(String BD) {
+    public String getProcedures(String db) {
         String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
-        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ORDER BY ROUTINE_NAME;";
+        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + db + "' ORDER BY ROUTINE_NAME;";
         return z;
     }
 
@@ -371,66 +369,66 @@ public class GeneradorMySQL extends GeneradorSQL {
     }
 
     @Override
-    public String getDatosProcedimiento(String BD, String nombreP) {
+    public String getProcedureData(String db, String name) {
         String z = " SELECT ROUTINE_NAME, ROUTINE_DEFINITION  FROM INFORMATION_SCHEMA.ROUTINES ";
-        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + BD + "' ";
-        z += "AND ROUTINE_NAME = '" + nombreP + "';";
+        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + db + "' ";
+        z += "AND ROUTINE_NAME = '" + name + "';";
         return z;
     }
 
     @Override
-    public String crearProcedimiento(String sql) {
+    public String createProcedure(String sql) {
         String z = sql;
         return z;
     }
 
     @Override
-    public String borrarProcedimiento(String nombreP) {
-        String z = "DROP PROCEDURE IF EXISTS " + nombreP + ";";
+    public String dropProcedure(String name) {
+        String z = "DROP PROCEDURE IF EXISTS " + name + ";";
         return z;
     }
 
     @Override
-    public String LlamarProcedimiento(String procedimiento, String parametros) {
-        String z = "CALL " + procedimiento + " (" + parametros + ");";
+    public String callProcedure(String procedure, String params) {
+        String z = "CALL " + procedure + " (" + params + ");";
         return z;
     }
 
     @Override
-    public String getForaneasTabla(String BD, String tabla) {
+    public String getForeignKeys(String db, String table) {
         String z = "SELECT CONSTRAINT_NAME as 'constraint', TABLE_NAME as 'tabla', ";
         z += "COLUMN_NAME as 'columna', REFERENCED_TABLE_NAME as 'tabla_referencia', ";
         z += "REFERENCED_COLUMN_NAME as 'columna_referencia' FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ";
-        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + BD + "' AND TABLE_NAME='" + tabla + "';";
+        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + db + "' AND TABLE_NAME='" + table + "';";
         return z;
     }
-    
+
     @Override
-    public String getForanea(String BD, String tabla, String constraint) {
+    public String getForeignKey(String db, String table, String constraint) {
         String z = "SELECT CONSTRAINT_NAME as 'constraint', TABLE_NAME as 'tabla', ";
         z += "COLUMN_NAME as 'columna', REFERENCED_TABLE_NAME as 'tabla_referencia', ";
         z += "REFERENCED_COLUMN_NAME as 'columna_referencia' FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ";
-        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + BD + "' AND TABLE_NAME='" + tabla + "' ";
+        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + db + "' AND TABLE_NAME='" + table + "' ";
         z += "AND CONSTRAINT_NAME = '" + constraint + "';";
         return z;
     }
 
     @Override
-    public String borrarForanea(String tabla, String constraint) {
-        String z = "ALTER TABLE " + tabla + " DROP FOREIGN KEY " + constraint + "; ";
-        return z;
-    }
-    
-    @Override
-    public String borrarIndex(String tabla, String constraint) {
-        String z = "ALTER TABLE " + tabla + " DROP INDEX " + constraint + ";";
+    public String dropForeignKey(String table, String constraint) {
+        String z = "ALTER TABLE " + table + " DROP FOREIGN KEY " + constraint + "; ";
         return z;
     }
 
     @Override
-    public String getIndicesTabla(String BD, String tabla) {
+    public String getIndexs(String db, String table) {
         String z = "SELECT TABLE_NAME AS 'tabla', INDEX_NAME AS 'indice' FROM INFORMATION_SCHEMA.STATISTICS ";
-        z += "WHERE TABLE_SCHEMA = '" + BD + "' AND TABLE_NAME = '" + tabla + "';";
+        z += "WHERE TABLE_SCHEMA = '" + db + "' AND TABLE_NAME = '" + table + "';";
+        return z;
+    }
+
+    @Override
+    public String dropIndex(String table, String constraint) {
+        String z = "ALTER TABLE " + table + " DROP INDEX " + constraint + ";";
         return z;
     }
 }

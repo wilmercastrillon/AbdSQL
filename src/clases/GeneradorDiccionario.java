@@ -69,7 +69,7 @@ public class GeneradorDiccionario {
 
             System.out.println("generador diccionario: creo el encabezado ");
 
-            ResultSet res = op.ejecutarConsulta(op.gen.GetColumnasTabla(nombreTabla));
+            ResultSet res = op.ejecutarConsulta(op.gen.getColumnsTable(nombreTabla));
             String nombreCol, tipoCol, nuloCol, defaultCol;
             while (res.next()) {//[nombre, tipo, nulo, defecto]
                 nombreCol = res.getString(1);

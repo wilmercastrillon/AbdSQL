@@ -3,14 +3,12 @@ package vistas;
 import clases.Fachada;
 import java.awt.Cursor;
 import java.awt.LayoutManager;
+import java.io.IOException;
 import java.sql.SQLException;
 import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
 import org.fife.ui.autocomplete.AutoCompletion;
-import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
-import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -42,32 +40,13 @@ public class panelProcedimiento extends javax.swing.JPanel {
         panelText.setLayout((LayoutManager) new BoxLayout(panelText, BoxLayout.Y_AXIS));
         panelText.add(sp);
 
-        CompletionProvider provider = createCompletionProvider();
-        AutoCompletion ac = new AutoCompletion(provider);
-        ac.install(textProcedimiento);
-    }
-
-    private CompletionProvider createCompletionProvider() {
-        DefaultCompletionProvider provider = new DefaultCompletionProvider();
-
-        provider.addCompletion(new BasicCompletion(provider, "select"));
-        provider.addCompletion(new BasicCompletion(provider, "assert"));
-        provider.addCompletion(new BasicCompletion(provider, "break"));
-        provider.addCompletion(new BasicCompletion(provider, "case"));
-        // ... etc ...
-        provider.addCompletion(new BasicCompletion(provider, "transient"));
-        provider.addCompletion(new BasicCompletion(provider, "try"));
-        provider.addCompletion(new BasicCompletion(provider, "void"));
-        provider.addCompletion(new BasicCompletion(provider, "volatile"));
-        provider.addCompletion(new BasicCompletion(provider, "while"));
-
-        // Add a couple of "shorthand" completions. These completions don't
-        // require the input text to be the same thing as the replacement text.
-        provider.addCompletion(new ShorthandCompletion(provider, "sysout",
-                "System.out.println(", "System.out.println("));
-        provider.addCompletion(new ShorthandCompletion(provider, "syserr",
-                "System.err.println(", "System.err.println("));
-        return provider;
+        try {
+            CompletionProvider provider = op.getProvider();
+            AutoCompletion ac = new AutoCompletion(provider);
+            ac.install(textProcedimiento);
+        } catch (IOException e) {
+            System.err.println("Error al cargar palabra del autocompletar.");
+        }
     }
 
     private void cargar() {
@@ -175,8 +154,8 @@ public class panelProcedimiento extends javax.swing.JPanel {
             if (!BaseDeDatos.equals(op.getBDseleccionada())) {
                 op.seleccionarBD(BaseDeDatos);
             }
-            op.ejecutarUpdate(op.getGeneradorSQL().borrarProcedimiento(nombre));
-            op.ejecutarUpdate(op.getGeneradorSQL().crearProcedimiento(textProcedimiento.getText()));
+            op.ejecutarUpdate(op.getGeneradorSQL().dropProcedure(nombre));
+            op.ejecutarUpdate(op.getGeneradorSQL().createProcedure(textProcedimiento.getText()));
             nuevo = false;
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {
@@ -194,7 +173,7 @@ public class panelProcedimiento extends javax.swing.JPanel {
             if (!BaseDeDatos.equals(op.getBDseleccionada())) {
                 op.seleccionarBD(BaseDeDatos);
             }
-            op.ejecutarUpdate(op.getGeneradorSQL().LlamarProcedimiento(nombre, textParametros.getText()));
+            op.ejecutarUpdate(op.getGeneradorSQL().callProcedure(nombre, textParametros.getText()));
             JOptionPane.showMessageDialog(null, "Operacion exitosa", "Exitoso", 1);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al ejecutar procedimiento", "Error", 0);

@@ -47,8 +47,8 @@ public class ExportadorSQL {
     }
 
     public String crearBD() {
-        String s = gen.BorrarDataBase(bd) + ls + gen.CrearDataBase(bd) + ls;
-        s += gen.SelectDataBase(bd) + ls;
+        String s = gen.dropDataBase(bd) + ls + gen.createDataBase(bd) + ls;
+        s += gen.selectDataBase(bd) + ls;
         return s;
     }
 
@@ -82,7 +82,7 @@ public class ExportadorSQL {
 
         for (int i = 0; i < tablas.size(); i++) {
             nombreTabla = tablas.get(i);
-            ResultSet rs = op.ejecutarConsulta(op.gen.GetColumnasTabla(nombreTabla));//columnas
+            ResultSet rs = op.ejecutarConsulta(op.gen.getColumnsTable(nombreTabla));//columnas
             String tipo, longitud, nombreCol, str, def;
             Vector<String> crearColumnas = new Vector<>();
 
@@ -125,20 +125,20 @@ public class ExportadorSQL {
     }
 
     public String crearLlavesPrimarias() throws SQLException {
-        ResultSet res = op.ejecutarConsulta(op.gen.consultarLlavesPrimarias(bd));
+        ResultSet res = op.ejecutarConsulta(op.gen.getPrimaryKeys(bd));
         StringBuilder sql = new StringBuilder();
         while (res.next()) {
-            sql.append(gen.crearLlavePrimaria(res.getString("tabla"), res.getString("columnas"))).append(ls);
+            sql.append(gen.addPrimaryKey(res.getString("tabla"), res.getString("columnas"))).append(ls);
         }
         return sql.toString();
     }
 
     public String crearLlavesForaneas() throws SQLException {
-        ResultSet res = op.ejecutarConsulta(op.gen.consultarLlavesForaneas(bd));
+        ResultSet res = op.ejecutarConsulta(op.gen.getForeignKeys(bd));
         StringBuilder sql = new StringBuilder();
         while (res.next()) {
-            sql.append(gen.crearLlaveForanea(res.getString("nombre"), res.getString("tabla"),
-                    res.getString("columnas"), res.getString("tabla_referencia"), res.getString("columnas_referencia")
+            sql.append(gen.addForeignKey(res.getString("tabla"), res.getString("columnas"), 
+                    res.getString("tabla_referencia"), res.getString("columnas_referencia"),res.getString("nombre")
             )).append(ls);
         }
         return sql.toString();
@@ -178,7 +178,7 @@ public class ExportadorSQL {
                 continue;
             }
             
-            sql += gen.agregarMultiplesRegistros(tabla, col, datos) + System.lineSeparator();
+            sql += gen.addMultipleRows(tabla, col, datos) + System.lineSeparator();
         }
 
         return sql;
