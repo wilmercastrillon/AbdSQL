@@ -10,9 +10,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -816,11 +819,18 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         File fichero = chooser.getSelectedFile();
 
         System.out.println(op.getBDseleccionada());
-        if (op.convertirMySQL(fichero.getPath())) {
+        
+        try {
+            op.convertirMySQL(fichero.getPath());
             JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
-        } else {
-            JOptionPane.showMessageDialog(null, "Error al exportar", "Error", 0);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cosultar datos", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error al exportar archivo", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
+        
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 

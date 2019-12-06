@@ -23,7 +23,7 @@ public abstract class GeneradorSQL {
     
     abstract public String getTables(String db);//[nombre]
 
-    abstract public String getColumnsTable(String table);//[nombre, tipo, nulo, defecto,.........]
+    abstract public String getColumnsTable(String table);//[nombre, tipo, nulo, default, length,.........]
 
     abstract public String createTable(String name);
 
@@ -100,4 +100,6 @@ public abstract class GeneradorSQL {
     abstract public String getIndexs(String db, String table);
     
     abstract public String dropIndex(String table, String constraint);
+    
+    abstract public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull);
 }

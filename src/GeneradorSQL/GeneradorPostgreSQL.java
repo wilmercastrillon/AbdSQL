@@ -45,7 +45,8 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     @Override
     public String getColumnsTable(String table) {
         String sql = " SELECT DISTINCT attname as nombre, format_type(atttypid, atttypmod) ";
-        sql += "as tipo, case when not attnotnull then 'si' else 'no' end as nulo, adsrc as default, coalesce(i.indisprimary,false) ";
+        sql += "as tipo, case when not attnotnull then 'si' else 'no' end as nulo, adsrc as default, ";
+        sql += "case when (atttypmod<0) then null else atttypmod-4 end as length, coalesce(i.indisprimary,false) ";
         sql += "as llave_primaria, a.attnum as numero FROM pg_attribute a JOIN pg_class pgc ON pgc.oid = ";
         sql += "a.attrelid LEFT JOIN pg_index i ON (pgc.oid = i.indrelid AND i.indkey[0] = a.attnum) ";
         sql += "LEFT JOIN pg_description com on (pgc.oid = com.objoid AND a.attnum = com.objsubid) ";
@@ -373,5 +374,10 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     public String dropIndex(String table, String constraint) {
         String z = "DROP INDEX  " + constraint + ";";
         return z;
+    }
+
+    @Override
+    public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

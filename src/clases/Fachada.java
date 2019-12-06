@@ -1,6 +1,7 @@
 package clases;
 
 import GeneradorSQL.*;
+import TempleateRDB.TempleateMySQL.GenericMySQL;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -16,6 +17,8 @@ import vistas.consola;
 import conexionBD.Conexion;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import org.fife.ui.autocomplete.BasicCompletion;
@@ -416,23 +419,34 @@ public class Fachada {
         return exportar(ruta, Conexion.PostgreSQL);
     }
 
-    public boolean convertirMySQL(String ruta) {
-        return exportar(ruta, Conexion.MySQL);
+    public void convertirMySQL(String ruta) throws SQLException, IOException {
+        if (ruta.endsWith("\\")) {
+            ruta += "script.sql";
+        }else{
+            ruta += "\\script" + ".sql";
+        }
+        GenericMySQL prueba = new GenericMySQL(BDseleccionada);
+        prueba.loadDatabase(con.Getconeccion());
+        //System.out.println(prueba.getDatabase().toSql());
+        BufferedWriter tec = new BufferedWriter(new FileWriter(ruta));
+        tec.write("");
+        tec.write(prueba.DatabaseToSqlWithData(con.Getconeccion()));
+        tec.close();
     }
-    
-    private CompletionProvider cargarProvider() throws IOException{
-        BufferedReader tec = new BufferedReader(new FileReader(System.getProperty("user.dir") + 
-                "\\data\\autocompleteWords"));
+
+    private CompletionProvider cargarProvider() throws IOException {
+        BufferedReader tec = new BufferedReader(new FileReader(System.getProperty("user.dir")
+                + "\\data\\autocompleteWords"));
         provider = new DefaultCompletionProvider();
-        while (tec.ready()) {            
+        while (tec.ready()) {
             provider.addCompletion(new BasicCompletion(provider, tec.readLine()));
         }
         return provider;
     }
-    
-    public CompletionProvider getProvider() throws IOException{
+
+    public CompletionProvider getProvider() throws IOException {
         if (provider == null) {
-            cargarProvider(); 
+            cargarProvider();
         }
         return provider;
     }

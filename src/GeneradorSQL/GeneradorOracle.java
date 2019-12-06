@@ -364,4 +364,9 @@ public class GeneradorOracle extends GeneradorSQL {
     public String dropIndex(String table, String constraint) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

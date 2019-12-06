@@ -38,24 +38,25 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String getTables() {
-        String z = "SELECT table_name as 'name' FROM information_schema.tables where ";
+        String z = "SELECT table_name as 'nombre' FROM information_schema.tables where ";
         z += "table_schema = database() order by 'nombre';";
         return z;
     }
 
     @Override
     public String getTables(String db) {
-        String z = "SELECT table_name FROM information_schema.tables WHERE table_schema ='";
+        String z = "SELECT table_name as 'nombre' FROM information_schema.tables WHERE table_schema ='";
         z += db + "';";
         return z;
     }
 
     @Override
     public String getColumnsTable(String table) {
-        String z = "SELECT column_name as 'nombre', column_type as 'tipo', if(is_nullable='yes', 'si', 'no') ";
-        z += "as 'nulo', column_default as 'default', column_key as 'key', extra FROM INFORMATION_SCHEMA.COLUMNS ";
-        z += "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + table + "' order by ordinal_position;";
         //String z = "DESCRIBE " + table + ";";
+        String z = "SELECT column_name as 'nombre', column_type as 'tipo', if(is_nullable='yes', 'si', 'no') ";
+        z += "as 'nulo', column_default as 'default', character_maximum_length as 'length', column_key as ";
+        z += "'key', extra FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '";
+        z += table + "' order by ordinal_position;";
         return z;
     }
 
@@ -126,6 +127,7 @@ public class GeneradorMySQL extends GeneradorSQL {
             for (int j = 0; j < data.size(); j++) {
                 if (j > 0) {
                     z += ",";
+                    z += System.lineSeparator();
                 }
                 aux = data.get(j);
                 dat = new StringBuilder("(");
@@ -429,6 +431,21 @@ public class GeneradorMySQL extends GeneradorSQL {
     @Override
     public String dropIndex(String table, String constraint) {
         String z = "ALTER TABLE " + table + " DROP INDEX " + constraint + ";";
+        return z;
+    }
+
+    @Override
+    public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull) {
+        String z = name + " " + type;
+        if (length != null) {
+            z += "(" + length + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT '" + Default + "'";
+        }
+        if (noNull) {
+            z += " NOT NULL";
+        }
         return z;
     }
 }
