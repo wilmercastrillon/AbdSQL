@@ -1,7 +1,9 @@
 package clases;
 
 import GeneradorSQL.*;
+import TempleateRDB.GenericTempleate.Generic;
 import TempleateRDB.TempleateMySQL.GenericMySQL;
+import TempleateRDB.TempleatePostgreSQL.GenericPostgreSQL;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -102,6 +104,10 @@ public class Fachada {
     public void mostrarConsola() {
         cons.setVisible(true);
     }
+    
+    public void cerrarConsola() {
+        cons.setVisible(false);
+    }
 
     public String inputContraseña(String mensaje, String titulo) {
         String password = "";
@@ -143,15 +149,6 @@ public class Fachada {
         }
         cons.agregar(sql);
         ResultSet res = con.EjecutarConsulta(sql);
-
-//        try {
-//            cons.agregar(sql);
-//            res = con.EjecutarConsulta(sql);
-//        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
-//            if (recuperarConexion()) {
-//                ejecutarConsulta(sql);
-//            }
-//        }
         return res;
     }
 
@@ -164,12 +161,6 @@ public class Fachada {
         }
         cons.agregar(sql);
         con.EjecutarUpdate(sql);
-//        try {
-//            cons.agregar(sql);
-//            con.EjecutarUpdate(sql);
-//        } catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
-//            recuperarConexion();
-//        }
     }
 
     public Vector<String> getTablesDataBase(String dataBase) throws SQLException {
@@ -190,6 +181,10 @@ public class Fachada {
 
     public boolean esConexionMysql() {
         return con.tipo == con.MySQL;
+    }
+    
+    public int getTipoConexion(){
+        return con.tipo;
     }
 
     public void actualizarAtributoMysql(String tabla, String nombre, String tipo, String Nuevonombre,
@@ -419,15 +414,20 @@ public class Fachada {
         return exportar(ruta, Conexion.PostgreSQL);
     }
 
-    public void convertirMySQL(String ruta) throws SQLException, IOException {
+    public void exportarSQL(String ruta, int sistema) throws SQLException, IOException {
         if (ruta.endsWith("\\")) {
             ruta += "script.sql";
         }else{
             ruta += "\\script" + ".sql";
         }
-        GenericMySQL prueba = new GenericMySQL(BDseleccionada);
+        
+        Generic prueba;
+        if (sistema == Conexion.MySQL) {
+            prueba = new GenericMySQL(BDseleccionada);
+        }else{
+            prueba = new GenericPostgreSQL(BDseleccionada);
+        }
         prueba.loadDatabase(con.Getconeccion());
-        //System.out.println(prueba.getDatabase().toSql());
         BufferedWriter tec = new BufferedWriter(new FileWriter(ruta));
         tec.write("");
         tec.write(prueba.DatabaseToSqlWithData(con.Getconeccion()));
@@ -449,5 +449,35 @@ public class Fachada {
             cargarProvider();
         }
         return provider;
+    }
+    
+    public Vector<String> getMysqlDataTypes(){
+        String str = "TINYINT,SMALLINT,INT,MEDIUMINT,BIGINT,FLOAT,DOUBLE,CHAR,VARCHAR,TINYTEXT,TEXT,";
+        str += "LONGTEXT,DATE,TIME,YEAR,DATETIME,TIMESTAMP,BYNARY,VARBINARY,BLOB,MEDIUMBLOB,LONGBLOB,ENUM";
+        
+        Vector<String> vs = new Vector<>();
+        String x[] = str.split(",");
+        vs.addAll(Arrays.asList(x));
+        return vs;
+    }
+    
+    public Vector<String> getPostgresDataTypes(){
+        String str = "SMALLINT,INTEGER,BIGINT,FLOAT,DOUBLE,FLOAT8,DECIMAL,BOOLEAN,CHAR,VARCHAR,";
+        str += "CHARACTER VARYING,TEXT,DATE,TIME,TIMESTAMP,BYTEA,BIT,VARBIT,CIDR,INET";
+        
+        Vector<String> vs = new Vector<>();
+        String x[] = str.split(",");
+        vs.addAll(Arrays.asList(x));
+        return vs;
+    }
+    
+    public Vector<String> getOracleDataTypes(){
+        String str = "NUMBER,FLOAT,BINARY_DOUBLE,CHAR,VARCHAR2,NCHAR,NVARCHAR2,LONG,DATE,TIMESTAMP,";
+        str += "CLOB,NCLOB,BFILE,RAW,LONG RAW";
+        
+        Vector<String> vs = new Vector<>();
+        String x[] = str.split(",");
+        vs.addAll(Arrays.asList(x));
+        return vs;
     }
 }

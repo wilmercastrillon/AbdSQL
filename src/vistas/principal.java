@@ -13,9 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -116,11 +115,10 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         JMenuItem borrar = new JMenuItem("Borrar tabla");
         borrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
                 TreePath path = jTree1.getSelectionPath();
                 if (path.getPathCount() == 3) {
-                    if (JOptionPane.showConfirmDialog(null, "Seguro que quiere\nborrar la tabla")
-                            != JOptionPane.YES_OPTION) {
+                    if (JOptionPane.showConfirmDialog(null, "Seguro que quiere borrar la tabla\n"
+                            + path.getPathComponent(2).toString()) != JOptionPane.YES_OPTION) {
                         return;
                     }
                     try {
@@ -170,7 +168,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
             public void actionPerformed(ActionEvent e) {
                 TreePath path = jTree1.getSelectionPath();
                 if (path.getPathCount() == 4) {
-                    if (JOptionPane.showConfirmDialog(null, "Seguro que quiere\nborrar el Trigger")
+                    if (JOptionPane.showConfirmDialog(null, "Seguro que quiere borrar el Trigger")
                             != JOptionPane.YES_OPTION) {
                         return;
                     }
@@ -393,7 +391,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                 if (tp.getPathCount() == 2) {
                     Object nodo = tp.getLastPathComponent();
                     if (modelo_arbol.isLeaf(nodo)) {
-//                        System.out.println("debe cargar la tabla " + tp.getPathComponent(1).toString());
                         cargarBD(tp.getPathComponent(1).toString());
                     }
                     return;
@@ -433,11 +430,6 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
     public void cerrarTab(Component comp) {
         jTabbedPane1.remove(comp);
-//        for (int i = 0; i < jTabbedPane1.getTabCount(); i++) {
-//            if (jTabbedPane1.getTitleAt(i).equals(titulo)) {
-//                jTabbedPane1.remove(i);
-//            }
-//        }
     }
 
     public int containsTabla(String bd, String tab) {
@@ -629,7 +621,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         });
         jMenu2.add(menuGenerarMVC);
 
-        jMenuItem2.setText("Exportar a MySQL");
+        jMenuItem2.setText("Exportar a SQL");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem2ActionPerformed(evt);
@@ -637,7 +629,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         });
         jMenu2.add(jMenuItem2);
 
-        menuExpotarSQL.setText("Exportar a PostgreSQL");
+        menuExpotarSQL.setText("Convertir a PostgreSQL");
         menuExpotarSQL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuExpotarSQLActionPerformed(evt);
@@ -696,6 +688,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salirActionPerformed
+        op.cerrarConsola();
         cerrarVentanas();
         op.getConexion().desconectar();
         this.setVisible(false);
@@ -821,7 +814,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         System.out.println(op.getBDseleccionada());
         
         try {
-            op.convertirMySQL(fichero.getPath());
+            op.exportarSQL(fichero.getPath(),op.getTipoConexion());
             JOptionPane.showMessageDialog(null, "Conversion terminada", "Exitoso", 1);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cosultar datos", "Error", 0);
@@ -931,11 +924,17 @@ public class principal extends javax.swing.JFrame implements KeyListener {
                         return;
                     }
                 }
-
+                
                 if (jTree1.isExpanded(p)) {
+                    //System.out.println("Expandido");
                     jTree1.collapsePath(p);
                 } else {
-                    jTree1.expandPath(p);
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) p.getLastPathComponent();
+                    if (node.isLeaf()) {
+                        cargarBD(p.getLastPathComponent().toString());
+                    }else{
+                        jTree1.expandPath(p);
+                    }
                 }
             }
         }

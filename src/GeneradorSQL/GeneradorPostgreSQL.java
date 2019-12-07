@@ -39,7 +39,8 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     }
 
     public String getTables(String db) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "select tablename as nombre from pg_catalog.pg_tables where schemaname != "
+                + "'information_schema' and schemaname != 'pg_catalog' order by nombre;";
     }
 
     @Override
@@ -118,11 +119,12 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
                 col.append(", ");
             }
             z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
+            z += System.lineSeparator();
             
             Vector<String> aux;
             for (int j = 0; j < data.size(); j++) {
                 if (j > 0) {
-                    z += ",";
+                    z += "," + System.lineSeparator();
                 }
                 aux = data.get(j);
                 dat = new StringBuilder("(");
@@ -242,12 +244,23 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     
     @Override
     public String getPrimaryKeys(String db) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = "SELECT conname as nombre, conrelid::regclass AS tabla, attname as columnas FROM ";
+        z += "pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace CROSS JOIN LATERAL ";
+        z += "UNNEST(c.conkey) AS cols(colnum) INNER JOIN pg_attribute AS a ON a.attrelid = c.conrelid ";
+        z += "AND cols.colnum = a.attnum WHERE contype = 'p';";
+        return z;
     }
     
     @Override
     public String getForeignKeys(String db) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String z = "SELECT tc.constraint_name as nombre, tc.table_name as tabla, kcu.column_name as ";
+        z += "columnas, ccu.table_name AS tabla_referencia, ccu.column_name AS columnas_referencia ";
+        z += "FROM information_schema.table_constraints AS tc JOIN information_schema.key_column_usage ";
+        z += "AS kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema ";
+        z += "JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = ";
+        z += "tc.constraint_name AND ccu.table_schema = tc.table_schema WHERE tc.constraint_type = ";
+        z += "'FOREIGN KEY';";
+        return z;
     }
     
     @Override
@@ -378,6 +391,16 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
 
     @Override
     public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String z = name + " " + type;
+        if (length != null) {
+            z += "(" + length + ")";
+        }
+        if (Default != null) {
+            z += " DEFAULT " + Default;
+        }
+        if (noNull) {
+            z += " NOT NULL";
+        }
+        return z;
     }
 }

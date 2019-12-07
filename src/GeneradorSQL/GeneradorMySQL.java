@@ -122,6 +122,7 @@ public class GeneradorMySQL extends GeneradorSQL {
                 col.append(", ");
             }
             z += "INSERT INTO " + table + " (" + col.substring(0, col.length() - 2) + ") values ";
+            z += System.lineSeparator();
 
             Vector<String> aux;
             for (int j = 0; j < data.size(); j++) {

@@ -14,6 +14,11 @@ import TempleateRDB.GenericTempleate.Primary;
  */
 public class PrimaryMysql extends Primary{
     
+//    public PrimaryMysql(String name, String table, String columns) {
+//        super.table = table;
+//        super.columns = columns;
+//    }
+    
     public PrimaryMysql(String table, String columns) {
         super.table = table;
         super.columns = columns;

@@ -58,7 +58,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         });
         menu.add(menuitem);
         jTable1.setComponentPopupMenu(menu);
-        //jTable1.scrollRectToVisible(aRect);
+        jTable1.setAutoCreateRowSorter(true);
     }
 
     private void llenarTabla() {
@@ -129,31 +129,26 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
 
     public void borrarFilas() {
         inserta = true;
-
+        
         int filas[] = jTable1.getSelectedRows();
         try {
             for (int i = 0; i < filas.length; i++) {
                 Vector<String> datos = new Vector<>();
                 for (int j = 0; j < columnas.size(); j++) {
-                    if (jTable1.getValueAt(filas[i], j) == null) {
+                    if (jTable1.getValueAt(filas[i]-i, j) == null) {
                         datos.add(null);
                     } else {
-                        datos.add(jTable1.getValueAt(filas[i], j).toString());
+                        datos.add(jTable1.getValueAt(filas[i]-i, j).toString());
                     }
                 }
                 op.ejecutarUpdate(op.getGeneradorSQL().deleteRow(tabla, columnas, datos));
+                modelo.removeRow(filas[i]-i);
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al borrar fila", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
         }
 
-        if (filas.length == 1) {
-            modelo.removeRow(filas[0]);
-        } else {
-            recargarResultSet();
-            llenarTabla();
-        }
         inserta = false;
     }
 
@@ -178,7 +173,7 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
         }
         return vs;
     }
-
+    
     protected void cerrarVentana() {
         ma.setVisible(false);
     }
@@ -296,14 +291,19 @@ public class panelTabla extends javax.swing.JPanel implements KeyListener {
                 tam[i] = tcm.getColumn(i).getWidth();
             }
             llenarTabla();
-            for (int i = 0; i < tcm.getColumnCount(); i++) {
-                tcm.getColumn(i).setPreferredWidth(tam[i]);
+            if (tcm.getColumnCount() == modelo.getColumnCount()) {
+                for (int i = 0; i < tcm.getColumnCount(); i++) {
+                    tcm.getColumn(i).setPreferredWidth(tam[i]);
+                }
             }
             ma.cargar();
             nuevaFila = false;
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al seleccionar base de datos", "Error", 0);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+        } catch(Exception ex){
+            System.err.println("Error: panelTabla, botonRecargarActionPerformed\n");
+            System.err.println(ex.getMessage() + "\n");
         }
     }//GEN-LAST:event_botonRecargarActionPerformed
 

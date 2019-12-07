@@ -27,6 +27,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
         setTitle("AbdSQL");
         jButton1.addKeyListener(this);
         password.addKeyListener(this);
+        user.addKeyListener(this);
         comboSistemaGestor.addKeyListener(this);
         jButton2.addKeyListener(this);
         cargar();
@@ -262,7 +263,7 @@ public class inicio extends javax.swing.JFrame implements KeyListener {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         JOptionPane.showMessageDialog(null, "Administrador de bases\nde datos SQL");
-        JOptionPane.showMessageDialog(null, "Version 3.4");
+        JOptionPane.showMessageDialog(null, "Version 3.5");
         JOptionPane.showMessageDialog(null, "desarrollado por:\nWilmer Castrillon");
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 

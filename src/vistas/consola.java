@@ -92,6 +92,7 @@ public class consola extends javax.swing.JFrame implements KeyListener {
         menu2.add(item3);
         comando.setComponentPopupMenu(menu2);
         jTable1.addKeyListener(this);
+        jTable1.setAutoCreateRowSorter(true);
         
         setTitle("consola");
     }

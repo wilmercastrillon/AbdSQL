@@ -2,7 +2,7 @@ package TempleateRDB.TempleateMySQL;
 
 import GeneradorSQL.GeneradorMySQL;
 import TempleateRDB.GenericTempleate.Foreign;
-import TempleateRDB.GenericTempleate.Primary;
+import TempleateRDB.GenericTempleate.Generic;
 import TempleateRDB.GenericTempleate.Table;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
 
-public class GenericMySQL {
+public class GenericMySQL extends Generic{
     
     private DataBaseMySQL DB;
     private GeneradorMySQL gen;
@@ -22,8 +22,8 @@ public class GenericMySQL {
         gen = new GeneradorMySQL();
     }
     
+    @Override
     public void loadDatabase(Connection con) throws SQLException{
-        DB = new DataBaseMySQL(DB.name);
         sta = con.createStatement();
         sta.executeUpdate(gen.selectDataBase(DB.name));
         
@@ -81,10 +81,12 @@ public class GenericMySQL {
         return DB;
     }
     
+    @Override
     public String DatabaseToSql(){
         return DB.toSql();
     }
     
+    @Override
     public String DatabaseToSqlWithData(Connection con) throws SQLException{
         String sql = DB.toSql();
         sql += System.lineSeparator() + "/*--- Data ---*/";

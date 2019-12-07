@@ -34,7 +34,7 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Exportar a MySQL"/>
+                <Property name="text" type="java.lang.String" value="Exportar a SQL"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
@@ -42,7 +42,7 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuExpotarSQL">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Exportar a PostgreSQL"/>
+                <Property name="text" type="java.lang.String" value="Convertir a PostgreSQL"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuExpotarSQLActionPerformed"/>

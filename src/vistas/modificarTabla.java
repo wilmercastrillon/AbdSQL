@@ -1,6 +1,7 @@
 package vistas;
 
 import clases.Fachada;
+import conexionBD.Conexion;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -8,8 +9,6 @@ import java.awt.event.KeyListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -98,6 +97,23 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             ResultSet rs4 = op.ejecutarConsulta(op.getGeneradorSQL().getIndexs(BD, tabla));
             while (rs4.next()) {
                 jComboIndices.addItem(rs4.getString("indice"));
+            }
+            
+            Vector<String> tipos;
+            if (op.getConexion().tipo == Conexion.MySQL) {
+                tipos = op.getMysqlDataTypes();
+            }else if(op.getConexion().tipo == Conexion.PostgreSQL){
+                tipos = op.getPostgresDataTypes();
+            }else{
+                tipos = op.getOracleDataTypes();
+            }
+            comboTiposDatos.removeAllItems();
+            comboNuevoTipoDato.removeAllItems();
+            comboTiposDatos.addItem("------------");
+            comboNuevoTipoDato.addItem("------------");
+            for (int i = 0; i < tipos.size(); i++) {
+                comboTiposDatos.addItem(tipos.get(i));
+                comboNuevoTipoDato.addItem(tipos.get(i));
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
@@ -211,6 +227,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         comboDespuesDe = new javax.swing.JComboBox<>();
         jButton3 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -279,7 +296,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         jLabel3.setText("Tipo de dato");
 
-        comboTiposDatos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-------------", "SMALLINT", "INT", "BIGINT", "FLOAT", "DOUBLE", "DECIMAL", "CHAR", "VARCHAR", "TEXT", "DATE", "TIME", "YEAR", "DATETIME", "TIMESTAMP", "BYNARY", "BLOB", "LONGBLOB" }));
+        comboTiposDatos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-------------" }));
 
         jLabel4.setText("Longitud");
 
@@ -415,11 +432,9 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addGap(5, 5, 5)
-                                .addComponent(jLabel7)
-                                .addGap(52, 52, 52))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel9)
-                                .addGap(10, 10, 10)))
+                                .addComponent(jLabel7))
+                            .addComponent(jLabel9))
+                        .addGap(28, 28, 28)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(comboOtrasTablas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(ComboColumnaForanea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -655,7 +670,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         jLabel15.setText("Tipo de dato");
 
-        comboNuevoTipoDato.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-------------", "SMALLINT", "INT", "BIGINT", "FLOAT", "DOUBLE", "DECIMAL", "CHAR", "VARCHAR", "TEXT", "DATE", "TIME", "YEAR", "DATETIME", "TIMESTAMP", "BYNARY", "BLOB", "LONGBLOB" }));
+        comboNuevoTipoDato.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-------------" }));
 
         jLabel16.setText("Longitud");
 
@@ -789,17 +804,24 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             }
         });
 
+        jButton2.setText("Recargar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(PanelTabColumnas)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(PanelTabColumnas))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
                         .addComponent(jButton3)))
@@ -813,7 +835,8 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton3)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addContainerGap())
         );
 
@@ -1108,6 +1131,12 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         setCursor(Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_jButtonCrearIndiceActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        setCursor(Cursor.WAIT_CURSOR);
+        cargar();
+        setCursor(Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BotonActualizar;
@@ -1128,6 +1157,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JComboBox<String> comboOtrasTablas;
     private javax.swing.JComboBox<String> comboTiposDatos;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
