@@ -17,16 +17,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import vistas.consola;
 import conexionBD.Conexion;
+import conexionBD.ConexionPostgreSQL;
+import conexionBD.ConexionSQLite;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.ShorthandCompletion;
 
 public class Fachada {
 
@@ -41,28 +41,45 @@ public class Fachada {
     }
 
     public Fachada(int tipo) {
-        con = new Conexion(tipo);
+        if(tipo == Conexion.PostgreSQL){
+            con = new ConexionPostgreSQL();
+        }else if(tipo == Conexion.Sqlite){
+            con = new ConexionSQLite();
+        }else{
+            con = new Conexion(tipo);
+        }
     }
 
     public void setTipoConexion(int tipo) {
-        con = new Conexion(tipo);
+        if(tipo == Conexion.PostgreSQL){
+            con = new ConexionPostgreSQL();
+        }else if(tipo == Conexion.Sqlite){
+            con = new ConexionSQLite();
+        }else{
+            con = new Conexion(tipo);
+        }
     }
 
-    public boolean conectar(String puerto, String user, String password) {
-        BDseleccionada = puerto;
+    public boolean conectar(String host, String puerto, String user, String password) {
+        BDseleccionada = host;
         cons = new consola(this);
         gen = nuevoGeneradorSQL(con.tipo);
-
-        return con.conectar(puerto, user, password);
+        
+        if(con.tipo == Conexion.Sqlite){
+            ConexionSQLite lite = (ConexionSQLite) con;
+            return lite.conectar(host);
+        }else{
+            return con.conectar(host, puerto, user, password);
+        }
     }
 
     public void seleccionarBD(String bd) throws SQLException {
-        if (con.tipo == Conexion.Oracle) {
+        if (con.tipo == Conexion.Oracle || con.tipo == Conexion.Sqlite) {
             return;
         }
         if (con.tipo == Conexion.PostgreSQL) {
-            Conexion aux = new Conexion(Conexion.PostgreSQL);
-            aux.conectar(con.getPuerto(), con.getUsuario(), con.getPasswordText(), bd);
+            ConexionPostgreSQL aux = new ConexionPostgreSQL();
+            aux.conectar(con.getHost(), con.getPuerto(), con.getUsuario(), con.getPasswordText(), bd);
             if (aux.conexionCerrada()) {
                 JOptionPane.showMessageDialog(null, "Error en la conexion");
                 return;
@@ -92,8 +109,10 @@ public class Fachada {
             return new GeneradorMySQL();
         } else if (tipoSGBD == Conexion.Oracle) {
             return new GeneradorOracle();
-        } else {
+        } else if(tipoSGBD == Conexion.PostgreSQL){
             return new GeneradorPostgreSQL();
+        }else{
+            return new GeneradorSQLite();
         }
     }
 
@@ -124,11 +143,11 @@ public class Fachada {
 
     public boolean recuperarConexion() {
         JOptionPane.showMessageDialog(null, "Conexion perdida!!!", "Error", 0);
-        String pass = inputContraseña(con.getPuerto() + "\nUsuario: " + con.getUsuario() + "\nIngrese contraseña: ",
+        String pass = inputContraseña(con.getHost()+ "\nUsuario: " + con.getUsuario() + "\nIngrese contraseña: ",
                 "Recuperar Conexión");
 
         try {
-            if (con.conectar(con.getPuerto(), con.getUsuario(), pass)) {
+            if (con.conectar(con.getHost(), con.getPuerto(), con.getUsuario(), pass)) {
                 seleccionarBD(BDseleccionada);
                 return true;
             } else {
@@ -195,8 +214,8 @@ public class Fachada {
 
     public Vector<String> getBasesDeDatos() throws SQLException {
         Vector<String> aux = new Vector<>();
-        if (con.tipo == Conexion.Oracle) {
-            aux.add(con.getPuerto());
+        if (con.tipo == Conexion.Oracle || con.tipo == Conexion.Sqlite) {
+            aux.add(con.getHost());
         } else {
             ResultSet res2 = ejecutarConsulta(gen.getDataBases());
             while (res2.next()) {
@@ -342,13 +361,14 @@ public class Fachada {
         return vvs;
     }
 
-    public Vector<String> cargarDatosConexion() {
-        Vector<String> vs = new Vector<>();
+    public ArrayList<String> cargarDatosConexion() {
+        ArrayList<String> vs = new ArrayList<>();
         try {
             System.out.println(System.getProperty("user.dir") + "\\config");
             BufferedReader tec = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\config"));
             while (tec.ready()) {
                 String s = tec.readLine();
+                s += " " + tec.readLine();
                 s += " " + tec.readLine();
                 s += " " + tec.readLine();
                 vs.add(s);
@@ -361,15 +381,15 @@ public class Fachada {
         return vs;
     }
 
-    public void guardarDatosConexion(Vector<String> vs) {
+    public void guardarDatosConexion(ArrayList<String> vs) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(System.getProperty("user.dir") + "\\config"));
             String s[];
             for (int i = 0; i < vs.size(); i++) {
                 s = vs.get(i).split(" ");
-                bw.write(s[0] + "\r\n");
-                bw.write(s[1] + "\r\n");
-                bw.write(s[2] + "\r\n");
+                for(String cad : s){
+                    bw.write(cad + "\r\n");
+                }
             }
             bw.close();
         } catch (Exception e) {

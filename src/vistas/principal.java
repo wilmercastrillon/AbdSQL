@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -252,6 +251,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
 
         setTitle("Bases de datos");
         setLocationRelativeTo(null);
+        setExtendedState(MAXIMIZED_BOTH);
     }
 
     private void borrarNodoJtree(TreePath path, String tipo, String parent) {
@@ -308,6 +308,7 @@ public class principal extends javax.swing.JFrame implements KeyListener {
         try {
             op.seleccionarBD(bd);
             ResultSet res2 = op.ejecutarConsulta(op.getGeneradorSQL().getTables());
+            System.out.println("consulto");
             int pos2 = 0, index;
             for (index = 0; index < nodos.size(); index++) {
                 if (nodos.get(index).toString().equals(bd)) {

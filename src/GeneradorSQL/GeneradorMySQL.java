@@ -1,5 +1,6 @@
 package GeneradorSQL;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -233,6 +234,14 @@ public class GeneradorMySQL extends GeneradorSQL {
         String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (" + column + ");";
         return z;
     }
+    
+    @Override
+    public String addPrimaryKey(String table, ArrayList<String> columns, String name){
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (";
+        z = columns.stream().map((s) -> s + ",").reduce(z, String::concat);
+        z = z.substring(0, z.length() - 1) + ");";
+        return z;
+    }
 
     @Override
     public String addForeignKey(String table, String column, String table_ref, String col_ref) {
@@ -299,6 +308,14 @@ public class GeneradorMySQL extends GeneradorSQL {
     @Override
     public String addUniqueKey(String table, String column, String name) {
         String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (" + column + ");";
+        return z;
+    }
+    
+    @Override
+    public String addUniqueKey(String table, ArrayList<String> columns, String name){
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (";
+        z = columns.stream().map((s) -> s + ",").reduce(z, String::concat);
+        z = z.substring(0, z.length() - 1) + ");";
         return z;
     }
 
@@ -447,6 +464,14 @@ public class GeneradorMySQL extends GeneradorSQL {
         if (noNull) {
             z += " NOT NULL";
         }
+        return z;
+    }
+    
+    @Override
+    public String getColumsConstraint(String db, String table, String constraint){
+        String z = "SELECT key_column_usage.column_name FROM information_schema.key_column_usage ";
+        z += "WHERE table_schema = '" + db + "' AND constraint_name = '" + constraint + "' ";
+        z += "AND table_name = '" + table + "';";
         return z;
     }
 }

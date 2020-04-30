@@ -1,7 +1,7 @@
 package GeneradorSQL;
 
+import java.util.ArrayList;
 import java.util.Vector;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -213,6 +213,14 @@ public class GeneradorOracle extends GeneradorSQL {
         String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (" + column + ");";
         return z;
     }
+    
+    @Override
+    public String addPrimaryKey(String table, ArrayList<String> columns, String name){
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (";
+        z = columns.stream().map((s) -> s + ",").reduce(z, String::concat);
+        z = z.substring(0, z.length() - 1) + ");";
+        return z;
+    }
 
     @Override
     public String addForeignKey(String table, String column, String table_ref, String col_ref) {
@@ -272,6 +280,14 @@ public class GeneradorOracle extends GeneradorSQL {
     @Override
     public String addUniqueKey(String table, String column, String name) {
         String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (" + column + ");";
+        return z;
+    }
+    
+    @Override
+    public String addUniqueKey(String table, ArrayList<String> columns, String name){
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (";
+        z = columns.stream().map((s) -> s + ",").reduce(z, String::concat);
+        z = z.substring(0, z.length() - 1) + ");";
         return z;
     }
 
@@ -367,6 +383,11 @@ public class GeneradorOracle extends GeneradorSQL {
 
     @Override
     public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public String getColumsConstraint(String db, String table, String constraint){
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

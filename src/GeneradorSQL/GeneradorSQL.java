@@ -1,5 +1,6 @@
 package GeneradorSQL;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -50,6 +51,8 @@ public abstract class GeneradorSQL {
     abstract public String addPrimaryKey(String table, String column);
     
     abstract public String addPrimaryKey(String table, String column, String name);
+    
+    abstract public String addPrimaryKey(String table, ArrayList<String> columns, String name);
 
     abstract public String addForeignKey(String table, String column, String table_ref, String col_ref);
     
@@ -70,6 +73,8 @@ public abstract class GeneradorSQL {
     abstract public String addUniqueKey(String table, String column);
     
     abstract public String addUniqueKey(String table, String column, String name);
+    
+    abstract public String addUniqueKey(String table, ArrayList<String> columns, String name);
 
     abstract public String updateColumn(String table, String name, String type, String newName,
             String length, String defaultValue, boolean notNull);
@@ -102,4 +107,7 @@ public abstract class GeneradorSQL {
     abstract public String dropIndex(String table, String constraint);
     
     abstract public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull);
+    
+    //[Column]
+    abstract public String getColumsConstraint(String db, String table, String constraint);
 }

@@ -14,10 +14,11 @@ public class Conexion {
     protected Connection con;
     protected Statement sta;
     protected String driver;
-    private String puerto, usuario, pass;
+    protected String host, puerto, usuario, pass;
     public static int MySQL = 1;
     public static int Oracle = 2;
     public static int PostgreSQL = 3;
+    public static int Sqlite = 4;
     public int tipo;
 
     public Conexion(int tipo) {
@@ -31,17 +32,19 @@ public class Conexion {
         }
     }
 
-    public boolean conectar(String puerto, String user, String password) {
-        this.puerto = puerto;
+    public boolean conectar(String host, String puerto, String user, String password) {
+        this.host = host;
         usuario = user;
 
         String url;
         if (tipo == MySQL) {
-            url = "jdbc:mysql://" + puerto;
+            url = "jdbc:mysql://" + host + ":" + puerto;
         } else if (tipo == Oracle) {
-            url = "jdbc:oracle:thin:@" + puerto + ":1521:xe";
-        } else {
-            url = "jdbc:postgresql://" + puerto + ":5432/";
+            url = "jdbc:oracle:thin:@" + host + ":" + puerto + ":xe";
+        } else if(tipo == PostgreSQL){
+            url = "jdbc:postgresql://" + host + ":" + puerto + "/";
+        }else{
+            url = "jdbc:sqlite:" + host;
         }
         con = null;
         try {
@@ -69,48 +72,11 @@ public class Conexion {
         return true;
     }
 
-    public boolean conectar(String puerto, String user, String password, String bd) {
-        this.puerto = puerto;
-        usuario = user;
-
-        String url;
-        if (tipo == MySQL) {
-            url = "jdbc:mysql://" + puerto + "/" + bd;
-        } else if (tipo == Oracle) {
-            url = "jdbc:oracle:thin:@" + puerto + ":1521:xe/" + bd;
-        } else {
-            url = "jdbc:postgresql://" + puerto + ":5432/" + bd;
-        }
-        con = null;
-        try {
-            Class.forName(driver);
-            con = DriverManager.getConnection(url, user, password);
-            sta = con.createStatement();
-            if (con != null) {
-                System.out.println("Conexion exitosa\n");
-            } else {
-                System.out.println("no se ha conectado\n");
-                return false;
-            }
-            con.setNetworkTimeout(Executors.newFixedThreadPool(1), 20000);
-            pass = Encriptar(password);
-        } catch (SQLException e) {
-            System.out.println("no se ha conectado, error sql\n");
-            System.out.println(e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.out.println("no se ha conectado, error clase\n");
-            System.out.println(e.getMessage());
-            return false;
-        }
-        return true;
-    }
-    
-    private static String Encriptar(String texto) {
+    protected static String Encriptar(String texto) {
         return Base64.getEncoder().encodeToString(texto.getBytes());
     }
 
-    private static String Desencriptar(String textoEncriptado) {
+    protected static String Desencriptar(String textoEncriptado) {
         byte[] decodedBytes = Base64.getDecoder().decode(textoEncriptado);
         return new String(decodedBytes);
     }
@@ -119,10 +85,14 @@ public class Conexion {
         return usuario;
     }
 
+    public String getHost() {
+        return host;
+    }
+
     public String getPuerto() {
         return puerto;
     }
-
+    
     public String getPasswordText() {
         return Desencriptar(pass);
     }

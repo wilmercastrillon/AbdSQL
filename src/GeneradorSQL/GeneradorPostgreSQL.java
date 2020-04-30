@@ -1,5 +1,6 @@
 package GeneradorSQL;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -234,6 +235,14 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
         String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (" + column + ");";
         return z;
     }
+    
+    @Override
+    public String addPrimaryKey(String table, ArrayList<String> columns, String name){
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " PRIMARY KEY (";
+        z = columns.stream().map((s) -> s + ",").reduce(z, String::concat);
+        z = z.substring(0, z.length() - 1) + ");";
+        return z;
+    }
 
     @Override
     public String addForeignKey(String table, String column, String table_ref, String col_ref)  {
@@ -299,6 +308,14 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
     @Override
     public String addUniqueKey(String table, String column, String name) {
         String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (" + column + ");";
+        return z;
+    }
+    
+    @Override
+    public String addUniqueKey(String table, ArrayList<String> columns, String name){
+        String z = "ALTER TABLE " + table + " ADD CONSTRAINT " + name + " UNIQUE (";
+        z = columns.stream().map((s) -> s + ",").reduce(z, String::concat);
+        z = z.substring(0, z.length() - 1) + ");";
         return z;
     }
 
@@ -401,6 +418,24 @@ public class GeneradorPostgreSQL extends GeneradorSQL {
         if (noNull) {
             z += " NOT NULL";
         }
+        return z;
+    }
+    
+    /*
+    SELECT string_agg(a.attname, ', ') AS pk
+FROM
+    pg_constraint AS c
+    CROSS JOIN LATERAL UNNEST(c.conkey) AS cols(colnum) -- conkey is a list of the columns of the constraint; so we split it into rows so that we can join all column numbers onto their names in pg_attribute
+    INNER JOIN pg_attribute AS a ON a.attrelid = c.conrelid AND cols.colnum = a.attnum
+WHERE
+    c.contype = 'p' -- p = primary key constraint
+    AND c.conrelid = '<schemaname>.<tablename>'::REGCLASS;
+    */
+    @Override
+    public String getColumsConstraint(String db, String table, String constraint){
+        String z = "SELECT key_column_usage.column_name FROM information_schema.key_column_usage ";
+        z += "WHERE table_schema = '" + db + "' AND constraint_name = '" + constraint + "' ";
+        z += "AND table_name = '" + table + "';";
         return z;
     }
 }
