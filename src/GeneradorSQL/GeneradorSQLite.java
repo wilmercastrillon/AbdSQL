@@ -36,7 +36,6 @@ public class GeneradorSQLite extends GeneradorSQL {
     @Override
     public String getTables() {
         String z = "SELECT name as nombre FROM sqlite_master WHERE  type ='table' AND  name NOT LIKE 'sqlite_%';";
-        System.out.println(z);
         return z;
     }
 
@@ -47,7 +46,8 @@ public class GeneradorSQLite extends GeneradorSQL {
 
     @Override
     public String getColumnsTable(String table) {
-        String z = "SELECT * FROM pragma_table_info('" + table + "') c;";
+        String z = "SELECT pti.name, pti.type, pti.\"notnull\" as \"null\", pti.dflt_value as \"default\", ";
+        z += "pti.pk as \"key\" FROM pragma_table_info('" + table + "') pti;";
         return z;
     }
 
@@ -241,21 +241,13 @@ public class GeneradorSQLite extends GeneradorSQL {
     }
 
     @Override
-    public String getPrimaryKeys(String db) {
-        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) ";
-        sql += "as 'columnas' from information_schema.key_column_usage where constraint_schema = '";
-        sql += db + "' and constraint_name = 'primary' group by table_name ;";
-        return sql;
+    public String getPrimaryKeys(String db) { 
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getForeignKeys(String db) {
-        String sql = "select constraint_name as 'nombre', table_name as 'tabla', group_concat(column_name) as ";
-        sql += "'columnas', referenced_table_name as 'tabla_referencia', group_concat(referenced_column_name) as";
-        sql += "'columnas_referencia' from information_schema.key_column_usage where ";
-        sql += "constraint_schema = '" + db + "' and constraint_name != 'primary' and referenced_table_name ";
-        sql += "is not null group by constraint_name ;";
-        return sql;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -362,80 +354,56 @@ public class GeneradorSQLite extends GeneradorSQL {
 
     @Override
     public String getProcedures(String db) {
-        String z = "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES ";
-        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + db + "' ORDER BY ROUTINE_NAME;";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public String getParametrosProcedimiento(String nombreP) {
-        String z = "SELECT DATA_TYPE, PARAMETER_NAME FROM INFORMATION_SCHEMA.PARAMETERS ";
-        z += "WHERE ROUTINE_TYPE='PROCEDURE' AND SPECIFIC_NAME = '" + nombreP + "' ";
-        z += "ORDER BY ORDINAL_POSITION; ";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getProcedureData(String db, String name) {
-        String z = " SELECT ROUTINE_NAME, ROUTINE_DEFINITION  FROM INFORMATION_SCHEMA.ROUTINES ";
-        z += "WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '" + db + "' ";
-        z += "AND ROUTINE_NAME = '" + name + "';";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String createProcedure(String sql) {
-        String z = sql;
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String dropProcedure(String name) {
-        String z = "DROP PROCEDURE IF EXISTS " + name + ";";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String callProcedure(String procedure, String params) {
-        String z = "CALL " + procedure + " (" + params + ");";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getForeignKeys(String db, String table) {//[nombre, tabla, columnas, tabla_referencia, columnas_referencia]
-        String z = "SELECT CONSTRAINT_NAME as 'constraint', TABLE_NAME as 'tabla', ";
-        z += "COLUMN_NAME as 'columna', REFERENCED_TABLE_NAME as 'tabla_referencia', ";
-        z += "REFERENCED_COLUMN_NAME as 'columna_referencia' FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ";
-        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + db + "' AND TABLE_NAME='" + table + "';";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getForeignKey(String db, String table, String constraint) {
-        String z = "SELECT CONSTRAINT_NAME as 'constraint', TABLE_NAME as 'tabla', ";
-        z += "COLUMN_NAME as 'columna', REFERENCED_TABLE_NAME as 'tabla_referencia', ";
-        z += "REFERENCED_COLUMN_NAME as 'columna_referencia' FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ";
-        z += "WHERE REFERENCED_TABLE_SCHEMA = '" + db + "' AND TABLE_NAME='" + table + "' ";
-        z += "AND CONSTRAINT_NAME = '" + constraint + "';";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String dropForeignKey(String table, String constraint) {
-        String z = "ALTER TABLE " + table + " DROP FOREIGN KEY " + constraint + "; ";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getIndexs(String db, String table) {
-        String z = "SELECT TABLE_NAME AS 'tabla', INDEX_NAME AS 'indice' FROM INFORMATION_SCHEMA.STATISTICS ";
-        z += "WHERE TABLE_SCHEMA = '" + db + "' AND TABLE_NAME = '" + table + "';";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String dropIndex(String table, String constraint) {
-        String z = "ALTER TABLE " + table + " DROP INDEX " + constraint + ";";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -455,9 +423,6 @@ public class GeneradorSQLite extends GeneradorSQL {
     
     @Override
     public String getColumsConstraint(String db, String table, String constraint){
-        String z = "SELECT key_column_usage.column_name FROM information_schema.key_column_usage ";
-        z += "WHERE table_schema = '" + db + "' AND constraint_name = '" + constraint + "' ";
-        z += "AND table_name = '" + table + "';";
-        return z;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

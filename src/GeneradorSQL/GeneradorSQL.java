@@ -24,7 +24,7 @@ public abstract class GeneradorSQL {
     
     abstract public String getTables(String db);//[nombre]
 
-    abstract public String getColumnsTable(String table);//[nombre, tipo, nulo, default, length,.........]
+    abstract public String getColumnsTable(String table);//[name, type, null, default, length,.........]
 
     abstract public String createTable(String name);
 
@@ -108,6 +108,6 @@ public abstract class GeneradorSQL {
     
     abstract public String SingleAddColumnTable(String type, String name, String length, String Default, boolean noNull);
     
-    //[Column]
+    //[column][index]
     abstract public String getColumsConstraint(String db, String table, String constraint);
 }

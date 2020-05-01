@@ -3,8 +3,6 @@ package vistas;
 import ExtraComponents.JCheckList;
 import clases.Fachada;
 import conexionBD.Conexion;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -16,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -30,13 +30,19 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private final Fachada op;
     private final String BD, tabla;
     private boolean flag = false;
+    private GeneradorSQL.GeneradorSQL generador;
 
     public modificarTabla(Fachada c, String base_de_datos, String table) {
         op = c;
         BD = base_de_datos;
         tabla = table;
+        generador = op.getGeneradorSQL();
         initComponents();
         cargar();
+        cargarTiposDatos();
+        cargarForaneas();
+        cargarIndices();
+
         setLocationRelativeTo(null);
         setTitle(tabla);
         radioDefault.addKeyListener(this);
@@ -105,37 +111,6 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             op.llenarTableModel(op.ejecutarConsulta(op.getGeneradorSQL().getColumnsTable(tabla)), dft);
             jTable2.setModel(dft);
             addPoppupMenu(jTable2);
-
-            jComboForaneas.removeAllItems();
-            jComboForaneas.addItem("------------");
-            ResultSet rs3 = op.ejecutarConsulta(op.getGeneradorSQL().getForeignKeys(BD, tabla));
-            while (rs3.next()) {
-                jComboForaneas.addItem(rs3.getString("constraint"));
-            }
-
-            jComboIndices.removeAllItems();
-            jComboIndices.addItem("------------");
-            ResultSet rs4 = op.ejecutarConsulta(op.getGeneradorSQL().getIndexs(BD, tabla));
-            while (rs4.next()) {
-                jComboIndices.addItem(rs4.getString("indice"));
-            }
-
-            Vector<String> tipos;
-            if (op.getConexion().tipo == Conexion.MySQL) {
-                tipos = op.getMysqlDataTypes();
-            } else if (op.getConexion().tipo == Conexion.PostgreSQL) {
-                tipos = op.getPostgresDataTypes();
-            } else {
-                tipos = op.getOracleDataTypes();
-            }
-            comboTiposDatos.removeAllItems();
-            comboNuevoTipoDato.removeAllItems();
-            comboTiposDatos.addItem("------------");
-            comboNuevoTipoDato.addItem("------------");
-            for (int i = 0; i < tipos.size(); i++) {
-                comboTiposDatos.addItem(tipos.get(i));
-                comboNuevoTipoDato.addItem(tipos.get(i));
-            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar los\natributos de la tabla.", "Error", 0);
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", 0);
@@ -147,6 +122,59 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             System.err.println("Mensaje: " + ex.getMessage() + "\n");
         }
         flag = false;
+    }
+
+    private void cargarTiposDatos() {
+        ArrayList<String> tipos;
+        if (op.getConexion().tipo == Conexion.MySQL) {
+            tipos = op.getMysqlDataTypes();
+        } else if (op.getConexion().tipo == Conexion.PostgreSQL) {
+            tipos = op.getPostgresDataTypes();
+        } else if (op.getConexion().tipo == Conexion.Oracle) {
+            tipos = op.getOracleDataTypes();
+        } else {
+            tipos = op.getSQLiteDataTypes();
+        }
+        comboTiposDatos.removeAllItems();
+        comboNuevoTipoDato.removeAllItems();
+        comboTiposDatos.addItem("------------");
+        comboNuevoTipoDato.addItem("------------");
+        for (int i = 0; i < tipos.size(); i++) {
+            comboTiposDatos.addItem(tipos.get(i));
+            comboNuevoTipoDato.addItem(tipos.get(i));
+        }
+    }
+
+    private void cargarForaneas() {
+        try {
+            jComboForaneas.removeAllItems();
+            jComboForaneas.addItem("------------");
+            ResultSet rs3 = op.ejecutarConsulta(op.getGeneradorSQL().getForeignKeys(BD, tabla));
+            while (rs3.next()) {
+                jComboForaneas.addItem(rs3.getString("constraint"));
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar las\nllaves foraneas de la tabla.", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            System.err.println("Error: vistas, modificarTabla, cargarForaneas");
+            System.err.println("Mensaje: " + ex.getMessage() + "\n");
+        }
+    }
+
+    private void cargarIndices() {
+        try {
+            jComboIndices.removeAllItems();
+            jComboIndices.addItem("------------");
+            ResultSet rs4 = op.ejecutarConsulta(op.getGeneradorSQL().getIndexs(BD, tabla));
+            while (rs4.next()) {
+                jComboIndices.addItem(rs4.getString("indice"));
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar los\nindices de la tabla.", "Error", 0);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 0);
+            System.err.println("Error: vistas, modificarTabla, cargarIndices");
+            System.err.println("Mensaje: " + ex.getMessage() + "\n");
+        }
     }
 
     private void addPoppupMenu(JTable jt) {
@@ -196,15 +224,15 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         botonBorrarColumna = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        ComboColumnaForanea = new javax.swing.JComboBox<>();
-        jLabel9 = new javax.swing.JLabel();
-        comboOtrasTablas = new javax.swing.JComboBox<>();
-        jLabel10 = new javax.swing.JLabel();
-        comboAtributosReferencia = new javax.swing.JComboBox<>();
-        botonCrearForanea = new javax.swing.JButton();
         jCheckNombreForanea = new javax.swing.JCheckBox();
         jTextNombreForanea = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        comboAtributosReferencia = new javax.swing.JComboBox<>();
+        jLabel9 = new javax.swing.JLabel();
+        comboOtrasTablas = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        ComboColumnaForanea = new javax.swing.JComboBox<>();
+        botonCrearForanea = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jComboForaneas = new javax.swing.JComboBox<>();
@@ -218,21 +246,22 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         jTextAtributoReferencia = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        jLabel22 = new javax.swing.JLabel();
-        jComboIndices = new javax.swing.JComboBox<>();
-        jButton5 = new javax.swing.JButton();
-        jLabel23 = new javax.swing.JLabel();
-        jLabel24 = new javax.swing.JLabel();
-        jComboTipoIndice = new javax.swing.JComboBox<>();
-        jTextNombreIndice = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jButtonCrearIndice = new javax.swing.JButton();
         JPindicesCheck = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jListColumnas = jListColumnas = new JCheckList();
         ;
-        jSeparator3 = new javax.swing.JSeparator();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel24 = new javax.swing.JLabel();
+        jComboTipoIndice = new javax.swing.JComboBox<>();
         jLabel11 = new javax.swing.JLabel();
+        jTextNombreIndice = new javax.swing.JTextField();
+        jButtonCrearIndice = new javax.swing.JButton();
+        jPanel9 = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        jComboIndices = new javax.swing.JComboBox<>();
+        jButton5 = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
         comboActualizar = new javax.swing.JComboBox<>();
@@ -292,7 +321,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -378,7 +407,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                                 .addGap(18, 18, 18)
                                 .addComponent(botonBorrarColumna))
                             .addComponent(jLabel17))
-                        .addGap(0, 42, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -409,7 +438,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(comboColumnasBorrar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(botonBorrarColumna))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PanelTabColumnas.addTab("Editar atributos", jPanel1);
@@ -417,9 +446,11 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel8.setText("Crear llave foranea");
 
-        jLabel7.setText("Atributo llave");
+        jCheckNombreForanea.setText("Agregar nombre");
 
-        ComboColumnaForanea.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+        jLabel10.setText("Atributo de referencia");
+
+        comboAtributosReferencia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
 
         jLabel9.setText("Tabla de referencia");
 
@@ -430,9 +461,9 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             }
         });
 
-        jLabel10.setText("Atributo de referencia");
+        jLabel7.setText("Atributo llave");
 
-        comboAtributosReferencia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
+        ComboColumnaForanea.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
 
         botonCrearForanea.setText("Crear llave");
         botonCrearForanea.addActionListener(new java.awt.event.ActionListener() {
@@ -440,8 +471,6 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 botonCrearForaneaActionPerformed(evt);
             }
         });
-
-        jCheckNombreForanea.setText("Agregar nombre");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -452,25 +481,19 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel8)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jCheckNombreForanea)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel7)
+                            .addComponent(jCheckNombreForanea))
                         .addGap(18, 18, 18)
-                        .addComponent(jTextNombreForanea, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(5, 5, 5)
-                                .addComponent(jLabel7))
-                            .addComponent(jLabel9))
-                        .addGap(28, 28, 28)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ComboColumnaForanea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(comboOtrasTablas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ComboColumnaForanea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel10)
-                        .addGap(18, 18, 18)
-                        .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextNombreForanea, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(botonCrearForanea))
-                .addContainerGap(292, Short.MAX_VALUE))
+                .addContainerGap(304, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -495,7 +518,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     .addComponent(comboAtributosReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(botonCrearForanea)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PanelTabColumnas.addTab("Crear foraneas", jPanel3);
@@ -559,7 +582,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                             .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel21)
                                 .addComponent(jTextAtributoReferencia, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -589,8 +612,75 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
 
         PanelTabColumnas.addTab("Borrar foraneas", jPanel4);
 
-        jLabel22.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel22.setText("Borrar indice");
+        JPindicesCheck.setBackground(new java.awt.Color(255, 255, 255));
+        JPindicesCheck.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jScrollPane1.setViewportView(jListColumnas);
+
+        javax.swing.GroupLayout JPindicesCheckLayout = new javax.swing.GroupLayout(JPindicesCheck);
+        JPindicesCheck.setLayout(JPindicesCheckLayout);
+        JPindicesCheckLayout.setHorizontalGroup(
+            JPindicesCheckLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1)
+        );
+        JPindicesCheckLayout.setVerticalGroup(
+            JPindicesCheckLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+
+        jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel24.setText("Tipo de indice");
+
+        jComboTipoIndice.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------", "Llave primaria", "Llave unica", "auto_increment" }));
+        jComboTipoIndice.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboTipoIndiceActionPerformed(evt);
+            }
+        });
+
+        jLabel11.setText("Nombre del indice");
+
+        jButtonCrearIndice.setText("Crear indice");
+        jButtonCrearIndice.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCrearIndiceActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel24)
+                    .addComponent(jLabel11)
+                    .addComponent(jTextNombreIndice, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+                    .addComponent(jButtonCrearIndice)
+                    .addComponent(jComboTipoIndice, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(71, Short.MAX_VALUE))
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel24)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jComboTipoIndice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTextNombreIndice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButtonCrearIndice)
+                .addContainerGap(43, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Crear indice", jPanel8);
+
+        jLabel12.setText("Nombre de indice");
 
         jComboIndices.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------" }));
         jComboIndices.addActionListener(new java.awt.event.ActionListener() {
@@ -606,44 +696,33 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             }
         });
 
-        jLabel23.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel23.setText("Crear nuevo indice");
-
-        jLabel24.setText("Tipo de indice");
-
-        jComboTipoIndice.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "------------", "Llave primaria", "Llave unica", "auto_increment" }));
-        jComboTipoIndice.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboTipoIndiceActionPerformed(evt);
-            }
-        });
-
-        jLabel6.setText("Seleccionar columnas");
-
-        jButtonCrearIndice.setText("Crear indice");
-        jButtonCrearIndice.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonCrearIndiceActionPerformed(evt);
-            }
-        });
-
-        JPindicesCheck.setBackground(new java.awt.Color(255, 255, 255));
-        JPindicesCheck.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        jScrollPane1.setViewportView(jListColumnas);
-
-        javax.swing.GroupLayout JPindicesCheckLayout = new javax.swing.GroupLayout(JPindicesCheck);
-        JPindicesCheck.setLayout(JPindicesCheckLayout);
-        JPindicesCheckLayout.setHorizontalGroup(
-            JPindicesCheckLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel12)
+                    .addComponent(jButton5)
+                    .addComponent(jComboIndices, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(71, Short.MAX_VALUE))
         );
-        JPindicesCheckLayout.setVerticalGroup(
-            JPindicesCheckLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jComboIndices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButton5)
+                .addContainerGap(106, Short.MAX_VALUE))
         );
 
-        jLabel11.setText("Nombre del indice");
+        jTabbedPane1.addTab("Borrar indice", jPanel9);
+
+        jLabel6.setText("Columnas del indice");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -651,68 +730,26 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jButtonCrearIndice)
-                                        .addComponent(jLabel24)
-                                        .addComponent(jLabel11))
-                                    .addGap(18, 18, 18)
-                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jComboTipoIndice, 0, 160, Short.MAX_VALUE)
-                                        .addComponent(jTextNombreIndice)))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                    .addComponent(jLabel22)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jComboIndices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGap(14, 14, 14)))
-                    .addComponent(jLabel23)
-                    .addComponent(jButton5))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(18, 92, Short.MAX_VALUE)
                         .addComponent(jLabel6)
-                        .addGap(89, 89, 89))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(JPindicesCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                        .addGap(0, 217, Short.MAX_VALUE))
+                    .addComponent(JPindicesCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel23)
-                    .addComponent(jLabel6))
-                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel24)
-                            .addComponent(jComboTipoIndice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextNombreIndice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButtonCrearIndice)
-                        .addGap(18, 18, 18)
-                        .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel22)
-                            .addComponent(jComboIndices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton5)
-                        .addGap(0, 27, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(JPindicesCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                        .addComponent(JPindicesCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jTabbedPane1))
+                .addContainerGap())
         );
 
         PanelTabColumnas.addTab("Indices", jPanel2);
@@ -813,7 +850,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                                         .addComponent(jLabel16)
                                         .addGap(18, 18, 18)
                                         .addComponent(TextNuevoLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                        .addContainerGap(52, Short.MAX_VALUE))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -877,8 +914,8 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(PanelTabColumnas)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PanelTabColumnas, javax.swing.GroupLayout.DEFAULT_SIZE, 605, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -894,9 +931,9 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                 .addComponent(PanelTabColumnas)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
+                    .addComponent(jButton2)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButton3))
                 .addContainerGap())
         );
 
@@ -1164,7 +1201,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
                     break;
                 default:
                     if (lista.size() != 1) {
-                        JOptionPane.showMessageDialog(null, "El indice unico es para una sola columna", "Error", 2);
+                        JOptionPane.showMessageDialog(null, "El autoincrement es para una columna", "Error", 2);
                         setCursor(Cursor.DEFAULT_CURSOR);
                         return;
                     }
@@ -1189,18 +1226,36 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jComboTipoIndiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboTipoIndiceActionPerformed
-        if(jComboTipoIndice.getSelectedIndex() > 0){
+        if (jComboTipoIndice.getSelectedIndex() > 0) {
             JPindicesCheck.setEnabled(true);
             jListColumnas.setEnabled(true);
+            JCheckList listaCheck = (JCheckList) jListColumnas;
+            listaCheck.removeAllCheck();
+            jComboIndices.setSelectedIndex(0);
         }
     }//GEN-LAST:event_jComboTipoIndiceActionPerformed
 
     private void jComboIndicesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboIndicesActionPerformed
-        if(jComboIndices.getSelectedIndex() > 0){
-            JPindicesCheck.setEnabled(false);
-            jListColumnas.setEnabled(false);
+        try {
+            if (jComboIndices.getSelectedIndex() > 0) {
+                JPindicesCheck.setEnabled(false);
+                jListColumnas.setEnabled(true);
+
+                JCheckList listaCheck = (JCheckList) jListColumnas;
+                listaCheck.removeAllCheck();
+                ResultSet rs = op.ejecutarConsulta(generador.getColumsConstraint(
+                        BD, tabla, jComboIndices.getSelectedItem().toString()));
+                while (rs.next()) {
+                    String item = rs.getString("column");
+                    listaCheck.setCheckedAt(item, true);
+                }
+                jListColumnas.setEnabled(false);
+                jComboTipoIndice.setSelectedIndex(0);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(modificarTabla.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }//GEN-LAST:event_jComboIndicesActionPerformed
 
 
@@ -1236,6 +1291,7 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
@@ -1246,8 +1302,6 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
-    private javax.swing.JLabel jLabel22;
-    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1265,11 +1319,13 @@ public class modificarTabla extends javax.swing.JFrame implements KeyListener {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextAtributoReferencia;
     private javax.swing.JTextField jTextAtributollave;

@@ -471,31 +471,40 @@ public class Fachada {
         return provider;
     }
     
-    public Vector<String> getMysqlDataTypes(){
+    public ArrayList<String> getMysqlDataTypes(){
         String str = "TINYINT,SMALLINT,INT,MEDIUMINT,BIGINT,FLOAT,DOUBLE,CHAR,VARCHAR,TINYTEXT,TEXT,";
         str += "LONGTEXT,DATE,TIME,YEAR,DATETIME,TIMESTAMP,BYNARY,VARBINARY,BLOB,MEDIUMBLOB,LONGBLOB,ENUM";
         
-        Vector<String> vs = new Vector<>();
+        ArrayList<String> vs = new ArrayList<>();
         String x[] = str.split(",");
         vs.addAll(Arrays.asList(x));
         return vs;
     }
     
-    public Vector<String> getPostgresDataTypes(){
+    public ArrayList<String> getPostgresDataTypes(){
         String str = "SMALLINT,INTEGER,BIGINT,FLOAT,DOUBLE,FLOAT8,DECIMAL,BOOLEAN,CHAR,VARCHAR,";
         str += "CHARACTER VARYING,TEXT,DATE,TIME,TIMESTAMP,BYTEA,BIT,VARBIT,CIDR,INET";
         
-        Vector<String> vs = new Vector<>();
+        ArrayList<String> vs = new ArrayList<>();
         String x[] = str.split(",");
         vs.addAll(Arrays.asList(x));
         return vs;
     }
     
-    public Vector<String> getOracleDataTypes(){
+    public ArrayList<String> getOracleDataTypes(){
         String str = "NUMBER,FLOAT,BINARY_DOUBLE,CHAR,VARCHAR2,NCHAR,NVARCHAR2,LONG,DATE,TIMESTAMP,";
         str += "CLOB,NCLOB,BFILE,RAW,LONG RAW";
         
-        Vector<String> vs = new Vector<>();
+        ArrayList<String> vs = new ArrayList<>();
+        String x[] = str.split(",");
+        vs.addAll(Arrays.asList(x));
+        return vs;
+    }
+    
+    public ArrayList<String> getSQLiteDataTypes(){
+        String str = "INTEGER,REAL,NUMERIC,TEXT,BLOB";
+        
+        ArrayList<String> vs = new ArrayList<>();
         String x[] = str.split(",");
         vs.addAll(Arrays.asList(x));
         return vs;

@@ -441,7 +441,7 @@ public class GeneradorMySQL extends GeneradorSQL {
 
     @Override
     public String getIndexs(String db, String table) {
-        String z = "SELECT TABLE_NAME AS 'tabla', INDEX_NAME AS 'indice' FROM INFORMATION_SCHEMA.STATISTICS ";
+        String z = "SELECT DISTINCT TABLE_NAME AS 'tabla', INDEX_NAME AS 'indice' FROM INFORMATION_SCHEMA.STATISTICS ";
         z += "WHERE TABLE_SCHEMA = '" + db + "' AND TABLE_NAME = '" + table + "';";
         return z;
     }
@@ -469,7 +469,8 @@ public class GeneradorMySQL extends GeneradorSQL {
     
     @Override
     public String getColumsConstraint(String db, String table, String constraint){
-        String z = "SELECT key_column_usage.column_name FROM information_schema.key_column_usage ";
+        String z = "SELECT key_column_usage.column_name as 'column', ordinal_position as 'index' ";
+        z += "FROM information_schema.key_column_usage ";
         z += "WHERE table_schema = '" + db + "' AND constraint_name = '" + constraint + "' ";
         z += "AND table_name = '" + table + "';";
         return z;
